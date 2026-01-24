@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+
+@layer base {
+  * {
+    @apply antialiased;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-cream-50 text-charcoal-900 font-sans transition-colors duration-300;
+  }
+}
+
+@layer components {
+
+  /* Custom component styles will go here */
+  .btn-primary {
+    @apply bg-sage-600 hover:bg-sage-700 text-white font-medium px-6 py-3 rounded-lg transition-colors duration-200;
+  }
+
+  .btn-secondary {
+    @apply bg-charcoal-100 hover:bg-charcoal-200 text-charcoal-900 font-medium px-6 py-3 rounded-lg transition-colors duration-200;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-charcoal-100 p-6 transition-colors duration-300;
+  }
+}
