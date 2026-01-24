@@ -29,8 +29,8 @@ To cut through the noise of fake financial gurus and provide a vetted roadmap fo
    ```
 3. Set up environment variables in `.env`:
    ```env
-   VITE_SUPABASE_URL=your_project_url
-   VITE_SUPABASE_ANON_KEY=your_anon_key
+   VITE_SUPABASE_URL=https://kxkpfcepowplnciinsps.supabase.co
+   VITE_SUPABASE_ANON_KEY=sb_publishable_ANLHFeacDU53K9UvqQU_uw_QZs6kj9W
    ```
 4. Run the database setup scripts found in `/supabase` in your Supabase SQL Editor.
 5. Start the development server:
