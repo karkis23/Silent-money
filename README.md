@@ -1,6 +1,8 @@
 # 🤫 Silent Money
 
 > **Earn quietly. Build steadily.**
+>
+> 🌐 **Live Demo**: [https://silent-money.vercel.app/](https://silent-money.vercel.app/)
 
 Silent Money is a curated platform for discovering **realistic, India-specific** passive income opportunities. Unlike "get-rich-quick" schemes, we focus on data-backed assessments, real ROI calculations, and honest risk disclosures.
 

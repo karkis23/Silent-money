@@ -662,7 +662,7 @@ refactor(api): optimize idea fetching query
 
 ### Project Repository
 - **GitHub**: https://github.com/karkis23/Silent-money
-- **Live URL**: (to be deployed on Vercel)
+- **Live URL**: https://silent-money.vercel.app/
 
 ### Supabase Project
 - **Project Name**: silent-money
