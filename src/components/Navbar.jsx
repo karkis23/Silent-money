@@ -26,6 +26,7 @@ export default function Navbar() {
         { name: 'Income Ideas', path: '/ideas', protected: true },
         { name: 'Franchise Business', path: '/franchise', protected: true },
         { name: 'About', path: '/about', protected: false },
+        { name: 'Dashboard', path: '/dashboard', protected: true },
     ];
 
     return (
@@ -153,13 +154,6 @@ export default function Navbar() {
                                 <hr className="border-charcoal-100" />
                                 {user ? (
                                     <>
-                                        <Link
-                                            to="/dashboard"
-                                            className="block text-base font-semibold text-charcoal-900"
-                                            onClick={() => setIsMenuOpen(false)}
-                                        >
-                                            Dashboard
-                                        </Link>
                                         <button
                                             onClick={() => {
                                                 handleSignOut();

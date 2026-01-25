@@ -239,7 +239,7 @@ export default function LandingPage() {
                         </p>
                         <div className="flex flex-col sm:flex-row gap-6 justify-center relative z-10">
                             <Link
-                                to={user ? '/ideas' : '/signup'}
+                                to={user ? '/dashboard' : '/signup'}
                                 className="bg-white text-primary-900 font-bold px-10 py-5 rounded-2xl hover:bg-cream-50 transition-all text-xl shadow-xl hover:scale-105"
                             >
                                 {user ? 'View Dashboard' : 'Join Silent Money'}
