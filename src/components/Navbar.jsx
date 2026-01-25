@@ -42,9 +42,14 @@ export default function Navbar() {
                         >
                             SM
                         </motion.div>
-                        <span className="text-xl font-bold text-charcoal-950 tracking-tight">
-                            Silent Money
-                        </span>
+                        <div className="flex items-center gap-2">
+                            <span className="text-xl font-bold text-charcoal-950 tracking-tight">
+                                Silent Money
+                            </span>
+                            <span className="bg-charcoal-100 text-charcoal-500 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest border border-charcoal-200/50">
+                                Beta
+                            </span>
+                        </div>
                     </Link>
 
                     {/* Desktop Navigation */}
