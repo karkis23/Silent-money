@@ -27,21 +27,21 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
+        <div className="min-h-screen flex items-center justify-center px-4 py-12 pt-32">
             <div className="max-w-md w-full">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-charcoal-900 mb-2">
-                        Welcome Back
+                    <h1 className="text-4xl font-black text-charcoal-950 mb-3 tracking-tight">
+                        Welcome <span className="text-primary-600">Back</span>
                     </h1>
-                    <p className="text-charcoal-600">
-                        Sign in to continue your journey
+                    <p className="text-charcoal-500 font-medium">
+                        Securely access your income motherboard.
                     </p>
                 </div>
 
-                <div className="card">
+                <div className="card shadow-2xl border-none">
                     {error && (
-                        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                            {error}
+                        <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm font-semibold">
+                            ⚠️ {error}
                         </div>
                     )}
 
@@ -49,7 +49,7 @@ export default function LoginPage() {
                         <div>
                             <label
                                 htmlFor="email"
-                                className="block text-sm font-medium text-charcoal-700 mb-2"
+                                className="block text-xs font-black text-charcoal-400 uppercase tracking-widest mb-2"
                             >
                                 Email Address
                             </label>
@@ -59,54 +59,59 @@ export default function LoginPage() {
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-4 py-3 border border-charcoal-200 rounded-lg focus:ring-2 focus:ring-sage-600 focus:border-transparent outline-none transition-all"
-                                placeholder="you@example.com"
+                                className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-500 focus:bg-white outline-none transition-all placeholder:text-charcoal-300"
+                                placeholder="name@company.com"
                             />
                         </div>
 
                         <div>
-                            <label
-                                htmlFor="password"
-                                className="block text-sm font-medium text-charcoal-700 mb-2"
-                            >
-                                Password
-                            </label>
+                            <div className="flex justify-between items-center mb-2">
+                                <label
+                                    htmlFor="password"
+                                    className="block text-xs font-black text-charcoal-400 uppercase tracking-widest"
+                                >
+                                    Password
+                                </label>
+                                <Link
+                                    to="/forgot-password"
+                                    className="text-xs font-bold text-primary-600 hover:text-primary-700"
+                                >
+                                    Forgot?
+                                </Link>
+                            </div>
                             <input
                                 id="password"
                                 type="password"
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full px-4 py-3 border border-charcoal-200 rounded-lg focus:ring-2 focus:ring-sage-600 focus:border-transparent outline-none transition-all"
+                                className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-500 focus:bg-white outline-none transition-all placeholder:text-charcoal-300"
                                 placeholder="••••••••"
                             />
-                            <div className="flex justify-end mt-1">
-                                <Link
-                                    to="/forgot-password"
-                                    className="text-sm font-medium text-sage-600 hover:text-sage-500"
-                                >
-                                    Forgot password?
-                                </Link>
-                            </div>
                         </div>
 
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full btn-primary py-4 text-lg shadow-xl shadow-primary-200"
                         >
-                            {loading ? 'Signing in...' : 'Sign In'}
+                            {loading ? (
+                                <span className="flex items-center justify-center gap-2">
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    Authenticating...
+                                </span>
+                            ) : 'Sign In'}
                         </button>
                     </form>
 
-                    <div className="mt-6 text-center text-sm">
-                        <p className="text-charcoal-600">
-                            Don't have an account?{' '}
+                    <div className="mt-8 text-center text-sm font-medium">
+                        <p className="text-charcoal-500">
+                            New here?{' '}
                             <Link
                                 to="/signup"
-                                className="text-sage-600 hover:text-sage-700 font-medium"
+                                className="text-primary-600 hover:text-primary-700 font-bold"
                             >
-                                Sign up
+                                Create an account
                             </Link>
                         </p>
                     </div>

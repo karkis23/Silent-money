@@ -236,57 +236,58 @@ export default function IdeaDetailPage() {
     }
 
     return (
-        <div className="min-h-screen bg-cream-50 pb-20">
+        <div className="min-h-screen bg-cream-50 pb-20 pt-32">
             {/* Hero Header */}
             <div className="bg-white border-b border-charcoal-100">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                     <div className="max-w-4xl mx-auto">
-                        <Link to="/ideas" className="text-sm text-charcoal-500 hover:text-sage-600 mb-6 inline-flex items-center">
-                            ← Back to Ideas
+                        <Link to="/ideas" className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] mb-8 inline-flex items-center gap-2 hover:text-primary-600 transition-colors">
+                            ← Back to Discovery feed
                         </Link>
 
-                        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-10">
                             <div>
-                                <div className="flex items-center gap-3 mb-4">
-                                    <span className="bg-charcoal-100 text-charcoal-700 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <span className="bg-charcoal-50 text-charcoal-900 border border-charcoal-100 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
                                         {idea.categories?.icon} {idea.categories?.name}
                                     </span>
                                     {idea.is_premium && (
-                                        <span className="bg-sage-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                        <span className="bg-primary-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
                                             ⭐ Premium
                                         </span>
                                     )}
                                 </div>
 
-                                <h1 className="text-3xl md:text-4xl font-bold text-charcoal-900 mb-4 leading-tight">
+                                <h1 className="text-4xl md:text-5xl font-black text-charcoal-950 mb-6 leading-tight tracking-tighter">
                                     {idea.title}
                                 </h1>
 
-                                <p className="text-xl text-charcoal-600 leading-relaxed max-w-2xl">
+                                <p className="text-xl text-charcoal-600 font-medium leading-relaxed max-w-2xl">
                                     {idea.short_description}
                                 </p>
                             </div>
 
-                            <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
+                            <div className="flex flex-col sm:flex-row gap-4 flex-shrink-0">
                                 <button
                                     onClick={handleVoteToggle}
                                     disabled={voteLoading}
-                                    className={`btn-secondary flex items-center gap-2 px-6 ${hasUpvoted ? 'border-sage-500 text-sage-700 bg-sage-50' : ''}`}
+                                    className={`px-8 py-5 rounded-2xl border-2 transition-all flex items-center justify-center gap-3 font-black text-lg ${hasUpvoted ? 'bg-primary-50 border-primary-600 text-primary-600 shadow-lg' : 'border-charcoal-200 text-charcoal-400 hover:border-primary-600 hover:text-primary-600'}`}
                                 >
                                     <span className={hasUpvoted ? 'animate-bounce' : ''}>
                                         {hasUpvoted ? '❤️' : '🤍'}
                                     </span>
-                                    <span className="font-bold">{voteCount}</span>
-                                    <span>{hasUpvoted ? 'Upvoted' : 'Upvote'}</span>
+                                    <span>{voteCount}</span>
                                 </button>
 
                                 <button
                                     onClick={handleSaveToggle}
                                     disabled={saveLoading}
-                                    className={`btn-primary flex items-center gap-2 px-6 ${isSaved ? 'bg-charcoal-800 hover:bg-charcoal-900' : ''
+                                    className={`px-8 py-5 rounded-2xl font-black text-lg transition-all ${isSaved
+                                        ? 'bg-primary-600 text-white shadow-2xl shadow-primary-200'
+                                        : 'bg-charcoal-900 text-white hover:bg-primary-600 shadow-2xl shadow-charcoal-100'
                                         }`}
                                 >
-                                    {saveLoading ? '...' : (isSaved ? '✓ Saved' : '🔖 Save Idea')}
+                                    {saveLoading ? '...' : (isSaved ? '✓ Saved' : '🔖 Save Blueprint')}
                                 </button>
                             </div>
                         </div>

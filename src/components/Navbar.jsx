@@ -1,79 +1,116 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Navbar() {
-    const { user, signOut } = useAuth();
+    const { user, profile, signOut } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 20);
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const handleSignOut = async () => {
         await signOut();
         navigate('/');
     };
 
+    const navLinks = [
+        { name: 'Home', path: '/', protected: false },
+        { name: 'Income Ideas', path: '/ideas', protected: true },
+        { name: 'Franchise Business', path: '/franchise', protected: true },
+        { name: 'About', path: '/about', protected: false },
+    ];
+
     return (
-        <nav className="bg-white border-b border-charcoal-100 sticky top-0 z-50">
+        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/80 backdrop-blur-lg border-b border-charcoal-100 py-3 shadow-sm' : 'bg-transparent py-5'
+            }`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center h-16">
+                <div className="flex justify-between items-center">
                     {/* Logo */}
                     <Link to="/" className="flex items-center gap-3 group">
-                        <div className="bg-charcoal-900 text-white font-bold text-xl px-2.5 py-1 rounded-lg group-hover:bg-sage-600 transition-colors">
+                        <motion.div
+                            whileHover={{ rotate: 5, scale: 1.05 }}
+                            className="bg-primary-600 text-white font-bold text-xl px-2.5 py-1 rounded-xl shadow-lg shadow-primary-200"
+                        >
                             SM
-                        </div>
-                        <span className="text-xl font-bold text-charcoal-900 tracking-tight group-hover:text-sage-700 transition-colors">
+                        </motion.div>
+                        <span className="text-xl font-bold text-charcoal-950 tracking-tight">
                             Silent Money
                         </span>
                     </Link>
 
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center space-x-8">
-                        <Link
-                            to="/ideas"
-                            className="text-charcoal-700 hover:text-sage-600 font-medium transition-colors"
-                        >
-                            Income Ideas
-                        </Link>
+                        {navLinks.map((link) => (
+                            (!link.protected || user) && (
+                                <Link
+                                    key={link.path}
+                                    to={link.path}
+                                    className={`relative text-sm font-semibold transition-colors ${location.pathname === link.path ? 'text-primary-600' : 'text-charcoal-600 hover:text-primary-500'
+                                        }`}
+                                >
+                                    {link.name}
+                                    {location.pathname === link.path && (
+                                        <motion.div
+                                            layoutId="nav-underline"
+                                            className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary-600 rounded-full"
+                                        />
+                                    )}
+                                </Link>
+                            )
+                        ))}
 
-                        {user ? (
-                            <>
-                                <Link
-                                    to="/dashboard"
-                                    className="text-charcoal-700 hover:text-sage-600 font-medium transition-colors"
-                                >
-                                    Dashboard
-                                </Link>
-                                <button
-                                    onClick={handleSignOut}
-                                    className="text-charcoal-700 hover:text-sage-600 font-medium transition-colors"
-                                >
-                                    Sign Out
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <Link
-                                    to="/login"
-                                    className="text-charcoal-700 hover:text-sage-600 font-medium transition-colors"
-                                >
-                                    Login
-                                </Link>
-                                <Link
-                                    to="/signup"
-                                    className="btn-primary"
-                                >
-                                    Get Started
-                                </Link>
-                            </>
-                        )}
+                        <div className="flex items-center gap-4 ml-6">
+                            {user ? (
+                                <div className="flex items-center gap-4">
+                                    <Link
+                                        to="/edit-profile"
+                                        className="w-10 h-10 rounded-full border-2 border-transparent hover:border-primary-600 transition-all overflow-hidden bg-charcoal-100 flex items-center justify-center group"
+                                    >
+                                        {profile?.avatar_url ? (
+                                            <img src={profile.avatar_url} className="w-full h-full object-cover" alt="Profile" />
+                                        ) : (
+                                            <span className="text-primary-600 font-bold text-sm">{profile?.full_name?.charAt(0) || user.email.charAt(0).toUpperCase()}</span>
+                                        )}
+                                    </Link>
+                                    <button
+                                        onClick={handleSignOut}
+                                        className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest hover:text-red-500 transition-colors"
+                                    >
+                                        Sign Out
+                                    </button>
+                                </div>
+                            ) : (
+                                <>
+                                    <Link
+                                        to="/login"
+                                        className="text-sm font-semibold text-charcoal-600 hover:text-primary-500"
+                                    >
+                                        Login
+                                    </Link>
+                                    <Link
+                                        to="/signup"
+                                        className="btn-primary py-2 px-5 text-sm"
+                                    >
+                                        Get Started
+                                    </Link>
+                                </>
+                            )}
+                        </div>
                     </div>
 
                     {/* Mobile menu button */}
                     <div className="md:hidden flex items-center gap-4">
                         <button
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
-                            className="p-2 rounded-lg hover:bg-charcoal-50 text-charcoal-700"
+                            className="p-2 rounded-xl hover:bg-charcoal-50 text-charcoal-950 transition-colors"
                         >
                             <svg
                                 className="w-6 h-6"
@@ -82,49 +119,43 @@ export default function Navbar() {
                                 viewBox="0 0 24 24"
                             >
                                 {isMenuOpen ? (
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 ) : (
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M4 6h16M4 12h16M4 18h16"
-                                    />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                                 )}
                             </svg>
                         </button>
                     </div>
                 </div>
 
-                {/* Mobile Navigation with Animation */}
+                {/* Mobile Navigation */}
                 <AnimatePresence>
                     {isMenuOpen && (
                         <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="md:hidden overflow-hidden bg-white border-t border-charcoal-100"
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-charcoal-100 shadow-xl"
                         >
-                            <div className="py-4 space-y-3">
-                                <Link
-                                    to="/ideas"
-                                    className="block px-4 py-2 text-charcoal-700 hover:bg-charcoal-50 rounded-lg"
-                                    onClick={() => setIsMenuOpen(false)}
-                                >
-                                    Income Ideas
-                                </Link>
-
+                            <div className="p-4 space-y-4">
+                                {navLinks.map((link) => (
+                                    (!link.protected || user) && (
+                                        <Link
+                                            key={link.path}
+                                            to={link.path}
+                                            className="block text-base font-semibold text-charcoal-900"
+                                            onClick={() => setIsMenuOpen(false)}
+                                        >
+                                            {link.name}
+                                        </Link>
+                                    )
+                                ))}
+                                <hr className="border-charcoal-100" />
                                 {user ? (
                                     <>
                                         <Link
                                             to="/dashboard"
-                                            className="block px-4 py-2 text-charcoal-700 hover:bg-charcoal-50 rounded-lg"
+                                            className="block text-base font-semibold text-charcoal-900"
                                             onClick={() => setIsMenuOpen(false)}
                                         >
                                             Dashboard
@@ -134,28 +165,28 @@ export default function Navbar() {
                                                 handleSignOut();
                                                 setIsMenuOpen(false);
                                             }}
-                                            className="block w-full text-left px-4 py-2 text-charcoal-700 hover:bg-charcoal-50 rounded-lg"
+                                            className="w-full text-left text-base font-semibold text-charcoal-900"
                                         >
                                             Sign Out
                                         </button>
                                     </>
                                 ) : (
-                                    <>
+                                    <div className="grid grid-cols-2 gap-4">
                                         <Link
                                             to="/login"
-                                            className="block px-4 py-2 text-charcoal-700 hover:bg-charcoal-50 rounded-lg"
+                                            className="btn-secondary text-center py-2"
                                             onClick={() => setIsMenuOpen(false)}
                                         >
                                             Login
                                         </Link>
                                         <Link
                                             to="/signup"
-                                            className="block mx-4 text-center btn-primary"
+                                            className="btn-primary text-center py-2"
                                             onClick={() => setIsMenuOpen(false)}
                                         >
-                                            Get Started
+                                            Join Now
                                         </Link>
-                                    </>
+                                    </div>
                                 )}
                             </div>
                         </motion.div>

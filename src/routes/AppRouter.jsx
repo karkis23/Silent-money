@@ -16,11 +16,21 @@ import DisclaimerPage from '../pages/DisclaimerPage';
 import MyIdeasPage from '../pages/MyIdeasPage';
 import EditProfilePage from '../pages/EditProfilePage';
 import EditIdeaPage from '../pages/EditIdeaPage';
+import FranchisePage from '../pages/FranchisePage';
+import PostFranchisePage from '../pages/PostFranchisePage';
+import FranchiseDetailPage from '../pages/FranchiseDetailPage';
+import EditFranchisePage from '../pages/EditFranchisePage';
+import ScrollToTop from '../components/ScrollToTop';
 
 const router = createBrowserRouter([
     {
         path: '/',
-        element: <Layout />,
+        element: (
+            <>
+                <ScrollToTop />
+                <Layout />
+            </>
+        ),
         children: [
             {
                 index: true,
@@ -43,14 +53,6 @@ const router = createBrowserRouter([
                 element: <DisclaimerPage />,
             },
             {
-                path: 'ideas',
-                element: <IdeasPage />,
-            },
-            {
-                path: 'ideas/:slug',
-                element: <IdeaDetailPage />,
-            },
-            {
                 path: 'login',
                 element: <LoginPage />,
             },
@@ -61,6 +63,38 @@ const router = createBrowserRouter([
             {
                 path: 'forgot-password',
                 element: <ForgotPasswordPage />,
+            },
+            {
+                path: 'ideas',
+                element: (
+                    <ProtectedRoute>
+                        <IdeasPage />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: 'ideas/:slug',
+                element: (
+                    <ProtectedRoute>
+                        <IdeaDetailPage />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: 'franchise',
+                element: (
+                    <ProtectedRoute>
+                        <FranchisePage />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: 'franchise/:slug',
+                element: (
+                    <ProtectedRoute>
+                        <FranchiseDetailPage />
+                    </ProtectedRoute>
+                ),
             },
             {
                 path: 'dashboard',
@@ -99,6 +133,22 @@ const router = createBrowserRouter([
                 element: (
                     <ProtectedRoute>
                         <EditIdeaPage />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: 'post-franchise',
+                element: (
+                    <ProtectedRoute>
+                        <PostFranchisePage />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: 'edit-franchise/:id',
+                element: (
+                    <ProtectedRoute>
+                        <EditFranchisePage />
                     </ProtectedRoute>
                 ),
             },

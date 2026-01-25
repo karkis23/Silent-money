@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { authService } from '../services/supabase';
+import { authService, supabase } from '../services/supabase';
 
 const AuthContext = createContext({});
 
@@ -13,14 +13,27 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [profile, setProfile] = useState(null);
     const [session, setSession] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    const fetchProfile = async (userId) => {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userId)
+            .single();
+
+        if (data) setProfile(data);
+    };
 
     useEffect(() => {
         // Get initial session
         authService.getSession().then(({ session }) => {
             setSession(session);
-            setUser(session?.user ?? null);
+            const currentUser = session?.user ?? null;
+            setUser(currentUser);
+            if (currentUser) fetchProfile(currentUser.id);
             setLoading(false);
         });
 
@@ -29,7 +42,10 @@ export const AuthProvider = ({ children }) => {
             data: { subscription },
         } = authService.onAuthStateChange((_event, session) => {
             setSession(session);
-            setUser(session?.user ?? null);
+            const currentUser = session?.user ?? null;
+            setUser(currentUser);
+            if (currentUser) fetchProfile(currentUser.id);
+            else setProfile(null);
             setLoading(false);
         });
 
@@ -40,8 +56,10 @@ export const AuthProvider = ({ children }) => {
 
     const value = {
         user,
+        profile,
         session,
         loading,
+        refreshProfile: () => user && fetchProfile(user.id),
         signUp: authService.signUp,
         signIn: authService.signIn,
         signOut: authService.signOut,
