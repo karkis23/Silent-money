@@ -106,8 +106,8 @@ export default function IdeasPage() {
                 {/* 2. COMPACT INTELLIGENCE BAR (Unified Filter) */}
                 <section className="bg-white border border-charcoal-100 rounded-[2rem] shadow-premium mb-12 relative">
                     {/* Top Row: Search & Sort */}
-                    <div className="flex flex-col md:flex-row border-b border-charcoal-50 rounded-t-[2rem] overflow-hidden">
-                        <div className="flex-1 relative border-r border-charcoal-50">
+                    <div className="flex flex-col md:flex-row border-b border-charcoal-50">
+                        <div className="flex-1 relative border-r border-charcoal-50 rounded-t-[2rem] md:rounded-tr-none md:rounded-tl-[2rem] overflow-hidden">
                             <span className="absolute left-6 top-1/2 -translate-y-1/2 text-charcoal-400">🔍</span>
                             <input
                                 type="text"
@@ -138,7 +138,7 @@ export default function IdeasPage() {
                             <div className="relative sort-dropdown-container">
                                 <button
                                     onClick={() => setShowSortDropdown(!showSortDropdown)}
-                                    className={`h-full px-8 py-5 flex items-center gap-3 cursor-pointer transition-all ${showSortDropdown ? 'bg-charcoal-50' : 'hover:bg-charcoal-50/50'}`}
+                                    className={`h-full px-8 py-5 flex items-center gap-3 cursor-pointer transition-all rounded-tr-[2rem] md:rounded-tr-[2rem] md:rounded-tl-none ${showSortDropdown ? 'bg-charcoal-50' : 'hover:bg-charcoal-50/50'}`}
                                 >
                                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-charcoal-900 whitespace-nowrap">
                                         {sortBy === 'created_at' ? 'Recency Index' :
