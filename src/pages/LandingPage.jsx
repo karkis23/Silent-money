@@ -235,7 +235,7 @@ export default function LandingPage() {
                             Stop Trading Time <br />For Money.
                         </h2>
                         <p className="text-xl mb-12 text-primary-100 max-w-2xl mx-auto font-medium">
-                            Join 10,000+ smart Indians building their passive portfolios today.
+                            Join 10,000+ smart Indians building their portfolios today.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-6 justify-center relative z-10">
                             <Link
