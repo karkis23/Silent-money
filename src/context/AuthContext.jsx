@@ -18,13 +18,19 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     const fetchProfile = async (userId) => {
-        const { data } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', userId)
-            .single();
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', userId)
+                .maybeSingle();
 
-        if (data) setProfile(data);
+            if (error) throw error;
+            setProfile(data || null);
+        } catch (err) {
+            console.error('Profile sync error:', err);
+            setProfile(null);
+        }
     };
 
     useEffect(() => {

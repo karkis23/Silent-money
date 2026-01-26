@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { supabase } from '../services/supabase';
 import { motion } from 'framer-motion';
 import BackButton from '../components/BackButton';
+import SEO from '../components/SEO';
 
 const PRESET_AVATARS = [
     'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
@@ -43,13 +44,14 @@ export default function EditProfilePage() {
         try {
             const { error } = await supabase
                 .from('profiles')
-                .update({
+                .upsert({
+                    id: user.id,
+                    email: user.email,
                     full_name: name,
                     bio,
                     avatar_url: avatarUrl,
                     updated_at: new Date()
-                })
-                .eq('id', user.id);
+                });
 
             if (error) throw error;
 
@@ -66,6 +68,7 @@ export default function EditProfilePage() {
 
     return (
         <div className="min-h-screen bg-cream-50 pt-32 pb-20 px-4">
+            <SEO title="Commander Configuration | Identity Matrix" />
             <div className="max-w-xl mx-auto">
                 <div className="mb-10 flex flex-col items-start gap-4">
                     <BackButton label="Back" />
