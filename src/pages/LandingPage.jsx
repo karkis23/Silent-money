@@ -100,8 +100,15 @@ export default function LandingPage() {
                             {/* Trust Badge */}
                             <motion.div variants={fadeInUp} className="mt-12 pt-8 border-t border-charcoal-100 flex items-center gap-6">
                                 <div className="flex -space-x-3">
-                                    {[1, 2, 3, 4].map(i => (
-                                        <div key={i} className={`w-10 h-10 rounded-full border-2 border-white bg-charcoal-${i * 100 + 100}`} />
+                                    {[
+                                        'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
+                                        'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
+                                        'https://api.dicebear.com/7.x/avataaars/svg?seed=Aiden',
+                                        'https://api.dicebear.com/7.x/avataaars/svg?seed=Nala'
+                                    ].map((url, i) => (
+                                        <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden shadow-sm bg-charcoal-100">
+                                            <img src={url} alt="User" className="w-full h-full object-cover" />
+                                        </div>
                                     ))}
                                 </div>
                                 <p className="text-sm text-charcoal-500 font-medium">
