@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import ROICalculator from '../components/ROICalculator';
 import ReviewsSection from '../components/ReviewsSection';
 import SEO from '../components/SEO';
+import BackButton from '../components/BackButton';
 
 export default function IdeaDetailPage() {
     const { slug } = useParams();
@@ -250,9 +251,7 @@ export default function IdeaDetailPage() {
             <div className="bg-white border-b border-charcoal-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                     <div className="max-w-4xl mx-auto">
-                        <Link to="/ideas" className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] mb-8 inline-flex items-center gap-2 hover:text-primary-600 transition-colors">
-                            ← Back to Discovery feed
-                        </Link>
+                        <BackButton label="Back to Discovery Feed" className="mb-8" />
 
                         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-10">
                             <div>

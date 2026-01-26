@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../context/AuthContext';
+import BackButton from '../components/BackButton';
+import SEO from '../components/SEO';
 
 export default function EditIdeaPage() {
     const { id } = useParams();
@@ -119,15 +121,11 @@ export default function EditIdeaPage() {
 
     return (
         <div className="min-h-screen bg-cream-50 pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+            <SEO title={`Modify ${formData.title || 'Blueprint'}`} />
             <div className="max-w-4xl mx-auto">
                 <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <div>
-                        <button
-                            onClick={() => navigate(-1)}
-                            className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest hover:text-primary-600 transition-colors mb-4 flex items-center gap-2"
-                        >
-                            ← Return to Command Base
-                        </button>
+                        <BackButton label="Return to Command Base" className="mb-4" />
                         <h1 className="text-4xl md:text-5xl font-black text-charcoal-950 tracking-tighter">
                             Modify <span className="text-primary-600">Asset Parameters</span>
                         </h1>

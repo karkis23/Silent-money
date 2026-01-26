@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../services/supabase';
+import BackButton from '../components/BackButton';
+import SEO from '../components/SEO';
 
 export default function PostFranchisePage() {
     const { user } = useAuth();
@@ -71,19 +73,14 @@ export default function PostFranchisePage() {
 
     return (
         <div className="min-h-screen bg-cream-50 py-12 pt-32">
+            <SEO
+                title="List Your Franchise Brand"
+                description="List your franchise opportunity on Silent Money and reach thousands of potential investors and partners in India."
+            />
             <div className="max-w-4xl mx-auto px-4">
                 <header className="mb-12">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-charcoal-400 hover:text-primary-600 transition-colors mb-8"
-                    >
-                        <span className="w-8 h-8 rounded-full bg-white border border-charcoal-100 flex items-center justify-center group-hover:border-primary-100 group-hover:bg-primary-50 transition-all">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                            </svg>
-                        </span>
-                        Back to Command Center
-                    </button>
+                    <BackButton label="Back to Command Center" className="mb-8" />
+
                     <h1 className="text-4xl font-black text-charcoal-950 mb-4 tracking-tighter">
                         List Your <span className="text-primary-600">Franchise</span>
                     </h1>

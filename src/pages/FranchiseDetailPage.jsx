@@ -3,6 +3,9 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { supabase } from '../services/supabase';
 import ReactMarkdown from 'react-markdown';
+import BackButton from '../components/BackButton';
+import SEO from '../components/SEO';
+import ROICalculator from '../components/ROICalculator';
 
 export default function FranchiseDetailPage() {
     const { slug } = useParams();
@@ -101,10 +104,15 @@ export default function FranchiseDetailPage() {
 
     return (
         <div className="min-h-screen bg-cream-50 pb-20 pt-32">
+            {franchise && (
+                <SEO
+                    title={`${franchise.name} Franchise Opportunity`}
+                    description={`Detailed ROI analysis, investment requirements, and growth blueprint for ${franchise.name} in the ${franchise.category} sector.`}
+                />
+            )}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <Link to="/franchise" className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] mb-8 inline-flex items-center gap-2 hover:text-primary-600 transition-colors">
-                    ← Back to Discovery Feed
-                </Link>
+                <BackButton label="Back to Discovery Feed" className="mb-8" />
+
 
                 <div className="grid lg:grid-cols-2 gap-16">
                     {/* Visuals */}
@@ -170,8 +178,69 @@ export default function FranchiseDetailPage() {
 
                         <section>
                             <h2 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-6">Blueprint Strategy</h2>
-                            <div className="text-charcoal-600 leading-relaxed active-prose prose prose-charcoal max-w-none prose-headings:font-black prose-headings:text-charcoal-900 prose-p:text-lg prose-p:font-medium prose-li:text-charcoal-600 prose-strong:text-charcoal-900 prose-strong:font-black prose-a:text-primary-600 mb-8">
+                            <div className="text-charcoal-600 leading-relaxed active-prose prose prose-charcoal max-w-none prose-headings:font-black prose-headings:text-charcoal-900 prose-p:text-lg prose-p:font-medium prose-li:text-charcoal-600 prose-strong:text-charcoal-900 prose-strong:font-black prose-a:text-primary-600 mb-10">
                                 <ReactMarkdown>{franchise.description}</ReactMarkdown>
+                            </div>
+
+                            {/* Strategic Action Bar - Redesigned for Elegance */}
+                            <div className="flex flex-wrap gap-4 mb-12">
+                                {franchise.website_url ? (
+                                    <a
+                                        href={franchise.website_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex-1 min-w-[160px] flex items-center justify-center gap-3 px-6 h-16 bg-charcoal-950 text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] hover:bg-primary-600 transition-all shadow-xl shadow-charcoal-200 group"
+                                    >
+                                        <span className="text-lg">🌐</span> Official Site
+                                    </a>
+                                ) : (
+                                    <div className="flex-1 min-w-[160px] flex items-center justify-center gap-3 px-6 h-16 bg-charcoal-50 border border-charcoal-100 text-charcoal-300 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] cursor-not-allowed">
+                                        Offline
+                                    </div>
+                                )}
+
+                                {franchise.contact_email ? (
+                                    <a
+                                        href={`mailto:${franchise.contact_email}?subject=Franchise Inquiry: ${franchise.name}`}
+                                        className="flex-1 min-w-[160px] flex items-center justify-center gap-3 px-6 h-16 bg-white border border-charcoal-200 text-charcoal-900 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] hover:border-primary-600 hover:text-primary-600 transition-all"
+                                    >
+                                        <span className="text-lg">✉️</span> Contact
+                                    </a>
+                                ) : franchise.contact_phone ? (
+                                    <a
+                                        href={`tel:${franchise.contact_phone}`}
+                                        className="flex-1 min-w-[160px] flex items-center justify-center gap-3 px-6 h-16 bg-white border border-charcoal-200 text-charcoal-900 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] hover:border-primary-600 hover:text-primary-600 transition-all"
+                                    >
+                                        <span className="text-lg">📞</span> Call
+                                    </a>
+                                ) : (
+                                    <div className="flex-1 min-w-[160px] flex items-center justify-center gap-3 px-6 h-16 bg-charcoal-50 border border-charcoal-100 text-charcoal-300 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] cursor-not-allowed">
+                                        Private
+                                    </div>
+                                )}
+
+                                <button
+                                    onClick={handleToggleSave}
+                                    className={`flex-[1.5] min-w-[200px] flex items-center justify-center gap-3 px-8 h-16 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all border-2 ${isSaved
+                                        ? 'bg-primary-50 border-primary-600 text-primary-600'
+                                        : 'bg-white border-charcoal-900 text-charcoal-900 hover:bg-primary-600 hover:border-primary-600 hover:text-white shadow-lg'
+                                        }`}
+                                >
+                                    <svg className={`w-5 h-5 ${isSaved ? 'animate-pulse' : ''}`} fill={isSaved ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                                    </svg>
+                                    {isSaved ? 'Blueprint Vaulted' : 'Save Blueprint'}
+                                </button>
+                            </div>
+
+                            <div className="mb-12">
+                                <ROICalculator
+                                    initialDefaults={{
+                                        investment: franchise.investment_min,
+                                        income: franchise.expected_profit_min,
+                                        expenses: Math.round(franchise.expected_profit_min * 0.4) // Dynamic estimate
+                                    }}
+                                />
                             </div>
 
                             {/* Author Attribution */}
@@ -211,56 +280,6 @@ export default function FranchiseDetailPage() {
                                 </div>
                             </section>
                         )}
-
-                        <div className="pt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                            {franchise.website_url ? (
-                                <a
-                                    href={franchise.website_url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center justify-center gap-3 px-8 h-18 bg-primary-600 text-white rounded-[1.5rem] font-black text-[12px] uppercase tracking-[0.2em] shadow-2xl shadow-primary-600/20 hover:bg-primary-700 hover:-translate-y-1 transition-all group"
-                                >
-                                    <span>🌐</span> Official Site
-                                </a>
-                            ) : (
-                                <div className="flex items-center justify-center gap-3 px-8 h-18 bg-charcoal-50 border border-charcoal-100 text-charcoal-300 rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.2em] cursor-not-allowed">
-                                    Website Offline
-                                </div>
-                            )}
-
-                            {franchise.contact_email ? (
-                                <a
-                                    href={`mailto:${franchise.contact_email}?subject=Franchise Inquiry: ${franchise.name}`}
-                                    className="flex items-center justify-center gap-3 px-8 h-18 bg-white border-2 border-charcoal-900 text-charcoal-900 rounded-[1.5rem] font-black text-[12px] uppercase tracking-[0.2em] hover:bg-charcoal-950 hover:text-white hover:-translate-y-1 transition-all"
-                                >
-                                    <span>✉️</span> Email Brand
-                                </a>
-                            ) : franchise.contact_phone ? (
-                                <a
-                                    href={`tel:${franchise.contact_phone}`}
-                                    className="flex items-center justify-center gap-3 px-8 h-18 bg-white border-2 border-charcoal-900 text-charcoal-900 rounded-[1.5rem] font-black text-[12px] uppercase tracking-[0.2em] hover:bg-charcoal-950 hover:text-white hover:-translate-y-1 transition-all"
-                                >
-                                    <span>📞</span> Call Support
-                                </a>
-                            ) : (
-                                <div className="flex items-center justify-center gap-3 px-8 h-18 bg-charcoal-50 border border-charcoal-100 text-charcoal-300 rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.2em] cursor-not-allowed">
-                                    Locked Data
-                                </div>
-                            )}
-
-                            <button
-                                onClick={handleToggleSave}
-                                className={`flex items-center justify-center gap-3 px-8 h-18 rounded-[1.5rem] font-black text-[12px] uppercase tracking-[0.2em] transition-all border-2 ${isSaved
-                                    ? 'bg-primary-50 border-primary-600 text-primary-600'
-                                    : 'bg-white border-charcoal-200 text-charcoal-400 hover:border-primary-600 hover:text-primary-600'
-                                    }`}
-                            >
-                                <svg className={`w-5 h-5 ${isSaved ? 'animate-pulse' : ''}`} fill={isSaved ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                                </svg>
-                                {isSaved ? 'Blueprint Vaulted' : 'Save Blueprint'}
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>

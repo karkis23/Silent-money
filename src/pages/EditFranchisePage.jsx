@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../services/supabase';
+import BackButton from '../components/BackButton';
+import SEO from '../components/SEO';
 
 export default function EditFranchisePage() {
     const { id } = useParams();
@@ -116,8 +118,10 @@ export default function EditFranchisePage() {
 
     return (
         <div className="min-h-screen bg-cream-50 py-12 pt-32">
+            <SEO title={`Configure ${formData.name || 'Franchise'}`} />
             <div className="max-w-4xl mx-auto px-4">
                 <header className="mb-12">
+                    <BackButton label="Back to Asset Vault" className="mb-8" />
                     <h1 className="text-4xl font-black text-charcoal-950 mb-4 tracking-tighter">
                         Edit <span className="text-primary-600">Configuration</span>
                     </h1>

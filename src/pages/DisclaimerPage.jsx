@@ -1,6 +1,9 @@
+import BackButton from '../components/BackButton';
+
 export default function DisclaimerPage() {
     return (
-        <div className="max-w-4xl mx-auto px-4 py-12">
+        <div className="max-w-4xl mx-auto px-4 py-20 pt-32">
+            <BackButton label="Back" className="mb-8" />
             <h1 className="text-3xl font-bold text-charcoal-900 mb-8">Disclaimer</h1>
 
             <div className="card space-y-6 text-charcoal-700">

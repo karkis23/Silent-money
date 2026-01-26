@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../context/AuthContext';
 import SEO from '../components/SEO';
+import BackButton from '../components/BackButton';
 
 export default function ComparisonPage() {
     const { user } = useAuth();
@@ -72,6 +73,7 @@ export default function ComparisonPage() {
         <div className="min-h-screen bg-cream-50 pt-32 pb-20 px-4">
             <SEO title="Asset Comparison Matrix | Silent Money" />
             <div className="max-w-7xl mx-auto">
+                <BackButton label="Back to Vault" className="mb-8" />
                 <header className="mb-12 text-center">
                     <h1 className="text-4xl font-black text-charcoal-950 mb-4 tracking-tighter">
                         Tactical <span className="text-primary-600">Comparison</span>

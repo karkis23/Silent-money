@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../services/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
+import BackButton from '../components/BackButton';
+import SEO from '../components/SEO';
 
 export default function MyIdeasPage() {
     const { user } = useAuth();
@@ -93,7 +95,9 @@ export default function MyIdeasPage() {
 
     return (
         <div className="min-h-screen bg-cream-50 pb-20 pt-32">
+            <SEO title="My Personal Wealth Vault" description="Manage your deployed income ideas, franchise opportunities, and saved assets in your private command center." />
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                <BackButton label="Command Center" className="mb-10" />
                 {/* Header */}
                 <header className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-8">
                     <div>

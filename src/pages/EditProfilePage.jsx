@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../services/supabase';
 import { motion } from 'framer-motion';
+import BackButton from '../components/BackButton';
 
 const PRESET_AVATARS = [
     'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
@@ -66,7 +67,8 @@ export default function EditProfilePage() {
     return (
         <div className="min-h-screen bg-cream-50 pt-32 pb-20 px-4">
             <div className="max-w-xl mx-auto">
-                <div className="flex items-center justify-between mb-8">
+                <div className="mb-10 flex flex-col items-start gap-4">
+                    <BackButton label="Back" />
                     <div>
                         <div className="flex items-center gap-2 mb-1">
                             <span className="w-2 h-2 rounded-full bg-primary-600"></span>
@@ -74,12 +76,6 @@ export default function EditProfilePage() {
                         </div>
                         <h1 className="text-4xl font-black text-charcoal-950 tracking-tighter">Command <span className="text-primary-600">Config.</span></h1>
                     </div>
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest hover:text-primary-600 transition-colors"
-                    >
-                        ← Back
-                    </button>
                 </div>
 
                 <form onSubmit={handleUpdate} className="space-y-8">

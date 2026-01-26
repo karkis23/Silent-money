@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../services/supabase';
+import BackButton from '../components/BackButton';
+import SEO from '../components/SEO';
 
 export default function AddIdeaPage() {
     const navigate = useNavigate();
@@ -94,19 +96,14 @@ export default function AddIdeaPage() {
 
     return (
         <div className="min-h-screen bg-cream-50 pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+            <SEO
+                title="Forge New Income Blueprint"
+                description="Share your passive income strategies with the Silent Money community. Help others build wealth while building your reputation."
+            />
             <div className="max-w-4xl mx-auto">
                 <div className="mb-12">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-charcoal-400 hover:text-primary-600 transition-colors mb-8"
-                    >
-                        <span className="w-8 h-8 rounded-full bg-white border border-charcoal-100 flex items-center justify-center group-hover:border-primary-100 group-hover:bg-primary-50 transition-all">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                            </svg>
-                        </span>
-                        Back to Command Center
-                    </button>
+                    <BackButton label="Back to Command Center" className="mb-8" />
+
                     <h1 className="text-4xl md:text-5xl font-black text-charcoal-950 mb-4 tracking-tighter">
                         Forge New <span className="text-primary-600">Income Blueprint</span>
                     </h1>

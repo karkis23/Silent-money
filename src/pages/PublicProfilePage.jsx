@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../services/supabase';
 import SEO from '../components/SEO';
+import BackButton from '../components/BackButton';
 
 export default function PublicProfilePage() {
     const { userId } = useParams();
@@ -78,6 +79,7 @@ export default function PublicProfilePage() {
             <SEO title={`${profile.full_name || 'Commander'} | Silent Money Profile`} />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <BackButton label="Return to Intelligence Feed" className="mb-10" />
                 {/* Profile Header */}
                 <div className="bg-white rounded-[3rem] shadow-premium border border-charcoal-100 p-8 md:p-12 mb-12 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-primary-50 rounded-full blur-[100px] -mr-32 -mt-32 opacity-50" />

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import SEO from '../components/SEO';
+import BackButton from '../components/BackButton';
 
 export default function ContactPage() {
     return (
@@ -16,6 +17,7 @@ export default function ContactPage() {
             </div>
 
             <div className="max-w-4xl mx-auto px-4 relative z-10">
+                <BackButton label="Return" className="mb-12" />
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}

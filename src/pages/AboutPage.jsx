@@ -1,6 +1,9 @@
+import BackButton from '../components/BackButton';
+
 export default function AboutPage() {
     return (
         <div className="max-w-4xl mx-auto px-4 py-20 pt-32">
+            <BackButton label="Home" to="/" className="mb-12" />
             <div className="text-center mb-16">
                 <h1 className="text-5xl font-black text-charcoal-950 mb-6 tracking-tight">
                     The <span className="text-primary-600">Silent</span> Manifesto
