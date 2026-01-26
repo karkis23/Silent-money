@@ -61,7 +61,7 @@ export default function ContactPage() {
 
                         <div className="bg-primary-50 rounded-[2rem] p-8 border border-primary-100">
                             <p className="text-primary-900 font-bold text-sm leading-relaxed">
-                                "Financial freedom is a quiet journey. We ensure your path remains clear and your questions answered."
+                                &quot;Financial freedom is a quiet journey. We ensure your path remains clear and your questions answered.&quot;
                             </p>
                         </div>
                     </motion.div>

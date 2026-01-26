@@ -20,8 +20,9 @@ export default function IdeasPage() {
 
     useEffect(() => {
         const query = searchParams.get('search');
-        if (query !== null) setSearchQuery(query);
-    }, [searchParams]);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        if (query !== null && query !== searchQuery) setSearchQuery(query);
+    }, [searchParams, searchQuery]);
 
     useEffect(() => {
         const fetchCategories = async () => {

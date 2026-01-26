@@ -15,10 +15,6 @@ export default function ReviewsSection({ ideaId, authorId, user }) {
     const [userHasReviewed, setUserHasReviewed] = useState(false);
     const isAuthor = user?.id === authorId;
 
-    useEffect(() => {
-        fetchReviews();
-    }, [ideaId]);
-
     const fetchReviews = async () => {
         setLoading(true);
         const { data, error } = await supabase
@@ -34,6 +30,11 @@ export default function ReviewsSection({ ideaId, authorId, user }) {
         }
         setLoading(false);
     };
+
+    useEffect(() => {
+        fetchReviews();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [ideaId]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -151,7 +152,7 @@ export default function ReviewsSection({ ideaId, authorId, user }) {
                 ) : (
                     <div className="bg-primary-50 p-6 rounded-3xl border border-primary-100 text-center mb-8">
                         <p className="text-primary-700 text-sm font-bold uppercase tracking-widest mb-1">Intel Logged</p>
-                        <p className="text-primary-600 text-xs font-medium opacity-80">You've successfully shared your feedback on this asset.</p>
+                        <p className="text-primary-600 text-xs font-medium opacity-80">You&apos;ve successfully shared your feedback on this asset.</p>
                     </div>
                 )
             ) : (
@@ -220,7 +221,7 @@ export default function ReviewsSection({ ideaId, authorId, user }) {
                                 </div>
                             </div>
                             <p className="text-sm text-charcoal-600 font-medium leading-relaxed italic pr-4 mb-4">
-                                "{review.content}"
+                                &quot;{review.content}&quot;
                             </p>
 
                             {/* Author Response Section */}

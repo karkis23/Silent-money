@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../context/AuthContext';
@@ -15,7 +14,7 @@ export default function ComparisonPage() {
         const fetchVault = async () => {
             setLoading(true);
             // Fetch saved ideas
-            const { data, error } = await supabase
+            const { data } = await supabase
                 .from('user_saved_ideas')
                 .select(`
                     id,
@@ -193,7 +192,7 @@ export default function ComparisonPage() {
                             {comparedItems.map(item => (
                                 <div key={item.id} className="p-6 text-center flex flex-col items-center justify-center gap-2">
                                     <span className={`px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest ${item.risk_level === 'high' ? 'bg-red-100 text-red-700' :
-                                            item.risk_level === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'
+                                        item.risk_level === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'
                                         }`}>
                                         {item.risk_level} Risk
                                     </span>

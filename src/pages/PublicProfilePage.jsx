@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../services/supabase';
-import { motion } from 'framer-motion';
 import SEO from '../components/SEO';
 
 export default function PublicProfilePage() {
