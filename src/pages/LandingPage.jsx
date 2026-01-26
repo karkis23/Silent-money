@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
+import SEO from '../components/SEO';
 
 export default function LandingPage() {
     const { user } = useAuth();
@@ -25,6 +26,7 @@ export default function LandingPage() {
 
     return (
         <div className="bg-cream-50 overflow-hidden">
+            <SEO />
             {/* Hero Section */}
             <section className="relative min-h-screen flex items-center pt-20">
                 {/* Background Decorations */}
@@ -67,7 +69,7 @@ export default function LandingPage() {
                             </motion.h1>
 
                             <motion.p variants={fadeInUp} className="text-xl text-charcoal-600 mb-10 max-w-xl leading-relaxed">
-                                Beyond the noise of 'get-rich-quick' schemes, discover vetted,
+                                Beyond the noise of &apos;get-rich-quick&apos; schemes, discover vetted,
                                 <span className="font-bold text-charcoal-900"> data-backed passive income streams</span> tailored for the Indian landscape.
                             </motion.p>
 
@@ -135,6 +137,8 @@ export default function LandingPage() {
                                     src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426"
                                     className="rounded-xl shadow-inner object-cover h-64 w-full brightness-90 grayscale-[20%] hover:grayscale-0 transition-all duration-500"
                                     alt="Dashboard Preview"
+                                    loading="lazy"
+                                    decoding="async"
                                 />
 
                                 <div className="absolute -bottom-8 -left-8 bg-white p-6 rounded-3xl shadow-xl border border-charcoal-100 max-w-[220px] animate-float">

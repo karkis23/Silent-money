@@ -18,13 +18,13 @@ export default function AboutPage() {
                             Our Mission
                         </h2>
                         <p className="mb-6 text-lg font-medium">
-                            The internet is flooded with "Get Rich Quick" schemes, flashy screenshots, and fake gurus promising overnight millions. Especially in India, thousands of people lose their hard-earned savings to these scams every year.
+                            The internet is flooded with &quot;Get Rich Quick&quot; schemes, flashy screenshots, and fake gurus promising overnight millions. Especially in India, thousands of people lose their hard-earned savings to these scams every year.
                         </p>
                         <p className="text-lg font-black text-primary-600">
                             Silent Money exists to stand against this noise.
                         </p>
                         <p className="mt-6 text-charcoal-500 font-medium">
-                            We believe in building wealth quietly and steadily. Our mission is to provide an honest, data-backed directory of passive income ideas that actually work in the Indian context. We don't sell dreams; we provide roadmaps.
+                            We believe in building wealth quietly and steadily. Our mission is to provide an honest, data-backed directory of passive income ideas that actually work in the Indian context. We don&apos;t sell dreams; we provide roadmaps.
                         </p>
                     </div>
                 </section>

@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../services/supabase';
 import CardShimmer from '../components/CardShimmer';
+import SEO from '../components/SEO';
+import EmptyState from '../components/EmptyState';
 
 export default function IdeasPage() {
     const [ideas, setIdeas] = useState([]);
@@ -10,10 +12,16 @@ export default function IdeasPage() {
     const [loading, setLoading] = useState(true);
 
     // Filters
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchParams] = useSearchParams();
+    const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [minIncome, setMinIncome] = useState(0);
     const [sortBy, setSortBy] = useState('created_at');
+
+    useEffect(() => {
+        const query = searchParams.get('search');
+        if (query !== null) setSearchQuery(query);
+    }, [searchParams]);
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -29,7 +37,7 @@ export default function IdeasPage() {
 
             let query = supabase
                 .from('income_ideas')
-                .select('*, categories (name, slug)')
+                .select('*, categories (name, slug), profiles(full_name, id)')
                 .order(sortBy, { ascending: false });
 
             if (selectedCategory !== 'all') {
@@ -79,6 +87,10 @@ export default function IdeasPage() {
 
     return (
         <div className="min-h-screen bg-cream-50 pb-20 pt-32 transition-all duration-300">
+            <SEO
+                title="60+ Vetted Passive Income Ideas"
+                description="Explore a curated list of high-yield passive income blueprints for India. Filter by investment, risk, and category."
+            />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 {/* 1. ULTRA-MINIMALIST HEADER */}
@@ -113,6 +125,7 @@ export default function IdeasPage() {
                                 type="text"
                                 placeholder="Search the asset matrix..."
                                 value={searchQuery}
+                                aria-label="Search income ideas"
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full pl-14 pr-6 py-5 bg-transparent outline-none font-bold text-charcoal-900 placeholder:text-charcoal-300"
                             />
@@ -218,17 +231,12 @@ export default function IdeasPage() {
                             {[1, 2, 3, 4, 5, 6].map(i => <CardShimmer key={i} />)}
                         </div>
                     ) : ideas.length === 0 ? (
-                        <div className="text-center py-40 bg-white rounded-3xl border border-gray-200 shadow-sm">
-                            <span className="text-4xl block mb-4">📭</span>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">Null Result</h3>
-                            <p className="text-sm text-gray-500 mb-8">No asset matches your current parameters.</p>
-                            <button
-                                onClick={() => { setSearchQuery(''); setSelectedCategory('all'); setMinIncome(0); }}
-                                className="px-6 py-3 bg-gray-900 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-all font-mono"
-                            >
-                                Reset Matrix
-                            </button>
-                        </div>
+                        <EmptyState
+                            icon="📭"
+                            title="Null Result"
+                            message="No asset matches your current parameters. Reset the matrix to see all blueprints."
+                            onAction={() => { setSearchQuery(''); setSelectedCategory('all'); setMinIncome(0); }}
+                        />
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                             <AnimatePresence mode="popLayout">
@@ -256,9 +264,15 @@ export default function IdeasPage() {
                                             </div>
 
                                             {/* Content */}
-                                            <h3 className="text-xl font-black text-gray-950 group-hover:text-blue-600 transition-colors mb-3 tracking-tight">
+                                            <h3 className="text-xl font-black text-gray-950 group-hover:text-blue-600 transition-colors mb-1 tracking-tight">
                                                 {idea.title}
                                             </h3>
+                                            {idea.profiles && (
+                                                <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1">
+                                                    <span>by</span>
+                                                    <span className="text-gray-900 group-hover:text-blue-600 transition-colors uppercase">{idea.profiles.full_name}</span>
+                                                </div>
+                                            )}
                                             <p className="text-[13px] text-gray-500 line-clamp-2 leading-relaxed h-[2.5rem] mb-8 font-medium">
                                                 {idea.short_description}
                                             </p>

@@ -52,6 +52,7 @@ export default function Navbar() {
                         </div>
                     </Link>
 
+
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center space-x-8">
                         {navLinks.map((link) => (
@@ -81,7 +82,13 @@ export default function Navbar() {
                                         className="w-10 h-10 rounded-full border-2 border-transparent hover:border-primary-600 transition-all overflow-hidden bg-charcoal-100 flex items-center justify-center group"
                                     >
                                         {profile?.avatar_url ? (
-                                            <img src={profile.avatar_url} className="w-full h-full object-cover" alt="Profile" />
+                                            <img
+                                                src={profile.avatar_url}
+                                                className="w-full h-full object-cover"
+                                                alt="Profile"
+                                                loading="lazy"
+                                                decoding="async"
+                                            />
                                         ) : (
                                             <span className="text-primary-600 font-bold text-sm">{profile?.full_name?.charAt(0) || user.email.charAt(0).toUpperCase()}</span>
                                         )}

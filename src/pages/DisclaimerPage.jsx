@@ -7,7 +7,7 @@ export default function DisclaimerPage() {
                 <section>
                     <h2 className="text-lg font-bold text-charcoal-900 mb-2">1. Not Financial Advice</h2>
                     <p>
-                        The content provided on Silent Money (the "Platform") is for informational and educational purposes only. It does not constitute professional financial, investment, legal, or tax advice. You should not make any financial decisions based solely on the material found on this Platform. We strongly recommend consulting with a qualified financial advisor or professional before making any investment decisions.
+                        The content provided on Silent Money (the &quot;Platform&quot;) is for informational and educational purposes only. It does not constitute professional financial, investment, legal, or tax advice. You should not make any financial decisions based solely on the material found on this Platform. We strongly recommend consulting with a qualified financial advisor or professional before making any investment decisions.
                     </p>
                 </section>
 

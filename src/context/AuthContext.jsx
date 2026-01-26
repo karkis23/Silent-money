@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     const fetchProfile = async (userId) => {
-        const { data, error } = await supabase
+        const { data } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', userId)

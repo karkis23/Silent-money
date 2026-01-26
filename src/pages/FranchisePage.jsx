@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { supabase } from '../services/supabase';
 import CardShimmer from '../components/CardShimmer';
+import SEO from '../components/SEO';
+import EmptyState from '../components/EmptyState';
 
 export default function FranchisePage() {
     const [franchises, setFranchises] = useState([]);
@@ -10,34 +12,32 @@ export default function FranchisePage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [savedFranchiseIds, setSavedFranchiseIds] = useState(new Set());
-    const { user } = supabase.auth?.getSession() || {}; // Fallback if auth context isn't globally available here
-
     useEffect(() => {
+        const fetchFranchises = async () => {
+            setLoading(true);
+            let query = supabase.from('franchises').select('*, profiles(full_name, id)').order('is_verified', { ascending: false });
+
+            if (selectedCategory !== 'all') {
+                query = query.eq('category', selectedCategory);
+            }
+
+            const { data: { session } } = await supabase.auth.getSession();
+            const currentUser = session?.user;
+
+            const [franchiseRes, savedRes] = await Promise.all([
+                query,
+                currentUser ? supabase.from('user_saved_franchises').select('franchise_id').eq('user_id', currentUser.id) : Promise.resolve({ data: [] })
+            ]);
+
+            if (franchiseRes.data) setFranchises(franchiseRes.data);
+            if (savedRes.data) {
+                setSavedFranchiseIds(new Set(savedRes.data.map(item => item.franchise_id)));
+            }
+            setLoading(false);
+        };
+
         fetchFranchises();
     }, [selectedCategory]);
-
-    const fetchFranchises = async () => {
-        setLoading(true);
-        let query = supabase.from('franchises').select('*').order('is_verified', { ascending: false });
-
-        if (selectedCategory !== 'all') {
-            query = query.eq('category', selectedCategory);
-        }
-
-        const { data: { session } } = await supabase.auth.getSession();
-        const currentUser = session?.user;
-
-        const [franchiseRes, savedRes] = await Promise.all([
-            query,
-            currentUser ? supabase.from('user_saved_franchises').select('franchise_id').eq('user_id', currentUser.id) : Promise.resolve({ data: [] })
-        ]);
-
-        if (franchiseRes.data) setFranchises(franchiseRes.data);
-        if (savedRes.data) {
-            setSavedFranchiseIds(new Set(savedRes.data.map(item => item.franchise_id)));
-        }
-        setLoading(false);
-    };
 
     const handleSave = async (e, franchiseId) => {
         e.preventDefault();
@@ -92,6 +92,10 @@ export default function FranchisePage() {
 
     return (
         <div className="min-h-screen bg-cream-50 pb-20 pt-32 transition-all duration-300">
+            <SEO
+                title="Verified Franchise Opportunities"
+                description="Browse established franchise brands in India with vetted ROI, investment requirements, and growth potential."
+            />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 {/* 1. PROFESSIONAL HEADER */}
@@ -124,6 +128,7 @@ export default function FranchisePage() {
                                 type="text"
                                 placeholder="Search by brand name or category..."
                                 value={searchQuery}
+                                aria-label="Search franchises"
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full pl-14 pr-6 py-5 bg-transparent outline-none font-bold text-charcoal-900 placeholder:text-charcoal-300"
                             />
@@ -181,10 +186,17 @@ export default function FranchisePage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-pulse">
                             {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-96 bg-white border border-gray-200 rounded-3xl" />)}
                         </div>
+                    ) : filteredFranchises.length === 0 ? (
+                        <EmptyState
+                            icon="🏢"
+                            title="Sector Dark"
+                            message="We couldn't find any brands in this sector or matching your search. Reset the matrix to see all institutional favorites."
+                            onAction={() => { setSearchQuery(''); setSelectedCategory('all'); }}
+                        />
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                             <AnimatePresence mode="popLayout">
-                                {franchises.filter(f => !searchQuery || f.name.toLowerCase().includes(searchQuery.toLowerCase()) || f.description.toLowerCase().includes(searchQuery.toLowerCase())).map((f, index) => (
+                                {filteredFranchises.map((f, index) => (
                                     <motion.div
                                         layout
                                         key={f.id}
@@ -223,9 +235,15 @@ export default function FranchisePage() {
                                             </div>
 
                                             <div className="px-8 pb-8 pt-2">
-                                                <h3 className="text-2xl font-black text-charcoal-950 group-hover:text-primary-600 transition-colors mb-2 tracking-tightest">
+                                                <h3 className="text-2xl font-black text-charcoal-950 group-hover:text-primary-600 transition-colors mb-1 tracking-tightest">
                                                     {f.name}
                                                 </h3>
+                                                {f.profiles && (
+                                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-4 flex items-center gap-1">
+                                                        <span>by</span>
+                                                        <span className="text-charcoal-900 group-hover:text-primary-600 transition-colors uppercase">{f.profiles.full_name}</span>
+                                                    </div>
+                                                )}
                                                 <p className="text-[13px] text-charcoal-500 line-clamp-2 leading-relaxed mb-6 font-medium h-[2.5rem]">
                                                     {f.description}
                                                 </p>

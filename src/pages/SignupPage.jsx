@@ -139,7 +139,7 @@ export default function SignupPage() {
                     <div className="mt-8 pt-6 border-t border-charcoal-100">
                         <p className="text-[10px] text-charcoal-400 text-center font-bold uppercase tracking-tight leading-relaxed">
                             By signing up, you agree to our Terms and Privacy.
-                            We respect your privacy like it's our own.
+                            We respect your privacy like it&apos;s our own.
                         </p>
                     </div>
                 </div>

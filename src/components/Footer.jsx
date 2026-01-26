@@ -20,10 +20,11 @@ export default function Footer() {
                         <p className="text-base text-charcoal-400 max-w-sm mb-8 font-medium">
                             Join the ranks of thousands of Indians building their financial empires quietly, steadily, and with proven data.
                         </p>
-                        <div className="flex gap-4">
-                            {[1, 2, 3, 4].map(i => (
-                                <div key={i} className="w-10 h-10 rounded-xl bg-charcoal-900 hover:bg-primary-900/30 border border-charcoal-800 transition-colors cursor-pointer" />
-                            ))}
+                        <div className="flex flex-col gap-4">
+                            <Link to="/contact" className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-charcoal-900 text-white text-xs font-black uppercase tracking-widest rounded-xl border border-charcoal-800 hover:bg-primary-600 hover:border-primary-500 transition-all group w-fit">
+                                <span>Contact Us</span>
+                                <span className="group-hover:translate-x-1 transition-transform">→</span>
+                            </Link>
                         </div>
                     </div>
 

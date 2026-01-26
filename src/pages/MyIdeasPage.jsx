@@ -14,55 +14,55 @@ export default function MyIdeasPage() {
     const [error, setError] = useState('');
 
     useEffect(() => {
+        const fetchSavedAssets = async () => {
+            setLoading(true);
+            try {
+                const [ideasRes, franchisesRes] = await Promise.all([
+                    supabase
+                        .from('user_saved_ideas')
+                        .select('*, income_ideas(*, categories(name))')
+                        .eq('user_id', user.id),
+                    supabase
+                        .from('user_saved_franchises')
+                        .select('*, franchises(*)')
+                        .eq('user_id', user.id)
+                ]);
+
+                setSavedIdeas(ideasRes.data?.map(item => item.income_ideas).filter(Boolean) || []);
+                setSavedFranchises(franchisesRes.data?.map(item => item.franchises).filter(Boolean) || []);
+            } catch (err) {
+                console.error('Error fetching saved assets:', err);
+                setError('Failed to load your vault.');
+            }
+            setLoading(false);
+        };
+
+        const fetchAssets = async () => {
+            setLoading(true);
+            const table = activeTab === 'ideas' ? 'income_ideas' : 'franchises';
+
+            try {
+                const { data, error } = await supabase
+                    .from(table)
+                    .select('*')
+                    .eq('author_id', user.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                setAssets(data || []);
+            } catch (err) {
+                console.error('Error fetching assets:', err);
+                setError(`Failed to load your ${activeTab}.`);
+            }
+            setLoading(false);
+        };
+
         if (activeTab === 'saved') {
             fetchSavedAssets();
         } else {
             fetchAssets();
         }
     }, [user, activeTab]);
-
-    const fetchSavedAssets = async () => {
-        setLoading(true);
-        try {
-            const [ideasRes, franchisesRes] = await Promise.all([
-                supabase
-                    .from('user_saved_ideas')
-                    .select('*, income_ideas(*, categories(name))')
-                    .eq('user_id', user.id),
-                supabase
-                    .from('user_saved_franchises')
-                    .select('*, franchises(*)')
-                    .eq('user_id', user.id)
-            ]);
-
-            setSavedIdeas(ideasRes.data?.map(item => item.income_ideas).filter(Boolean) || []);
-            setSavedFranchises(franchisesRes.data?.map(item => item.franchises).filter(Boolean) || []);
-        } catch (err) {
-            console.error('Error fetching saved assets:', err);
-            setError('Failed to load your vault.');
-        }
-        setLoading(false);
-    };
-
-    const fetchAssets = async () => {
-        setLoading(true);
-        const table = activeTab === 'ideas' ? 'income_ideas' : 'franchises';
-
-        try {
-            const { data, error } = await supabase
-                .from(table)
-                .select('*')
-                .eq('author_id', user.id)
-                .order('created_at', { ascending: false });
-
-            if (error) throw error;
-            setAssets(data || []);
-        } catch (err) {
-            console.error('Error fetching assets:', err);
-            setError(`Failed to load your ${activeTab}.`);
-        }
-        setLoading(false);
-    };
 
     const [deletingId, setDeletingId] = useState(null);
 
@@ -98,7 +98,7 @@ export default function MyIdeasPage() {
                 <header className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-8">
                     <div>
                         <h1 className="text-4xl font-black text-charcoal-950 mb-2 tracking-tighter">My <span className="text-primary-600">Assets</span></h1>
-                        <p className="text-charcoal-500 font-medium">Manage and monitor the income streams you've deployed.</p>
+                        <p className="text-charcoal-500 font-medium">Manage and monitor the income streams you&apos;ve deployed.</p>
                     </div>
                     <div className="flex gap-4">
                         <Link to="/add-idea" className="btn-secondary text-[11px] font-black uppercase tracking-widest px-6">+ Idea</Link>

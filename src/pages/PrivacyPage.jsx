@@ -12,7 +12,7 @@ export default function PrivacyPage() {
                         When you create an account on Silent Money, we collect your email address and any name you provide. We also store data related to your usage of the platform, such as:
                     </p>
                     <ul className="list-disc pl-5 mt-2 space-y-1">
-                        <li>Saved income ideas and their status (e.g., "Started", "Researching").</li>
+                        <li>Saved income ideas and their status (e.g., &quot;Started&quot;, &quot;Researching&quot;).</li>
                         <li>Notes you add to ideas.</li>
                         <li>Calculations performed using our tools (e.g., ROI calculator inputs).</li>
                     </ul>

@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../services/supabase';
+import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../context/AuthContext';
 import ROICalculator from '../components/ROICalculator';
+import ReviewsSection from '../components/ReviewsSection';
+import SEO from '../components/SEO';
 
 export default function IdeaDetailPage() {
     const { slug } = useParams();
@@ -22,15 +25,21 @@ export default function IdeaDetailPage() {
     const [updateMessage, setUpdateMessage] = useState('');
     const [error, setError] = useState('');
 
+    // Upvote state
+    const [hasUpvoted, setHasUpvoted] = useState(false);
+    const [voteCount, setVoteCount] = useState(0);
+    const [voteLoading, setVoteLoading] = useState(false);
+
     useEffect(() => {
         const fetchIdea = async () => {
             setLoading(true);
             const { data, error } = await supabase
                 .from('income_ideas')
                 .select(`
-          *,
-          categories (name, slug, icon)
-        `)
+                    *,
+                    categories (name, slug, icon),
+                    profiles (id, full_name, avatar_url)
+                `)
                 .eq('slug', slug)
                 .single();
 
@@ -39,12 +48,30 @@ export default function IdeaDetailPage() {
                 setError('Idea not found');
             } else {
                 setIdea(data);
+                setVoteCount(data.upvotes_count || 0);
             }
             setLoading(false);
         };
 
         fetchIdea();
     }, [slug]);
+
+    useEffect(() => {
+        const checkVoteStatus = async () => {
+            if (!user || !idea) return;
+            const { data } = await supabase
+                .from('income_ideas_votes')
+                .select('*')
+                .eq('user_id', user.id)
+                .eq('idea_id', idea.id)
+                .maybeSingle();
+            setHasUpvoted(!!data);
+        };
+
+        if (user && idea) {
+            checkVoteStatus();
+        }
+    }, [user, idea]);
 
     useEffect(() => {
         const checkSaveStatus = async () => {
@@ -72,29 +99,6 @@ export default function IdeaDetailPage() {
 
         if (user && idea) {
             checkSaveStatus();
-        }
-    }, [user, idea]);
-
-    // Upvote state
-    const [hasUpvoted, setHasUpvoted] = useState(false);
-    const [voteCount, setVoteCount] = useState(0);
-    const [voteLoading, setVoteLoading] = useState(false);
-
-    useEffect(() => {
-        const checkVoteStatus = async () => {
-            if (!user || !idea) return;
-            const { data } = await supabase
-                .from('income_ideas_votes')
-                .select('*')
-                .eq('user_id', user.id)
-                .eq('idea_id', idea.id)
-                .maybeSingle();
-            setHasUpvoted(!!data);
-        };
-
-        if (idea) {
-            setVoteCount(idea.upvotes_count || 0);
-            checkVoteStatus();
         }
     }, [user, idea]);
 
@@ -177,21 +181,24 @@ export default function IdeaDetailPage() {
         setUpdateLoading(true);
         setUpdateMessage('');
 
-        const { error } = await supabase
+        const { data, error } = await supabase
             .from('user_saved_ideas')
             .update({
                 status: userStatus,
                 notes: userNotes,
                 updated_at: new Date()
             })
-            .eq('id', savedData.id);
+            .eq('id', savedData.id)
+            .select()
+            .single();
 
         if (error) {
             console.error('Error updating progress:', error);
-            setUpdateMessage('Failed to save changes.');
+            setUpdateMessage('❌ Failed to save changes.');
         } else {
-            setUpdateMessage('Changes saved!');
-            setTimeout(() => setUpdateMessage(''), 3000);
+            setSavedData(data);
+            setUpdateMessage('✅ Progress saved to vault!');
+            setTimeout(() => setUpdateMessage(''), 4000);
         }
         setUpdateLoading(false);
     };
@@ -237,6 +244,8 @@ export default function IdeaDetailPage() {
 
     return (
         <div className="min-h-screen bg-cream-50 pb-20 pt-32">
+            <SEO title={`${idea.title} | Silent Money Blueprints`} description={idea.short_description} />
+
             {/* Hero Header */}
             <div className="bg-white border-b border-charcoal-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -256,15 +265,44 @@ export default function IdeaDetailPage() {
                                             ⭐ Premium
                                         </span>
                                     )}
+                                    {isSaved && (
+                                        <span className="bg-emerald-50 text-emerald-700 border border-emerald-100 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 animate-float">
+                                            🛰️ {userStatus}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <h1 className="text-4xl md:text-5xl font-black text-charcoal-950 mb-6 leading-tight tracking-tighter">
                                     {idea.title}
                                 </h1>
 
-                                <p className="text-xl text-charcoal-600 font-medium leading-relaxed max-w-2xl">
+                                <p className="text-xl text-charcoal-600 font-medium leading-relaxed max-w-2xl mb-8">
                                     {idea.short_description}
                                 </p>
+
+                                {/* Author Attribution */}
+                                {idea.profiles && (
+                                    <Link
+                                        to={`/profile/${idea.profiles.id}`}
+                                        className="inline-flex items-center gap-3 p-2 pr-6 bg-charcoal-50 rounded-2xl hover:bg-charcoal-100 transition-all group border border-charcoal-100"
+                                    >
+                                        <div className="w-10 h-10 rounded-xl overflow-hidden bg-white shadow-sm">
+                                            {idea.profiles.avatar_url ? (
+                                                <img src={idea.profiles.avatar_url} className="w-full h-full object-cover" alt={idea.profiles.full_name} />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-sm font-black text-primary-600">
+                                                    {idea.profiles.full_name?.charAt(0)}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <div className="text-[8px] font-black text-charcoal-400 uppercase tracking-widest">Authored By</div>
+                                            <div className="text-sm font-black text-charcoal-900 group-hover:text-primary-600 transition-colors uppercase">
+                                                {idea.profiles.full_name}
+                                            </div>
+                                        </div>
+                                    </Link>
+                                )}
                             </div>
 
                             <div className="flex flex-col sm:flex-row gap-4 flex-shrink-0">
@@ -307,16 +345,18 @@ export default function IdeaDetailPage() {
                             <h2 className="text-lg font-bold text-yellow-900 mb-3 flex items-center gap-2">
                                 <span className="text-xl">⚠️</span> Reality Check
                             </h2>
-                            <p className="text-yellow-800 leading-relaxed">
-                                {idea.reality_check}
-                            </p>
+                            <div className="text-yellow-900 leading-relaxed prose prose-yellow max-w-none prose-p:my-2 prose-headings:text-yellow-900 prose-headings:font-bold prose-headings:text-sm prose-headings:uppercase prose-headings:tracking-widest">
+                                <ReactMarkdown>{idea.reality_check}</ReactMarkdown>
+                            </div>
                         </div>
 
                         {/* Markdown-like Description */}
-                        <div className="card prose prose-charcoal max-w-none">
-                            <h3 className="text-xl font-bold text-charcoal-900 mb-4">How it works</h3>
-                            <div className="whitespace-pre-wrap text-charcoal-700 leading-relaxed">
-                                {idea.full_description}
+                        <div className="card">
+                            <h3 className="text-xl font-bold text-charcoal-900 mb-6 flex items-center gap-2">
+                                <span>🚀</span> Operational Protocol
+                            </h3>
+                            <div className="prose prose-charcoal max-w-none prose-headings:font-black prose-headings:text-charcoal-900 prose-p:text-charcoal-600 prose-li:text-charcoal-600 prose-strong:text-charcoal-900 prose-strong:font-black prose-a:text-primary-600">
+                                <ReactMarkdown>{idea.full_description}</ReactMarkdown>
                             </div>
                         </div>
 
@@ -340,6 +380,9 @@ export default function IdeaDetailPage() {
                                 expenses: 0
                             }}
                         />
+
+                        {/* Community Reviews */}
+                        <ReviewsSection ideaId={idea.id} authorId={idea.author_id} user={user} />
                     </div>
 
                     {/* Sidebar Metrics */}
@@ -347,18 +390,19 @@ export default function IdeaDetailPage() {
 
                         {/* User Progress Tracking - Only visible if saved */}
                         {isSaved && (
-                            <div className="card bg-sage-50 border-sage-200">
-                                <h3 className="text-lg font-bold text-charcoal-900 mb-4 flex items-center gap-2">
-                                    <span>📝</span> Your Progress
+                            <div className="card border-none shadow-xl p-8 bg-white overflow-hidden relative">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-primary-600" />
+                                <h3 className="text-lg font-black text-charcoal-900 mb-6 flex items-center gap-3 tracking-tight">
+                                    <span className="text-xl">📝</span> Your Deployment
                                 </h3>
 
-                                <div className="space-y-4">
+                                <div className="space-y-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-charcoal-700 mb-1">Status</label>
+                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest block mb-2 pl-1">Operational Status</label>
                                         <select
                                             value={userStatus}
                                             onChange={(e) => setUserStatus(e.target.value)}
-                                            className="w-full px-3 py-2 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-500 bg-white"
+                                            className="w-full px-4 py-3 bg-charcoal-50 border border-charcoal-100 rounded-xl focus:ring-2 focus:ring-primary-600 outline-none text-sm font-bold text-charcoal-900 appearance-none transition-all"
                                         >
                                             <option value="interested">Interested</option>
                                             <option value="researching">Researching</option>
@@ -370,70 +414,74 @@ export default function IdeaDetailPage() {
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-charcoal-700 mb-1">Notes</label>
+                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest block mb-2 pl-1">Mission Notes</label>
                                         <textarea
                                             value={userNotes}
                                             onChange={(e) => setUserNotes(e.target.value)}
                                             rows={4}
-                                            className="w-full px-3 py-2 border border-sage-200 rounded-lg focus:ring-2 focus:ring-sage-500 bg-white resize-none"
-                                            placeholder="Jot down your thoughts, plans, or questions..."
+                                            className="w-full px-4 py-3 bg-charcoal-50 border border-charcoal-100 rounded-xl focus:ring-2 focus:ring-primary-600 outline-none text-sm font-medium resize-none transition-all"
+                                            placeholder="Log your progress, strategy adjustments, or key milestones..."
                                         />
                                     </div>
 
-                                    <div className="flex items-center justify-between pt-2">
-                                        <span className="text-xs text-sage-700 font-medium h-4 block">
-                                            {updateMessage}
-                                        </span>
+                                    <div className="flex flex-col gap-3 pt-2">
+                                        {updateMessage && (
+                                            <div className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-center animate-float ${updateMessage.includes('✅') ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-red-50 text-red-600 border border-red-100'}`}>
+                                                {updateMessage}
+                                            </div>
+                                        )}
                                         <button
                                             onClick={handleUpdateProgress}
                                             disabled={updateLoading}
-                                            className="bg-sage-600 hover:bg-sage-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                                            className={`w-full py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg ${updateMessage.includes('✅')
+                                                ? 'bg-emerald-600 text-white shadow-emerald-200'
+                                                : 'bg-charcoal-900 text-white hover:bg-primary-600 shadow-charcoal-100'}`}
                                         >
-                                            {updateLoading ? 'Saving...' : 'Save Changes'}
+                                            {updateLoading ? 'Synchronizing...' : updateMessage.includes('✅') ? '✓ System Updated' : 'Save Changes'}
                                         </button>
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        <div className="card sticky top-24">
-                            <h3 className="text-lg font-bold text-charcoal-900 mb-6">Key Metrics</h3>
+                        <div className="card sticky top-24 border-none shadow-xl p-8 bg-white">
+                            <h3 className="text-lg font-black text-charcoal-900 mb-8 tracking-tight">Vitals & Metrics</h3>
 
-                            <div className="space-y-6">
+                            <div className="space-y-8">
                                 <div>
-                                    <div className="text-sm text-charcoal-500 mb-1">Initial Investment</div>
-                                    <div className="text-xl font-bold text-charcoal-900">
+                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-2 font-mono">Initial Capital</div>
+                                    <div className="text-2xl font-black text-charcoal-900 tracking-tighter">
                                         {formatCurrency(idea.initial_investment_min)} - {formatCurrency(idea.initial_investment_max)}
                                     </div>
                                 </div>
 
                                 <div>
-                                    <div className="text-sm text-charcoal-500 mb-1">Monthly Income Potential</div>
-                                    <div className="text-xl font-bold text-sage-700">
+                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-2 font-mono">Monthly Yield Target</div>
+                                    <div className="text-2xl font-black text-emerald-600 tracking-tighter">
                                         {formatCurrency(idea.monthly_income_min)} - {formatCurrency(idea.monthly_income_max)}
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-2 gap-6 pt-4 border-t border-charcoal-50">
                                     <div>
-                                        <div className="text-sm text-charcoal-500 mb-1">Time to First ₹</div>
-                                        <div className="font-semibold text-charcoal-900">{idea.time_to_first_income_days} days</div>
+                                        <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest mb-1.5 font-mono">Payback</div>
+                                        <div className="text-lg font-black text-charcoal-950 tracking-tighter">{idea.time_to_first_income_days} Days</div>
                                     </div>
                                     <div>
-                                        <div className="text-sm text-charcoal-500 mb-1">Success Rate</div>
-                                        <div className="font-semibold text-charcoal-900">{idea.success_rate_percentage}%</div>
+                                        <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest mb-1.5 font-mono">Probability</div>
+                                        <div className="text-lg font-black text-charcoal-950 tracking-tighter">{idea.success_rate_percentage}%</div>
                                     </div>
                                 </div>
 
-                                <div className="pt-4 border-t border-charcoal-100 space-y-3">
-                                    <div className={`px-3 py-2 rounded-lg border flex justify-between items-center ${getRiskColor(idea.risk_level)}`}>
-                                        <span className="font-medium capitalize">Risk Level</span>
-                                        <span className="font-bold capitalize">{idea.risk_level}</span>
+                                <div className="pt-6 space-y-3">
+                                    <div className={`px-4 py-3 rounded-xl border-2 flex justify-between items-center transition-all ${getRiskColor(idea.risk_level)}`}>
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Risk Index</span>
+                                        <span className="text-xs font-black uppercase tracking-widest">{idea.risk_level}</span>
                                     </div>
 
-                                    <div className="px-3 py-2 rounded-lg bg-charcoal-50 border border-charcoal-200 flex justify-between items-center text-charcoal-700">
-                                        <span className="font-medium capitalize">Effort</span>
-                                        <span className="font-bold capitalize">{idea.effort_level}</span>
+                                    <div className="px-4 py-3 rounded-xl bg-charcoal-50 border-2 border-charcoal-100 flex justify-between items-center text-charcoal-700">
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Effort Scale</span>
+                                        <span className="text-xs font-black uppercase tracking-widest">{idea.effort_level}</span>
                                     </div>
                                 </div>
                             </div>

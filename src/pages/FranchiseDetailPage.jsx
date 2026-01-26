@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { supabase } from '../services/supabase';
+import ReactMarkdown from 'react-markdown';
 
 export default function FranchiseDetailPage() {
     const { slug } = useParams();
@@ -11,32 +12,48 @@ export default function FranchiseDetailPage() {
     const [isSaved, setIsSaved] = useState(false);
 
     useEffect(() => {
+        const fetchFranchise = async () => {
+            setLoading(true);
+            const { data, error } = await supabase
+                .from('franchises')
+                .select('*, profiles(full_name, avatar_url, id)')
+                .eq('slug', slug)
+                .single();
+
+            if (error) {
+                setError('Franchise opportunity not found.');
+            } else {
+                setFranchise(data);
+            }
+            setLoading(false);
+        };
+
+        const checkSavedStatus = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return;
+
+            // Get the franchise ID first (or fetch in checkSavedStatus)
+            const { data: franchiseData } = await supabase
+                .from('franchises')
+                .select('id')
+                .eq('slug', slug)
+                .single();
+
+            if (franchiseData) {
+                const { data } = await supabase
+                    .from('user_saved_franchises')
+                    .select('id')
+                    .eq('user_id', session.user.id)
+                    .eq('franchise_id', franchiseData.id)
+                    .single();
+
+                setIsSaved(!!data);
+            }
+        };
+
         fetchFranchise();
         checkSavedStatus();
     }, [slug]);
-
-    const checkSavedStatus = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) return;
-
-        // Get the franchise ID first (or fetch in checkSavedStatus)
-        const { data: franchiseData } = await supabase
-            .from('franchises')
-            .select('id')
-            .eq('slug', slug)
-            .single();
-
-        if (franchiseData) {
-            const { data } = await supabase
-                .from('user_saved_franchises')
-                .select('id')
-                .eq('user_id', session.user.id)
-                .eq('franchise_id', franchiseData.id)
-                .single();
-
-            setIsSaved(!!data);
-        }
-    };
 
     const handleToggleSave = async () => {
         const { data: { session } } = await supabase.auth.getSession();
@@ -58,22 +75,6 @@ export default function FranchiseDetailPage() {
                 .insert([{ user_id: session.user.id, franchise_id: franchise.id }]);
             setIsSaved(true);
         }
-    };
-
-    const fetchFranchise = async () => {
-        setLoading(true);
-        const { data, error } = await supabase
-            .from('franchises')
-            .select('*')
-            .eq('slug', slug)
-            .single();
-
-        if (error) {
-            setError('Franchise opportunity not found.');
-        } else {
-            setFranchise(data);
-        }
-        setLoading(false);
     };
 
     const formatCurrency = (amount) => {
@@ -169,9 +170,33 @@ export default function FranchiseDetailPage() {
 
                         <section>
                             <h2 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-6">Blueprint Strategy</h2>
-                            <p className="text-xl text-charcoal-600 font-medium leading-relaxed whitespace-pre-wrap">
-                                {franchise.description}
-                            </p>
+                            <div className="text-charcoal-600 leading-relaxed active-prose prose prose-charcoal max-w-none prose-headings:font-black prose-headings:text-charcoal-900 prose-p:text-lg prose-p:font-medium prose-li:text-charcoal-600 prose-strong:text-charcoal-900 prose-strong:font-black prose-a:text-primary-600 mb-8">
+                                <ReactMarkdown>{franchise.description}</ReactMarkdown>
+                            </div>
+
+                            {/* Author Attribution */}
+                            {franchise.profiles && (
+                                <Link
+                                    to={`/profile/${franchise.profiles.id}`}
+                                    className="inline-flex items-center gap-3 p-2 pr-6 bg-charcoal-50 rounded-2xl hover:bg-charcoal-100 transition-all group border border-charcoal-100"
+                                >
+                                    <div className="w-10 h-10 rounded-xl overflow-hidden bg-white shadow-sm">
+                                        {franchise.profiles.avatar_url ? (
+                                            <img src={franchise.profiles.avatar_url} className="w-full h-full object-cover" alt={franchise.profiles.full_name} />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-sm font-black text-primary-600">
+                                                {franchise.profiles.full_name?.charAt(0)}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <div className="text-[8px] font-black text-charcoal-400 uppercase tracking-widest">Listed By</div>
+                                        <div className="text-sm font-black text-charcoal-900 group-hover:text-primary-600 transition-colors">
+                                            {franchise.profiles.full_name}
+                                        </div>
+                                    </div>
+                                </Link>
+                            )}
                         </section>
 
                         {franchise.requirements && franchise.requirements.length > 0 && (
@@ -239,6 +264,6 @@ export default function FranchiseDetailPage() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

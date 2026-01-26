@@ -1,35 +1,47 @@
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Layout from '../components/Layout';
-import LandingPage from '../pages/LandingPage';
-import IdeasPage from '../pages/IdeasPage';
-import IdeaDetailPage from '../pages/IdeaDetailPage';
-import LoginPage from '../pages/LoginPage';
-import SignupPage from '../pages/SignupPage';
-import DashboardPage from '../pages/DashboardPage';
 import ProtectedRoute from '../components/ProtectedRoute';
-import ForgotPasswordPage from '../pages/ForgotPasswordPage';
-import AddIdeaPage from '../pages/AddIdeaPage';
-import AboutPage from '../pages/AboutPage';
-import PrivacyPage from '../pages/PrivacyPage';
-import TermsPage from '../pages/TermsPage';
-import DisclaimerPage from '../pages/DisclaimerPage';
-import MyIdeasPage from '../pages/MyIdeasPage';
-import EditProfilePage from '../pages/EditProfilePage';
-import EditIdeaPage from '../pages/EditIdeaPage';
-import FranchisePage from '../pages/FranchisePage';
-import PostFranchisePage from '../pages/PostFranchisePage';
-import FranchiseDetailPage from '../pages/FranchiseDetailPage';
-import EditFranchisePage from '../pages/EditFranchisePage';
 import ScrollToTop from '../components/ScrollToTop';
+
+// Lazy load pages
+const LandingPage = lazy(() => import('../pages/LandingPage'));
+const IdeasPage = lazy(() => import('../pages/IdeasPage'));
+const IdeaDetailPage = lazy(() => import('../pages/IdeaDetailPage'));
+const LoginPage = lazy(() => import('../pages/LoginPage'));
+const SignupPage = lazy(() => import('../pages/SignupPage'));
+const DashboardPage = lazy(() => import('../pages/DashboardPage'));
+const ForgotPasswordPage = lazy(() => import('../pages/ForgotPasswordPage'));
+const AddIdeaPage = lazy(() => import('../pages/AddIdeaPage'));
+const AboutPage = lazy(() => import('../pages/AboutPage'));
+const PrivacyPage = lazy(() => import('../pages/PrivacyPage'));
+const TermsPage = lazy(() => import('../pages/TermsPage'));
+const DisclaimerPage = lazy(() => import('../pages/DisclaimerPage'));
+const MyIdeasPage = lazy(() => import('../pages/MyIdeasPage'));
+const EditProfilePage = lazy(() => import('../pages/EditProfilePage'));
+const EditIdeaPage = lazy(() => import('../pages/EditIdeaPage'));
+const FranchisePage = lazy(() => import('../pages/FranchisePage'));
+const PostFranchisePage = lazy(() => import('../pages/PostFranchisePage'));
+const FranchiseDetailPage = lazy(() => import('../pages/FranchiseDetailPage'));
+const EditFranchisePage = lazy(() => import('../pages/EditFranchisePage'));
+const ContactPage = lazy(() => import('../pages/ContactPage'));
+const PublicProfilePage = lazy(() => import('../pages/PublicProfilePage'));
+const ComparisonPage = lazy(() => import('../pages/ComparisonPage'));
+
+const PageLoader = () => (
+    <div className="min-h-screen bg-cream-50 flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin"></div>
+    </div>
+);
 
 const router = createBrowserRouter([
     {
         path: '/',
         element: (
-            <>
+            <Suspense fallback={<PageLoader />}>
                 <ScrollToTop />
                 <Layout />
-            </>
+            </Suspense>
         ),
         children: [
             {
@@ -59,6 +71,14 @@ const router = createBrowserRouter([
             {
                 path: 'signup',
                 element: <SignupPage />,
+            },
+            {
+                path: 'contact',
+                element: <ContactPage />,
+            },
+            {
+                path: 'profile/:userId',
+                element: <PublicProfilePage />,
             },
             {
                 path: 'forgot-password',
@@ -109,6 +129,14 @@ const router = createBrowserRouter([
                 element: (
                     <ProtectedRoute>
                         <AddIdeaPage />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: 'compare',
+                element: (
+                    <ProtectedRoute>
+                        <ComparisonPage />
                     </ProtectedRoute>
                 ),
             },

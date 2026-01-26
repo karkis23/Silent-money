@@ -16,7 +16,7 @@ export default function TermsPage() {
                 <section>
                     <h2 className="text-lg font-bold text-charcoal-900 mb-2">2. Use License</h2>
                     <p>
-                        Permission is granted to temporarily download one copy of the materials (information or software) on Silent Money's website for personal, non-commercial transitory viewing only.
+                        Permission is granted to temporarily download one copy of the materials (information or software) on Silent Money&apos;s website for personal, non-commercial transitory viewing only.
                     </p>
                 </section>
 
