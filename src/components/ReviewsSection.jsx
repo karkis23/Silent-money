@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../services/supabase';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import ConfirmModal from './ConfirmModal';
+import { toast } from 'react-hot-toast';
 
 export default function ReviewsSection({ assetId, assetType = 'idea', authorId, user }) {
     const [reviews, setReviews] = useState([]);
@@ -13,7 +15,18 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
     const [replyingTo, setReplyingTo] = useState(null);
     const [error, setError] = useState('');
     const [userHasReviewed, setUserHasReviewed] = useState(false);
+    const [editingReview, setEditingReview] = useState(null); // Stores ID of review being edited
+    const [editContent, setEditContent] = useState('');
     const isAuthor = user?.id === authorId;
+
+    // Confirm Modal State
+    const [confirmConfig, setConfirmConfig] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => { },
+        type: 'danger'
+    });
 
     const tableName = assetType === 'franchise' ? 'franchise_reviews' : 'income_idea_reviews';
     const foreignKey = assetType === 'franchise' ? 'franchise_id' : 'idea_id';
@@ -80,32 +93,90 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
             .from(tableName)
             .update({
                 author_response: reply,
-                // responded_at will be set by DB default if available or we can update it if added
+                responded_at: new Date().toISOString()
             })
             .eq('id', reviewId);
 
         if (!error) {
+            toast.success('Strategy response transmitted.');
             setReplyContent(prev => ({ ...prev, [reviewId]: '' }));
             setReplyingTo(null);
             fetchReviews();
         } else {
             console.error('Reply error:', error);
-            alert('Failed to transmit reply.');
+            toast.error('Transmission failed: ' + error.message);
         }
         setSubmitting(false);
     };
 
-    const handleDelete = async (reviewId) => {
-        if (!confirm('Are you sure you want to retract your intel?')) return;
+    const handleDeleteResponse = (reviewId) => {
+        setConfirmConfig({
+            isOpen: true,
+            title: 'Retract Strategy Response?',
+            message: 'Are you sure you want to permanently remove your owner response from this intel record? This action cannot be undone.',
+            onConfirm: async () => {
+                setSubmitting(true);
+                const { error } = await supabase
+                    .from(tableName)
+                    .update({
+                        author_response: null,
+                        responded_at: null
+                    })
+                    .eq('id', reviewId);
 
+                if (!error) {
+                    toast.success('Strategy response retracted.');
+                    fetchReviews();
+                } else {
+                    toast.error('Retraction failed: ' + error.message);
+                }
+                setSubmitting(false);
+            },
+            type: 'danger'
+        });
+    };
+
+    const handleEdit = (review) => {
+        setEditingReview(review.id);
+        setEditContent(review.content);
+    };
+
+    const handleUpdateReview = async (reviewId) => {
+        if (!editContent.trim()) return;
+
+        setSubmitting(true);
         const { error } = await supabase
             .from(tableName)
-            .delete()
+            .update({ content: editContent })
             .eq('id', reviewId);
 
         if (!error) {
+            toast.success('Intelligence updated.');
+            setEditingReview(null);
             fetchReviews();
+        } else {
+            toast.error('Update failed: ' + error.message);
         }
+        setSubmitting(false);
+    };
+
+    const handleDelete = (reviewId) => {
+        setConfirmConfig({
+            isOpen: true,
+            title: 'Retract Intel?',
+            message: 'Are you sure you want to permanently remove your feedback from this asset? This action cannot be undone.',
+            onConfirm: async () => {
+                const { error } = await supabase
+                    .from(tableName)
+                    .delete()
+                    .eq('id', reviewId);
+
+                if (!error) {
+                    fetchReviews();
+                }
+            },
+            type: 'danger'
+        });
     };
 
     return (
@@ -214,20 +285,57 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
                                         {new Date(review.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
                                     </div>
                                     {user?.id === review.user_id && (
-                                        <button
-                                            onClick={() => handleDelete(review.id)}
-                                            className="text-charcoal-300 hover:text-red-500 transition-colors"
-                                        >
-                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                onClick={() => handleEdit(review)}
+                                                className="text-charcoal-300 hover:text-primary-600 transition-colors"
+                                                title="Edit Intel"
+                                            >
+                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(review.id)}
+                                                className="text-charcoal-300 hover:text-red-500 transition-colors"
+                                                title="Retract Intel"
+                                            >
+                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
                             </div>
-                            <p className="text-sm text-charcoal-600 font-medium leading-relaxed italic pr-4 mb-4">
-                                &quot;{review.content}&quot;
-                            </p>
+                            {editingReview === review.id ? (
+                                <div className="space-y-3 mb-4">
+                                    <textarea
+                                        value={editContent}
+                                        onChange={(e) => setEditContent(e.target.value)}
+                                        className="w-full px-4 py-3 bg-charcoal-50 border border-charcoal-100 rounded-xl focus:ring-2 focus:ring-primary-600 outline-none text-sm font-medium min-h-[100px] resize-none"
+                                    />
+                                    <div className="flex gap-2 justify-end">
+                                        <button
+                                            onClick={() => setEditingReview(null)}
+                                            className="px-4 py-2 text-[10px] font-black text-charcoal-400 uppercase tracking-widest hover:text-charcoal-900"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            onClick={() => handleUpdateReview(review.id)}
+                                            disabled={submitting}
+                                            className="px-6 py-2 bg-charcoal-900 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-primary-600 transition-colors shadow-lg"
+                                        >
+                                            {submitting ? 'Updating...' : 'Save Changes'}
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <p className="text-sm text-charcoal-600 font-medium leading-relaxed italic pr-4 mb-4">
+                                    &quot;{review.content}&quot;
+                                </p>
+                            )}
 
                             {/* Author Response Section */}
                             {review.author_response ? (
@@ -237,6 +345,31 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
                                         <span className="text-[8px] font-black text-charcoal-300 uppercase tracking-widest">
                                             {review.responded_at ? new Date(review.responded_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : 'Verified Response'}
                                         </span>
+                                        {isAuthor && replyingTo !== review.id && (
+                                            <div className="flex items-center gap-1.5 ml-1">
+                                                <button
+                                                    onClick={() => {
+                                                        setReplyingTo(review.id);
+                                                        setReplyContent(prev => ({ ...prev, [review.id]: review.author_response }));
+                                                    }}
+                                                    className="text-charcoal-300 hover:text-primary-600 transition-colors"
+                                                    title="Edit Strategy Response"
+                                                >
+                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                    </svg>
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteResponse(review.id)}
+                                                    className="text-charcoal-300 hover:text-red-500 transition-colors"
+                                                    title="Retract Response"
+                                                >
+                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                     <p className="text-sm text-charcoal-900 font-bold leading-relaxed">
                                         {review.author_response}
@@ -290,6 +423,15 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
                     ))
                 )}
             </div>
+
+            <ConfirmModal
+                isOpen={confirmConfig.isOpen}
+                onClose={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmConfig.onConfirm}
+                title={confirmConfig.title}
+                message={confirmConfig.message}
+                type={confirmConfig.type}
+            />
         </div>
     );
 }

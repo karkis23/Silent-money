@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../services/supabase';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '../components/SEO';
+import ConfirmModal from '../components/ConfirmModal';
 
 export default function DashboardPage() {
     const { user, profile } = useAuth();
@@ -17,6 +18,15 @@ export default function DashboardPage() {
 
     const [myFranchiseCount, setMyFranchiseCount] = useState(0);
     const [activeTab, setActiveTab] = useState('ideas');
+
+    // Confirm Modal State
+    const [confirmConfig, setConfirmConfig] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => { },
+        type: 'danger'
+    });
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -136,40 +146,96 @@ export default function DashboardPage() {
         }
     }, [user]);
 
-    const handleDeleteIdea = async (e, savedId) => {
+    const handleDeleteIdea = (e, savedId) => {
         e.preventDefault();
         e.stopPropagation();
 
-        if (!confirm('Are you sure you want to remove this blueprint from your vault?')) return;
+        setConfirmConfig({
+            isOpen: true,
+            title: 'De-vault Blueprint?',
+            message: 'Are you sure you want to remove this blueprint from your strategic vault? This action is permanent.',
+            onConfirm: async () => {
+                const { error } = await supabase
+                    .from('user_saved_ideas')
+                    .delete()
+                    .eq('id', savedId);
 
-        const { error } = await supabase
-            .from('user_saved_ideas')
-            .delete()
-            .eq('id', savedId);
-
-        if (!error) {
-            setSavedIdeas(prev => prev.filter(item => item.id !== savedId));
-        } else {
-            console.error('Error removing idea:', error);
-        }
+                if (!error) {
+                    setSavedIdeas(prev => prev.filter(item => item.id !== savedId));
+                } else {
+                    console.error('Error removing idea:', error);
+                }
+            },
+            type: 'danger'
+        });
     };
 
-    const handleDeleteFranchise = async (e, savedId) => {
+    const handleDeleteFranchise = (e, savedId) => {
         e.preventDefault();
         e.stopPropagation();
 
-        if (!confirm('Are you sure you want to remove this franchise from your vault?')) return;
+        setConfirmConfig({
+            isOpen: true,
+            title: 'Terminate Tracking?',
+            message: 'Are you sure you want to remove this franchise from your tracking fleet? Data will be archived.',
+            onConfirm: async () => {
+                const { error } = await supabase
+                    .from('user_saved_franchises')
+                    .delete()
+                    .eq('id', savedId);
 
-        const { error } = await supabase
-            .from('user_saved_franchises')
-            .delete()
-            .eq('id', savedId);
+                if (!error) {
+                    setSavedFranchises(prev => prev.filter(item => item.id !== savedId));
+                } else {
+                    console.error('Error removing franchise:', error);
+                }
+            },
+            type: 'danger'
+        });
+    };
 
-        if (!error) {
-            setSavedFranchises(prev => prev.filter(item => item.id !== savedId));
-        } else {
-            console.error('Error removing franchise:', error);
-        }
+    const handleDeleteReview = (reviewId, assetType) => {
+        const tableName = assetType === 'franchise' ? 'franchise_reviews' : 'income_idea_reviews';
+
+        setConfirmConfig({
+            isOpen: true,
+            title: 'Retract Intel?',
+            message: 'Are you sure you want to permanently remove this feedback? This action is irreversible.',
+            onConfirm: async () => {
+                const { error } = await supabase
+                    .from(tableName)
+                    .delete()
+                    .eq('id', reviewId);
+
+                if (!error) {
+                    setMyReviews(prev => prev.filter(r => r.id !== reviewId));
+                } else {
+                    console.error('Error removing intel:', error);
+                }
+            },
+            type: 'danger'
+        });
+    };
+
+    const handleDeleteAudit = (auditId) => {
+        setConfirmConfig({
+            isOpen: true,
+            title: 'Decommission Audit?',
+            message: 'Are you sure you want to permanently remove this audit request from your fleet records?',
+            onConfirm: async () => {
+                const { error } = await supabase
+                    .from('expert_audit_requests')
+                    .delete()
+                    .eq('id', auditId);
+
+                if (!error) {
+                    setMyAudits(prev => prev.filter(a => a.id !== auditId));
+                } else {
+                    console.error('Error removing audit:', error);
+                }
+            },
+            type: 'danger'
+        });
     };
 
     const calculatePotentialIncome = () => {
@@ -226,54 +292,54 @@ export default function DashboardPage() {
 
                 {/* Stats Grid */}
                 <div className="grid md:grid-cols-4 gap-6 mb-12">
-                    <div className="card group hover-lift">
+                    <div className="card !p-6 group hover-lift">
                         {loading ? (
                             <>
                                 <div className="skeleton h-4 w-24 mb-2 rounded"></div>
-                                <div className="skeleton h-10 w-16 rounded"></div>
+                                <div className="skeleton h-8 w-16 rounded"></div>
                             </>
                         ) : (
                             <>
-                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-2 font-mono">Vault Assets</div>
-                                <div className="text-4xl font-black text-charcoal-950 tracking-tighter">
+                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1.5 font-mono">Vault Assets</div>
+                                <div className="text-3xl font-black text-charcoal-950 tracking-tighter">
                                     {savedIdeas.length + savedFranchises.length}
                                 </div>
                             </>
                         )}
                     </div>
 
-                    <div className="card group hover-lift">
+                    <div className="card !p-6 group hover-lift">
                         {loading ? (
                             <>
                                 <div className="skeleton h-4 w-28 mb-2 rounded"></div>
-                                <div className="skeleton h-10 w-12 rounded"></div>
+                                <div className="skeleton h-8 w-12 rounded"></div>
                             </>
                         ) : (
                             <>
-                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-2 font-mono">My Deployments</div>
-                                <div className="text-4xl font-black text-charcoal-950 tracking-tighter">
+                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1.5 font-mono">My Deployments</div>
+                                <div className="text-3xl font-black text-charcoal-950 tracking-tighter">
                                     {myIdeaCount + myFranchiseCount}
                                 </div>
-                                <Link to="/my-ideas" className="text-[9px] font-black text-primary-600 uppercase tracking-widest mt-4 inline-block hover:underline">Manage Fleet →</Link>
+                                <Link to="/my-ideas" className="text-[9px] font-black text-primary-600 uppercase tracking-widest mt-2 px-3 py-1 bg-primary-50 rounded-full inline-block hover:bg-primary-100 transition-colors">Manage Fleet →</Link>
                             </>
                         )}
                     </div>
 
-                    <div className="card bg-gradient-to-br from-emerald-500 to-emerald-700 border-none group shadow-2xl shadow-emerald-500/20 hover-lift relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                    <div className="card !p-6 bg-gradient-to-br from-emerald-500 to-emerald-700 border-none group shadow-2xl shadow-emerald-500/20 hover-lift relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-12 -mt-12"></div>
                         {loading ? (
                             <>
                                 <div className="skeleton h-4 w-28 mb-2 rounded bg-white/20"></div>
-                                <div className="skeleton h-10 w-20 rounded bg-white/20"></div>
+                                <div className="skeleton h-8 w-20 rounded bg-white/20"></div>
                             </>
                         ) : (
                             <>
-                                <div className="text-[10px] font-black text-white/70 uppercase tracking-widest mb-2 font-mono relative z-10">Projected Yield</div>
-                                <div className="text-4xl font-black text-white tracking-tighter relative z-10">
-                                    ₹{(calculatePotentialIncome() / 1000).toFixed(1)}k<span className="text-lg text-white/50 ml-1">/mo</span>
+                                <div className="text-[10px] font-black text-white/70 uppercase tracking-widest mb-1.5 font-mono relative z-10">Projected Yield</div>
+                                <div className="text-3xl font-black text-white tracking-tighter relative z-10">
+                                    ₹{(calculatePotentialIncome() / 1000).toFixed(1)}k<span className="text-md text-white/50 ml-1">/mo</span>
                                 </div>
                                 {/* Yield Trajectory Indicator */}
-                                <div className="mt-4 flex items-center gap-2 relative z-10">
+                                <div className="mt-3 flex items-center gap-2 relative z-10">
                                     <div className="flex-1 h-1.5 bg-white/20 rounded-full overflow-hidden">
                                         <div
                                             className="h-full bg-white rounded-full transition-all duration-1000 ease-out"
@@ -288,26 +354,26 @@ export default function DashboardPage() {
                         )}
                     </div>
 
-                    <div className="bg-primary-600 p-8 rounded-[2.5rem] shadow-2xl shadow-primary-600/20 flex flex-col justify-between hover-lift">
-                        <div className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-4 font-mono">New Deployment</div>
-                        <div className="flex flex-col gap-3">
+                    <div className="bg-primary-600 !p-5 rounded-[2.5rem] shadow-2xl shadow-primary-600/20 flex flex-col justify-between hover-lift">
+                        <div className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-3 font-mono">New Deployment</div>
+                        <div className="flex flex-col gap-2">
                             <Link
                                 to="/add-idea"
-                                className="w-full bg-white text-primary-700 font-black text-[10px] py-4 rounded-2xl text-center uppercase tracking-widest hover:bg-cream-50 transition-all shadow-xl shadow-primary-700/20 hover:scale-105 active:scale-95"
+                                className="w-full bg-white text-primary-700 font-black text-[9px] py-3 rounded-2xl text-center uppercase tracking-widest hover:bg-cream-50 transition-all shadow-xl shadow-primary-700/20 flex items-center justify-center gap-2"
                             >
-                                + Forge Idea
+                                <span className="text-xs">+</span> Forge Idea
                             </Link>
                             <Link
                                 to="/post-franchise"
-                                className="w-full bg-primary-800 text-white font-black text-[10px] py-4 rounded-2xl text-center uppercase tracking-widest hover:bg-primary-900 transition-all hover:scale-105 active:scale-95"
+                                className="w-full bg-primary-800 text-white font-black text-[9px] py-3 rounded-2xl text-center uppercase tracking-widest hover:bg-primary-900 transition-all flex items-center justify-center gap-2"
                             >
-                                + Deploy Brand
+                                <span className="text-xs">+</span> Deploy Brand
                             </Link>
                             <Link
                                 to="/compare"
-                                className="w-full bg-white/10 text-white border border-white/20 font-black text-[10px] py-4 rounded-2xl text-center uppercase tracking-widest hover:bg-white/20 transition-all hover:scale-105 active:scale-95"
+                                className="w-full bg-white/10 text-white border border-white/20 font-black text-[9px] py-2.5 rounded-2xl text-center uppercase tracking-widest hover:bg-white/20 transition-all flex items-center justify-center gap-2"
                             >
-                                ⚔️ Compare Assets
+                                <span className="text-xs">⚔️</span> Compare
                             </Link>
                         </div>
                     </div>
@@ -497,11 +563,17 @@ export default function DashboardPage() {
                                             <div className="flex justify-between items-center text-[8px] font-black text-charcoal-400 uppercase tracking-widest pt-4 border-t border-charcoal-100">
                                                 <span>{new Date(calc.created_at).toLocaleDateString()}</span>
                                                 <button
-                                                    onClick={async () => {
-                                                        if (confirm('Delete projection?')) {
-                                                            await supabase.from('roi_calculations').delete().eq('id', calc.id);
-                                                            setSavedCalculations(prev => prev.filter(p => p.id !== calc.id));
-                                                        }
+                                                    onClick={() => {
+                                                        setConfirmConfig({
+                                                            isOpen: true,
+                                                            title: 'Wipe Intelligence?',
+                                                            message: 'Do you want to permanently erase this ROI report from your intelligence log?',
+                                                            onConfirm: async () => {
+                                                                await supabase.from('roi_calculations').delete().eq('id', calc.id);
+                                                                setSavedCalculations(prev => prev.filter(p => p.id !== calc.id));
+                                                            },
+                                                            type: 'danger'
+                                                        });
                                                     }}
                                                     className="hover:text-red-500 transition-colors"
                                                 >
@@ -581,11 +653,24 @@ export default function DashboardPage() {
                                                             )}
                                                         </div>
                                                     </td>
-                                                    <td className="px-6 py-6 text-right font-mono">
-                                                        <div className="text-[10px] font-black text-charcoal-600 uppercase tracking-widest">
-                                                            {new Date(audit.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                    <td className="px-6 py-6 font-mono text-right">
+                                                        <div className="flex flex-col items-end gap-3">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="text-[10px] font-black text-charcoal-600 uppercase tracking-widest">
+                                                                    {new Date(audit.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                                </div>
+                                                                <button
+                                                                    onClick={() => handleDeleteAudit(audit.id)}
+                                                                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-charcoal-100 text-charcoal-300 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100"
+                                                                    title="Decommission Audit"
+                                                                >
+                                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                            <div className="text-[9px] text-charcoal-400 uppercase tracking-widest">48h SLA</div>
                                                         </div>
-                                                        <div className="text-[9px] text-charcoal-400 mt-1 uppercase tracking-widest">48h SLA</div>
                                                     </td>
                                                 </tr>
                                             ))}
@@ -636,13 +721,38 @@ export default function DashboardPage() {
                                                         </span>
                                                     )}
                                                 </div>
+
+                                                {review.author_response && (
+                                                    <div className="mt-4 pl-4 border-l-2 border-emerald-500 py-1 bg-emerald-50/30 rounded-r-xl pr-4">
+                                                        <div className="flex items-center gap-2 mb-1.5">
+                                                            <span className="text-[7px] font-black bg-emerald-600 text-white px-1.5 py-0.5 rounded-full uppercase tracking-widest">Asset Owner Strategy</span>
+                                                            {review.responded_at && (
+                                                                <span className="text-[7px] font-black text-charcoal-400 tracking-widest">{new Date(review.responded_at).toLocaleDateString()}</span>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-sm text-charcoal-900 font-bold leading-relaxed italic">
+                                                            &quot;{review.author_response}&quot;
+                                                        </p>
+                                                    </div>
+                                                )}
                                             </div>
-                                            <Link
-                                                to={review.link}
-                                                className="btn-secondary py-2 text-[10px] font-black uppercase tracking-widest whitespace-nowrap"
-                                            >
-                                                Edit Feedback
-                                            </Link>
+                                            <div className="flex items-center gap-3">
+                                                <button
+                                                    onClick={() => handleDeleteReview(review.id, review.assetType)}
+                                                    className="w-10 h-10 flex items-center justify-center rounded-xl border border-charcoal-100 text-charcoal-400 hover:text-red-500 hover:bg-red-50 transition-all"
+                                                    title="Retract Intel"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                                <Link
+                                                    to={review.link}
+                                                    className="btn-secondary py-2 text-[10px] font-black uppercase tracking-widest whitespace-nowrap"
+                                                >
+                                                    Edit Feedback
+                                                </Link>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -651,6 +761,15 @@ export default function DashboardPage() {
                     )}
                 </div>
             </div>
+
+            <ConfirmModal
+                isOpen={confirmConfig.isOpen}
+                onClose={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmConfig.onConfirm}
+                title={confirmConfig.title}
+                message={confirmConfig.message}
+                type={confirmConfig.type}
+            />
         </div>
     );
 }

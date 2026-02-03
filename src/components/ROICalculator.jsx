@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
+import { motion } from 'framer-motion';
 
 export default function ROICalculator({ initialDefaults = {}, assetId = null, assetType = null }) {
     const { user } = useAuth();
@@ -243,19 +244,29 @@ export default function ROICalculator({ initialDefaults = {}, assetId = null, as
                     <button
                         onClick={handleSaveCalculation}
                         disabled={!user || isSaving || saveSuccess}
-                        className={`mt-8 w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 ${saveSuccess
-                            ? 'bg-emerald-500 text-white'
-                            : isSaving
-                                ? 'bg-charcoal-800 text-white/50 cursor-wait'
-                                : 'bg-white text-charcoal-900 hover:bg-primary-500 hover:text-white shadow-xl shadow-black/20'
-                            }`}
+                        className={`mt-10 w-full h-14 rounded-xl font-black text-[10px] uppercase tracking-[0.35em] transition-all duration-500 flex items-center justify-center relative overflow-hidden group
+                            ${saveSuccess
+                                ? 'bg-emerald-500 text-white shadow-[0_0_40px_rgba(16,185,129,0.2)]'
+                                : isSaving
+                                    ? 'bg-charcoal-900 text-white/40 cursor-wait border border-white/5'
+                                    : 'bg-primary-600 text-white hover:bg-primary-500 shadow-[0_15px_30px_rgba(37,74,255,0.3)] hover:shadow-primary-500/50 hover:-translate-y-0.5'}`}
                     >
+                        {/* Shimmer Ambient Light */}
+                        {!saveSuccess && !isSaving && (
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
+                        )}
+
                         {saveSuccess ? (
-                            <><span>✅</span> Projection Saved</>
+                            <motion.span initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}>
+                                Intelligence Secured
+                            </motion.span>
                         ) : isSaving ? (
-                            'Encrypting Data...'
+                            <span className="flex items-center gap-2">
+                                <div className="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                                Securing Strategy...
+                            </span>
                         ) : (
-                            <><span>💾</span> Save this Projection</>
+                            <span>Save this Projection</span>
                         )}
                     </button>
                     {!user && (

@@ -5,6 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '../components/SEO';
 import { toast } from 'react-hot-toast';
+import ConfirmModal from '../components/ConfirmModal';
+import AdminActionModal from '../components/AdminActionModal';
 
 /**
  * Admin Moderation Terminal (Operational Console)
@@ -30,6 +32,25 @@ export default function AdminDashboardPage() {
     const [auditRequests, setAuditRequests] = useState([]);
     const [allUsers, setAllUsers] = useState([]);
     const location = useLocation();
+
+    // Confirm Modal State
+    const [confirmConfig, setConfirmConfig] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => { },
+        type: 'danger'
+    });
+
+    // Admin Action Modal State (Feedback/Audit)
+    const [actionConfig, setActionConfig] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        inputType: 'text',
+        confirmText: '',
+        onConfirm: () => { }
+    });
 
     // Sync tab from URL
     useEffect(() => {
@@ -185,63 +206,78 @@ export default function AdminDashboardPage() {
         }
     }, [profile, navigate]);
 
-    const handleDelete = async (id, type) => {
-        if (!window.confirm(`Are you sure you want to remove this ${type}? It will be hidden from the platform but kept in archives.`)) return;
+    const handleDelete = (id, type) => {
+        setConfirmConfig({
+            isOpen: true,
+            title: `Archive ${type === 'idea' ? 'Blueprint' : 'Brand'}?`,
+            message: `Are you sure you want to archive this ${type}? It will be removed from community circulation but retained in the institutional database.`,
+            onConfirm: async () => {
+                const table = type === 'idea' ? 'income_ideas' : 'franchises';
+                const { error } = await supabase
+                    .from(table)
+                    .update({ deleted_at: new Date() })
+                    .eq('id', id);
 
-        const table = type === 'idea' ? 'income_ideas' : 'franchises';
-        const { error } = await supabase
-            .from(table)
-            .update({ deleted_at: new Date() })
-            .eq('id', id);
+                if (!error) {
+                    toast.success('Asset archived successfully');
+                    setPendingIdeas(prev => prev.filter(i => i.id !== id));
+                    setApprovedIdeas(prev => prev.filter(i => i.id !== id));
+                    setAllIdeas(prev => prev.filter(i => i.id !== id));
+                    setPendingFranchises(prev => prev.filter(f => f.id !== id));
+                    setApprovedFranchises(prev => prev.filter(f => f.id !== id));
+                    setAllFranchises(prev => prev.filter(f => f.id !== id));
 
-        if (!error) {
-            // Update all local states
-            setPendingIdeas(prev => prev.filter(i => i.id !== id));
-            setApprovedIdeas(prev => prev.filter(i => i.id !== id));
-            setAllIdeas(prev => prev.filter(i => i.id !== id));
-            setPendingFranchises(prev => prev.filter(f => f.id !== id));
-            setApprovedFranchises(prev => prev.filter(f => f.id !== id));
-            setAllFranchises(prev => prev.filter(f => f.id !== id));
-
-            setStats(prev => ({
-                ...prev,
-                [type === 'idea' ? 'ideas' : 'franchises']: Math.max(0, stats[type === 'idea' ? 'ideas' : 'franchises'] - 1)
-            }));
-        } else {
-            alert('Delete failed: ' + error.message);
-        }
+                    setStats(prev => ({
+                        ...prev,
+                        [type === 'idea' ? 'ideas' : 'franchises']: Math.max(0, stats[type === 'idea' ? 'ideas' : 'franchises'] - 1)
+                    }));
+                } else {
+                    toast.error('Archive failed: ' + error.message);
+                }
+            },
+            type: 'danger'
+        });
     };
 
-    const handleRequestRevision = async (id, type) => {
-        const feedback = window.prompt('Enter feedback for the author:');
-        if (!feedback) return;
+    const handleRequestRevision = (id, type) => {
+        setActionConfig({
+            isOpen: true,
+            title: 'Request Strategic Revision',
+            message: `Enter the specific operational details required to bring this ${type === 'idea' ? 'blueprint' : 'brand'} up to institutional standards.`,
+            inputType: 'text',
+            confirmText: 'Transmit Revision Request',
+            onConfirm: async (feedback) => {
+                const table = type === 'idea' ? 'income_ideas' : 'franchises';
+                const { error } = await supabase
+                    .from(table)
+                    .update({
+                        status: 'revision',
+                        admin_feedback: feedback
+                    })
+                    .eq('id', id);
 
-        const table = type === 'idea' ? 'income_ideas' : 'franchises';
-        const { error } = await supabase
-            .from(table)
-            .update({
-                status: 'revision',
-                admin_feedback: feedback
-            })
-            .eq('id', id);
+                if (!error) {
+                    const item = type === 'idea'
+                        ? pendingIdeas.find(i => i.id === id) || allIdeas.find(i => i.id === id)
+                        : pendingFranchises.find(f => f.id === id) || allFranchises.find(f => f.id === id);
 
-        if (!error) {
-            const item = type === 'idea'
-                ? pendingIdeas.find(i => i.id === id) || allIdeas.find(i => i.id === id)
-                : pendingFranchises.find(f => f.id === id) || allFranchises.find(f => f.id === id);
-
-            if (item?.author_id) {
-                await supabase.from('notifications').insert([{
-                    user_id: item.author_id,
-                    title: 'Action Required: Asset Revision 📝',
-                    message: `Feedback for "${item.title || item.name}": ${feedback}`,
-                    type: 'system',
-                    link: '/my-ideas'
-                }]);
+                    if (item?.author_id) {
+                        await supabase.from('notifications').insert([{
+                            user_id: item.author_id,
+                            title: 'Action Required: Asset Revision 📝',
+                            message: `Feedback for "${item.title || item.name}": ${feedback}`,
+                            type: 'system',
+                            link: '/my-ideas'
+                        }]);
+                    }
+                    toast.success('Revision request transmitted.');
+                    // Refresh data
+                    setPendingIdeas(prev => prev.map(i => i.id === id ? { ...i, status: 'revision' } : i));
+                } else {
+                    toast.error('Transmission failed: ' + error.message);
+                }
             }
-            alert('Revision requested and author notified.');
-            window.location.reload(); // Refresh to update view
-        }
+        });
     };
 
     const handleApprove = async (id, type) => {
@@ -279,18 +315,25 @@ export default function AdminDashboardPage() {
         }
     };
 
-    const handleUpdateAuditStatus = async (id, status) => {
-        let feedback = '';
-        let reportUrl = '';
-
+    const handleUpdateAuditStatus = (id, status) => {
         if (status === 'completed') {
-            feedback = window.prompt('Enter final expert feedback for the user:');
-            if (feedback === null) return; // Cancelled prompt
-            reportUrl = window.prompt('Enter report URL (optional):') || '';
-        } else if (status === 'in-review') {
-            feedback = 'Your audit request is currently being analyzed by our expert panel.';
+            setActionConfig({
+                isOpen: true,
+                title: 'Finalize Expert Audit',
+                message: 'Provide a comprehensive expert assessment and link to the institutional due-diligence report.',
+                inputType: 'audit',
+                confirmText: 'Authorize & Send Report',
+                onConfirm: async (feedback, reportUrl) => {
+                    executeAuditUpdate(id, status, feedback, reportUrl);
+                }
+            });
+        } else {
+            const feedback = status === 'in-review' ? 'Your audit request is currently being analyzed by our expert panel.' : '';
+            executeAuditUpdate(id, status, feedback, '');
         }
+    };
 
+    const executeAuditUpdate = async (id, status, feedback, reportUrl) => {
         const { error } = await supabase
             .from('expert_audit_requests')
             .update({
@@ -304,7 +347,6 @@ export default function AdminDashboardPage() {
         if (!error) {
             const audit = auditRequests.find(a => a.id === id);
 
-            // Notify User
             if (audit && audit.user_id) {
                 await supabase.from('notifications').insert([{
                     user_id: audit.user_id,
@@ -734,6 +776,24 @@ export default function AdminDashboardPage() {
                     </div>
                 )}
             </div>
+
+            <ConfirmModal
+                isOpen={confirmConfig.isOpen}
+                onClose={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmConfig.onConfirm}
+                title={confirmConfig.title}
+                message={confirmConfig.message}
+                type={confirmConfig.type}
+            />
+            <AdminActionModal
+                isOpen={actionConfig.isOpen}
+                onClose={() => setActionConfig(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={actionConfig.onConfirm}
+                title={actionConfig.title}
+                message={actionConfig.message}
+                inputType={actionConfig.inputType}
+                confirmText={actionConfig.confirmText}
+            />
         </div>
     );
 }
