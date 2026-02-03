@@ -41,6 +41,9 @@ export default function IdeasPage() {
                 .select('*, categories (name, slug), profiles(full_name, id)')
                 .order(sortBy, { ascending: false });
 
+            // Moderation Gate: Only show approved and non-deleted ideas
+            query = query.eq('is_approved', true).is('deleted_at', null);
+
             if (selectedCategory !== 'all') {
                 query = query.eq('category_id', selectedCategory);
             }
@@ -250,65 +253,104 @@ export default function IdeasPage() {
                                         viewport={{ once: true }}
                                         transition={{ duration: 0.4, delay: index * 0.05 }}
                                     >
-                                        <Link to={`/ideas/${idea.slug}`} className="group relative block bg-white border border-gray-200 rounded-3xl p-8 hover:border-blue-300 hover:shadow-[0_30px_60px_-15px_rgba(37,99,235,0.08)] transition-all h-full">
-                                            {/* Header */}
-                                            <div className="flex justify-between items-start mb-6">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-[9px] font-black uppercase text-blue-600 px-2 py-0.5 bg-blue-50 rounded-lg border border-blue-100">
-                                                        {idea.categories?.name}
+                                        <Link to={`/ideas/${idea.slug}`} className="group relative block bg-white border border-gray-200 rounded-[2rem] hover:border-blue-300 hover:shadow-[0_40px_80px_-15px_rgba(25,70,180,0.1)] transition-all h-full overflow-hidden p-0 flex flex-col">
+                                            {/* Visual Header - Fixed Full Bleed */}
+                                            <div className="relative h-56 w-full overflow-hidden bg-gray-100 shrink-0">
+                                                <img
+                                                    src={idea.image_url || (
+                                                        idea.categories?.name?.toLowerCase().includes('content') ? `https://images.unsplash.com/photo-1492724441997-5dc865305da7?q=80&w=1000&auto=format&fit=crop&sig=${idea.id}` :
+                                                            idea.categories?.name?.toLowerCase().includes('rental') ? `https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1000&auto=format&fit=crop&sig=${idea.id}` :
+                                                                idea.categories?.name?.toLowerCase().includes('automation') ? `https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1000&auto=format&fit=crop&sig=${idea.id}` :
+                                                                    idea.categories?.name?.toLowerCase().includes('marketing') ? `https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop&sig=${idea.id}` :
+                                                                        `https://images.unsplash.com/photo-1553729459-efe14ef6055d?q=80&w=1000&auto=format&fit=crop&sig=${idea.id}`
+                                                    )}
+                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
+                                                    alt={idea.title}
+                                                    onError={(e) => {
+                                                        e.target.src = 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1000';
+                                                        e.target.onerror = null;
+                                                    }}
+                                                />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-gray-950/40 to-transparent" />
+
+                                                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl text-[8px] font-black tracking-widest text-blue-600 uppercase border border-white/20 shadow-sm">
+                                                    {idea.categories?.name}
+                                                </div>
+
+                                                <div className="absolute bottom-4 left-4 flex gap-2">
+                                                    <span className="bg-emerald-500/90 backdrop-blur-sm text-white px-2 py-1.5 rounded-lg text-[7px] font-black tracking-widest uppercase shadow-xl">
+                                                        ✓ VERIFIED
+                                                    </span>
+                                                    {idea.is_premium && (
+                                                        <span className="bg-primary-600/90 backdrop-blur-sm text-white px-2 py-1.5 rounded-lg text-[7px] font-black tracking-widest uppercase shadow-xl">
+                                                            ⭐ PREMIUM
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="p-8 flex flex-col flex-1">
+
+                                                {/* Impact Metric */}
+                                                <div className="flex justify-between items-center mb-4">
+                                                    <div className="flex flex-col items-start gap-0.5">
+                                                        <div className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Global Rank</div>
+                                                        <div className="text-sm font-black text-gray-950 uppercase tracking-tighter">
+                                                            #{index + 1} Strategic Asset
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col items-center gap-0.5 bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-100 text-gray-400 group-hover:bg-blue-50 group-hover:border-blue-100 group-hover:text-blue-600 transition-colors">
+                                                        <span className="text-[10px] font-bold leading-none">{idea.upvotes_count || 0}</span>
+                                                        <span className="text-[7px] font-black uppercase tracking-tighter">Impact</span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Content */}
+                                                <h3 className="text-xl font-black text-gray-950 group-hover:text-blue-600 transition-colors mb-1 tracking-tight">
+                                                    {idea.title}
+                                                </h3>
+                                                {idea.profiles && (
+                                                    <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1">
+                                                        <span>by</span>
+                                                        <span className="text-gray-900 group-hover:text-blue-600 transition-colors uppercase">{idea.profiles.full_name}</span>
+                                                    </div>
+                                                )}
+                                                <p className="text-[13px] text-gray-500 line-clamp-2 leading-relaxed h-[2.5rem] mb-8 font-medium">
+                                                    {idea.short_description}
+                                                </p>
+
+                                                {/* Detailed Metrics */}
+                                                <div className="flex items-center gap-6 mb-8 py-5 border-y border-gray-50">
+                                                    <div className="flex-1">
+                                                        <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 font-mono">Potential Yield</div>
+                                                        <div className="text-xl font-black text-gray-950 font-mono tracking-tighter">
+                                                            {formatCurrencyShort(idea.monthly_income_min)}
+                                                            <span className="text-[10px] text-gray-400 font-medium pl-0.5 tracking-normal">/mo</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="w-[1px] h-10 bg-gray-100"></div>
+                                                    <div className="flex-1">
+                                                        <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 font-mono">Risk Level</div>
+                                                        <div className={`text-[12px] font-black uppercase tracking-widest flex items-center gap-2 ${idea.risk_level === 'low' ? 'text-emerald-500' : 'text-amber-500'}`}>
+                                                            <span className={`w-1.5 h-1.5 rounded-full ${idea.risk_level === 'low' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`}></span>
+                                                            {idea.risk_level}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Effort Tag */}
+                                                <div className="flex items-center justify-between">
+                                                    <span className={`text-[10px] font-black uppercase px-3 py-1.5 rounded-lg inline-flex items-center gap-2 ${idea.effort_level === 'passive' ? 'bg-emerald-50 text-emerald-600' :
+                                                        idea.effort_level === 'semi-passive' ? 'bg-blue-50 text-blue-600' :
+                                                            'bg-amber-50 text-amber-600'
+                                                        }`}>
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-40"></span>
+                                                        {idea.effort_level}
+                                                    </span>
+                                                    <span className="text-xs font-black text-gray-950 group-hover:text-blue-600 flex items-center gap-2 transition-all">
+                                                        Blueprint <span className="group-hover:translate-x-1 transition-transform">→</span>
                                                     </span>
                                                 </div>
-                                                <div className="flex flex-col items-center gap-0.5 bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-100 text-gray-400 group-hover:bg-blue-50 group-hover:border-blue-100 group-hover:text-blue-600 transition-colors">
-                                                    <span className="text-[10px] font-bold leading-none">{idea.upvotes_count || 0}</span>
-                                                    <span className="text-[7px] font-black uppercase tracking-tighter">Impact</span>
-                                                </div>
-                                            </div>
-
-                                            {/* Content */}
-                                            <h3 className="text-xl font-black text-gray-950 group-hover:text-blue-600 transition-colors mb-1 tracking-tight">
-                                                {idea.title}
-                                            </h3>
-                                            {idea.profiles && (
-                                                <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1">
-                                                    <span>by</span>
-                                                    <span className="text-gray-900 group-hover:text-blue-600 transition-colors uppercase">{idea.profiles.full_name}</span>
-                                                </div>
-                                            )}
-                                            <p className="text-[13px] text-gray-500 line-clamp-2 leading-relaxed h-[2.5rem] mb-8 font-medium">
-                                                {idea.short_description}
-                                            </p>
-
-                                            {/* Detailed Metrics */}
-                                            <div className="flex items-center gap-6 mb-8 py-5 border-y border-gray-50">
-                                                <div className="flex-1">
-                                                    <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 font-mono">Potential Yield</div>
-                                                    <div className="text-xl font-black text-gray-950 font-mono tracking-tighter">
-                                                        {formatCurrencyShort(idea.monthly_income_min)}
-                                                        <span className="text-[10px] text-gray-400 font-medium pl-0.5 tracking-normal">/mo</span>
-                                                    </div>
-                                                </div>
-                                                <div className="w-[1px] h-10 bg-gray-100"></div>
-                                                <div className="flex-1">
-                                                    <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 font-mono">Risk Level</div>
-                                                    <div className={`text-[12px] font-black uppercase tracking-widest flex items-center gap-2 ${idea.risk_level === 'low' ? 'text-emerald-500' : 'text-amber-500'}`}>
-                                                        <span className={`w-1.5 h-1.5 rounded-full ${idea.risk_level === 'low' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`}></span>
-                                                        {idea.risk_level}
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Effort Tag */}
-                                            <div className="flex items-center justify-between">
-                                                <span className={`text-[10px] font-black uppercase px-3 py-1.5 rounded-lg inline-flex items-center gap-2 ${idea.effort_level === 'passive' ? 'bg-emerald-50 text-emerald-600' :
-                                                    idea.effort_level === 'semi-passive' ? 'bg-blue-50 text-blue-600' :
-                                                        'bg-amber-50 text-amber-600'
-                                                    }`}>
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-current opacity-40"></span>
-                                                    {idea.effort_level}
-                                                </span>
-                                                <span className="text-xs font-black text-gray-950 group-hover:text-blue-600 flex items-center gap-2 transition-all">
-                                                    Blueprint <span className="group-hover:translate-x-1 transition-transform">→</span>
-                                                </span>
                                             </div>
                                         </Link>
                                     </motion.div>

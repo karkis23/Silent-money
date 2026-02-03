@@ -3,7 +3,7 @@ import { supabase } from '../services/supabase';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function ReviewsSection({ ideaId, authorId, user }) {
+export default function ReviewsSection({ assetId, assetType = 'idea', authorId, user }) {
     const [reviews, setReviews] = useState([]);
     const [rating, setRating] = useState(5);
     const [content, setContent] = useState('');
@@ -15,12 +15,15 @@ export default function ReviewsSection({ ideaId, authorId, user }) {
     const [userHasReviewed, setUserHasReviewed] = useState(false);
     const isAuthor = user?.id === authorId;
 
+    const tableName = assetType === 'franchise' ? 'franchise_reviews' : 'income_idea_reviews';
+    const foreignKey = assetType === 'franchise' ? 'franchise_id' : 'idea_id';
+
     const fetchReviews = async () => {
         setLoading(true);
         const { data, error } = await supabase
-            .from('income_idea_reviews')
+            .from(tableName)
             .select('*, profiles(id, full_name, avatar_url)')
-            .eq('idea_id', ideaId)
+            .eq(foreignKey, assetId)
             .order('created_at', { ascending: false });
 
         if (!error && data) {
@@ -34,7 +37,7 @@ export default function ReviewsSection({ ideaId, authorId, user }) {
     useEffect(() => {
         fetchReviews();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [ideaId]);
+    }, [assetId]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -44,19 +47,19 @@ export default function ReviewsSection({ ideaId, authorId, user }) {
         setError('');
 
         const { error } = await supabase
-            .from('income_idea_reviews')
+            .from(tableName)
             .insert([{
                 user_id: user.id,
-                idea_id: ideaId,
+                [foreignKey]: assetId,
                 rating,
                 content
             }]);
 
         if (error) {
             if (error.code === '23505') {
-                setError('You have already reviewed this blueprint.');
+                setError('You have already logged intel for this asset.');
             } else {
-                setError('Transmission failed. Ensure the blueprint is active.');
+                setError(`Transmission failed: ${error.message}`);
             }
         } else {
             setContent('');
@@ -66,16 +69,18 @@ export default function ReviewsSection({ ideaId, authorId, user }) {
         setSubmitting(false);
     };
 
+    // ... handlePostReply and handleDelete stay the same but use tableName ...
+
     const handlePostReply = async (reviewId) => {
         const reply = replyContent[reviewId];
         if (!reply?.trim()) return;
 
         setSubmitting(true);
         const { error } = await supabase
-            .from('income_idea_reviews')
+            .from(tableName)
             .update({
                 author_response: reply,
-                responded_at: new Date().toISOString()
+                // responded_at will be set by DB default if available or we can update it if added
             })
             .eq('id', reviewId);
 
@@ -85,16 +90,16 @@ export default function ReviewsSection({ ideaId, authorId, user }) {
             fetchReviews();
         } else {
             console.error('Reply error:', error);
-            alert('Failed to transmit reply to the community grid.');
+            alert('Failed to transmit reply.');
         }
         setSubmitting(false);
     };
 
     const handleDelete = async (reviewId) => {
-        if (!confirm('Are you sure you want to retract your review?')) return;
+        if (!confirm('Are you sure you want to retract your intel?')) return;
 
         const { error } = await supabase
-            .from('income_idea_reviews')
+            .from(tableName)
             .delete()
             .eq('id', reviewId);
 
@@ -106,7 +111,7 @@ export default function ReviewsSection({ ideaId, authorId, user }) {
     return (
         <div className="card space-y-8 bg-white/50 backdrop-blur-sm border-charcoal-100">
             <h3 className="text-xl font-black text-charcoal-900 flex items-center gap-3">
-                <span>💬</span> Community Intel
+                <span>💬</span> {assetType === 'franchise' ? 'Brand Intel' : 'Community Intel'}
             </h3>
 
             {user ? (
@@ -135,7 +140,7 @@ export default function ReviewsSection({ ideaId, authorId, user }) {
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
                                 className="w-full px-5 py-4 bg-white border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none text-sm font-medium min-h-[100px] resize-none"
-                                placeholder="Share your experience with this blueprint..."
+                                placeholder={`Share your experience with this ${assetType}...`}
                             />
                         </div>
 
@@ -228,9 +233,9 @@ export default function ReviewsSection({ ideaId, authorId, user }) {
                             {review.author_response ? (
                                 <div className="mt-4 pl-6 border-l-2 border-primary-100 py-1">
                                     <div className="flex items-center gap-2 mb-2">
-                                        <span className="text-[8px] font-black bg-primary-600 text-white px-2 py-0.5 rounded-full uppercase tracking-widest">Blueprint Author</span>
+                                        <span className="text-[8px] font-black bg-primary-600 text-white px-2 py-0.5 rounded-full uppercase tracking-widest">Asset Owner</span>
                                         <span className="text-[8px] font-black text-charcoal-300 uppercase tracking-widest">
-                                            {new Date(review.responded_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                                            {review.responded_at ? new Date(review.responded_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : 'Verified Response'}
                                         </span>
                                     </div>
                                     <p className="text-sm text-charcoal-900 font-bold leading-relaxed">
@@ -243,7 +248,7 @@ export default function ReviewsSection({ ideaId, authorId, user }) {
                                         onClick={() => setReplyingTo(review.id)}
                                         className="text-[10px] font-black text-primary-600 uppercase tracking-widest hover:underline flex items-center gap-1.5"
                                     >
-                                        <span>↩️ Reply as Author</span>
+                                        <span>↩️ Reply as Owner</span>
                                     </button>
                                 )
                             )}

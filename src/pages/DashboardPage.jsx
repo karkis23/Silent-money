@@ -9,6 +9,9 @@ export default function DashboardPage() {
     const { user, profile } = useAuth();
     const [savedIdeas, setSavedIdeas] = useState([]);
     const [savedFranchises, setSavedFranchises] = useState([]);
+    const [savedCalculations, setSavedCalculations] = useState([]);
+    const [myReviews, setMyReviews] = useState([]);
+    const [myAudits, setMyAudits] = useState([]);
     const [myIdeaCount, setMyIdeaCount] = useState(0);
     const [loading, setLoading] = useState(true);
 
@@ -62,13 +65,67 @@ export default function DashboardPage() {
                 .select('*', { count: 'exact', head: true })
                 .eq('author_id', user.id);
 
+            // Fetch user idea reviews
+            const { data: ideaReviews, error: reviewsError } = await supabase
+                .from('income_idea_reviews')
+                .select(`
+                    *,
+                    income_ideas (
+                        title,
+                        slug
+                    )
+                `)
+                .eq('user_id', user.id);
+
+            // Fetch user franchise reviews
+            const { data: franchiseReviews, error: fReviewsError } = await supabase
+                .from('franchise_reviews')
+                .select(`
+                    *,
+                    franchises (
+                        name,
+                        slug
+                    )
+                `)
+                .eq('user_id', user.id);
+
+            // Fetch saved calculations with explicit error catching
+            const { data: calcs, error: calcError } = await supabase
+                .from('roi_calculations')
+                .select(`
+                    *,
+                    income_ideas:idea_id (title, slug),
+                    franchises:franchise_id (name, slug)
+                `)
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
+
+            // Fetch expert audit requests
+            const { data: audits, error: auditError } = await supabase
+                .from('expert_audit_requests')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
+
             if (savedError) console.error('Error fetching saved ideas:', savedError);
             if (franSavedError) console.error('Error fetching saved franchises:', franSavedError);
             if (countError) console.error('Error fetching idea count:', countError);
             if (fError) console.error('Error fetching franchise count:', fError);
+            if (reviewsError) console.error('Error fetching idea reviews:', reviewsError);
+            if (fReviewsError) console.error('Error fetching franchise reviews:', fReviewsError);
+            if (calcError) console.error('Error fetching calculations:', calcError);
+            if (auditError) console.error('Error fetching audits:', auditError);
+
+            const allReviews = [
+                ...(ideaReviews || []).map(r => ({ ...r, assetType: 'blueprint', asset: r.income_ideas, title: r.income_ideas?.title, link: `/ideas/${r.income_ideas?.slug}` })),
+                ...(franchiseReviews || []).map(r => ({ ...r, assetType: 'franchise', asset: r.franchises, title: r.franchises?.name, link: `/franchise/${r.franchises?.slug}` }))
+            ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
             setSavedIdeas(saved || []);
             setSavedFranchises(savedFran || []);
+            setSavedCalculations(calcs || []);
+            setMyReviews(allReviews);
+            setMyAudits(audits || []);
             setMyIdeaCount(count || 0);
             setMyFranchiseCount(fCount || 0);
             setLoading(false);
@@ -124,7 +181,10 @@ export default function DashboardPage() {
 
     return (
         <div className="min-h-screen bg-cream-50 pb-20 pt-32">
-            <SEO title="User Dashboard | Command Center" />
+            <SEO
+                title="Commander Dashboard | Vaulted Assets"
+                description="Manage your saved blueprints, track ROI progress, and monitor your passive income fleet in real-time."
+            />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-8">
@@ -152,7 +212,7 @@ export default function DashboardPage() {
                                 Welcome, <span className="text-primary-600">{profile?.full_name?.split(' ')[0] || 'Commander'}</span>
                             </h1>
                             <p className="text-charcoal-500 font-medium mt-2">
-                                Monitoring {savedIdeas.length + savedFranchises.length} active wealth engines.
+                                Monitoring {savedIdeas.length + savedFranchises.length} active wealth engines & {myReviews.length} intel logs.
                             </p>
                         </div>
                     </div>
@@ -269,6 +329,27 @@ export default function DashboardPage() {
                         Saved Franchises ({savedFranchises.length})
                         {activeTab === 'franchises' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-primary-600 rounded-full" />}
                     </button>
+                    <button
+                        onClick={() => setActiveTab('intel')}
+                        className={`pb-4 text-[12px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'intel' ? 'text-primary-600' : 'text-charcoal-400 hover:text-charcoal-600'}`}
+                    >
+                        My Intel ({myReviews.length})
+                        {activeTab === 'intel' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-primary-600 rounded-full" />}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('projections')}
+                        className={`pb-4 text-[12px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'projections' ? 'text-primary-600' : 'text-charcoal-400 hover:text-charcoal-600'}`}
+                    >
+                        ROI Projections ({savedCalculations.length})
+                        {activeTab === 'projections' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-primary-600 rounded-full" />}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('audits')}
+                        className={`pb-4 text-[12px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'audits' ? 'text-primary-600' : 'text-charcoal-400 hover:text-charcoal-600'}`}
+                    >
+                        Lead Accelerator ({myAudits.length})
+                        {activeTab === 'audits' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-primary-600 rounded-full" />}
+                    </button>
                 </div>
 
                 {/* Section Content */}
@@ -325,7 +406,7 @@ export default function DashboardPage() {
                                 </div>
                             )}
                         </>
-                    ) : (
+                    ) : activeTab === 'franchises' ? (
                         <>
                             <div className="px-6 py-4 border-b border-charcoal-100 bg-charcoal-50/30 flex justify-between items-center">
                                 <h2 className="text-sm font-black text-charcoal-900 uppercase tracking-widest">Saved Franchise Opportunities</h2>
@@ -364,6 +445,204 @@ export default function DashboardPage() {
                                                 </button>
                                                 <Link to={`/franchise/${saved.franchises.slug}`} className="btn-secondary py-2 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Open Portal</Link>
                                             </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                    ) : activeTab === 'projections' ? (
+                        <div className="p-6">
+                            <div className="flex justify-between items-center mb-8">
+                                <h2 className="text-sm font-black text-charcoal-900 uppercase tracking-widest">Financial Intelligence Reports</h2>
+                            </div>
+
+                            {savedCalculations.length === 0 ? (
+                                <div className="text-center py-16">
+                                    <div className="text-4xl mb-4">📊</div>
+                                    <h3 className="text-lg font-bold text-charcoal-900 mb-2">No Projections Found</h3>
+                                    <p className="text-charcoal-500 text-sm font-medium">Use the ROI calculator on any asset to save your custom projections.</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {savedCalculations.map(calc => (
+                                        <div key={calc.id} className="p-6 bg-charcoal-50 rounded-3xl border border-charcoal-100 hover:border-primary-200 transition-all group">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div>
+                                                    <div className="text-[8px] font-black text-charcoal-400 uppercase tracking-widest mb-1">
+                                                        {calc.income_ideas ? 'Blueprint' : 'Franchise'}
+                                                    </div>
+                                                    <Link
+                                                        to={calc.income_ideas ? `/ideas/${calc.income_ideas.slug}` : `/franchise/${calc.franchises.slug}`}
+                                                        className="text-sm font-black text-charcoal-950 uppercase tracking-tight group-hover:text-primary-600 transition-colors"
+                                                    >
+                                                        {calc.income_ideas?.title || calc.franchises?.name}
+                                                    </Link>
+                                                </div>
+                                                <div className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg">
+                                                    +{Number(calc.roi_percentage || 0).toFixed(0)}% ROI
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                                <div className="p-3 bg-white rounded-2xl border border-charcoal-100">
+                                                    <div className="text-[8px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Net Profit</div>
+                                                    <div className="text-xs font-black text-charcoal-900">₹{calc.net_profit.toLocaleString()}</div>
+                                                </div>
+                                                <div className="p-3 bg-white rounded-2xl border border-charcoal-100">
+                                                    <div className="text-[8px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Break Even</div>
+                                                    <div className="text-xs font-black text-charcoal-900">{calc.break_even_months || 'N/A'} Mo</div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex justify-between items-center text-[8px] font-black text-charcoal-400 uppercase tracking-widest pt-4 border-t border-charcoal-100">
+                                                <span>{new Date(calc.created_at).toLocaleDateString()}</span>
+                                                <button
+                                                    onClick={async () => {
+                                                        if (confirm('Delete projection?')) {
+                                                            await supabase.from('roi_calculations').delete().eq('id', calc.id);
+                                                            setSavedCalculations(prev => prev.filter(p => p.id !== calc.id));
+                                                        }
+                                                    }}
+                                                    className="hover:text-red-500 transition-colors"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    ) : activeTab === 'audits' ? (
+                        <>
+                            <div className="px-6 py-4 border-b border-charcoal-100 bg-charcoal-50/30 flex justify-between items-center">
+                                <h2 className="text-sm font-black text-charcoal-900 uppercase tracking-widest">Expert Audit Accelerator</h2>
+                                <span className="bg-primary-600 text-white px-3 py-1 rounded-lg text-[9px] font-black uppercase">Active Analysis</span>
+                            </div>
+                            {myAudits.length === 0 ? (
+                                <div className="text-center py-16 px-4">
+                                    <div className="text-4xl mb-4">🚀</div>
+                                    <h3 className="text-lg font-bold text-charcoal-900 mb-2">No Audits Requested</h3>
+                                    <p className="text-charcoal-500 mb-6 text-sm font-medium">Request a deep-dive feasibility report for any brand you're interested in.</p>
+                                    <Link to="/franchise" className="btn-primary py-2 px-6 text-xs">Request Audit</Link>
+                                </div>
+                            ) : (
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left">
+                                        <thead>
+                                            <tr className="bg-charcoal-50 border-b border-charcoal-100">
+                                                <th className="px-6 py-4 text-[10px] font-black text-charcoal-400 uppercase tracking-widest font-mono">Brand Details</th>
+                                                <th className="px-6 py-4 text-[10px] font-black text-charcoal-400 uppercase tracking-widest font-mono">Budget/Target</th>
+                                                <th className="px-6 py-4 text-[10px] font-black text-charcoal-400 uppercase tracking-widest font-mono">Status</th>
+                                                <th className="px-6 py-4 text-[10px] font-black text-charcoal-400 uppercase tracking-widest font-mono text-right">Requested</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-charcoal-100">
+                                            {myAudits.map((audit) => (
+                                                <tr key={audit.id} className="hover:bg-cream-50 transition-colors group">
+                                                    <td className="px-6 py-6 font-mono">
+                                                        <div className="text-sm font-black text-charcoal-900">{audit.brand_name}</div>
+                                                        <div className="text-[10px] text-charcoal-400 uppercase tracking-widest mt-1">{audit.brand_sector || 'General Sector'}</div>
+                                                    </td>
+                                                    <td className="px-6 py-6 font-mono">
+                                                        <div className="text-xs font-black text-charcoal-900">{audit.investment_budget || 'N/A'}</div>
+                                                        <div className="text-[10px] text-charcoal-400 uppercase tracking-widest mt-1">📍 {audit.location_target || 'PAN India'}</div>
+                                                    </td>
+                                                    <td className="px-6 py-6 font-mono">
+                                                        <div className="flex flex-col gap-3">
+                                                            <span className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest inline-flex items-center gap-2 w-fit ${audit.status === 'pending' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
+                                                                audit.status === 'in-review' ? 'bg-primary-50 text-primary-600 border border-primary-100' :
+                                                                    audit.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
+                                                                        'bg-charcoal-50 text-charcoal-400 border border-charcoal-200'
+                                                                }`}>
+                                                                <span className={`w-1.5 h-1.5 rounded-full ${audit.status === 'pending' ? 'bg-amber-500 animate-pulse' :
+                                                                    audit.status === 'in-review' ? 'bg-primary-500 animate-pulse' :
+                                                                        audit.status === 'completed' ? 'bg-emerald-500' :
+                                                                            'bg-charcoal-400'
+                                                                    }`} />
+                                                                {audit.status}
+                                                            </span>
+
+                                                            {audit.admin_feedback && (
+                                                                <div className="p-3 bg-white rounded-xl border border-charcoal-100 shadow-sm max-w-xs transition-all group-hover:border-primary-100">
+                                                                    <div className="text-[8px] font-black text-primary-600 uppercase tracking-widest mb-1">Expert Intel</div>
+                                                                    <p className="text-[10px] text-charcoal-600 font-medium leading-relaxed italic">"{audit.admin_feedback}"</p>
+                                                                    {audit.report_url && (
+                                                                        <a
+                                                                            href={audit.report_url}
+                                                                            target="_blank"
+                                                                            rel="noreferrer"
+                                                                            className="mt-2 inline-flex items-center gap-2 text-[9px] font-black text-primary-600 uppercase tracking-widest hover:underline"
+                                                                        >
+                                                                            <span>🗂️</span> View Detailed Report
+                                                                        </a>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-6 text-right font-mono">
+                                                        <div className="text-[10px] font-black text-charcoal-600 uppercase tracking-widest">
+                                                            {new Date(audit.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                        </div>
+                                                        <div className="text-[9px] text-charcoal-400 mt-1 uppercase tracking-widest">48h SLA</div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <>
+                            <div className="px-6 py-4 border-b border-charcoal-100 bg-charcoal-50/30 flex justify-between items-center">
+                                <h2 className="text-sm font-black text-charcoal-900 uppercase tracking-widest">My Intelligence Logs</h2>
+                            </div>
+                            {myReviews.length === 0 ? (
+                                <div className="text-center py-16 px-4">
+                                    <div className="text-4xl mb-4">📡</div>
+                                    <h3 className="text-lg font-bold text-charcoal-900 mb-2">No Intel Shared Yet</h3>
+                                    <p className="text-charcoal-500 mb-6 text-sm font-medium">Contribute to the ecosystem by sharing your experience on blueprints.</p>
+                                    <Link to="/ideas" className="btn-primary py-2 px-6 text-xs">Browse Ideas</Link>
+                                </div>
+                            ) : (
+                                <div className="divide-y divide-charcoal-100">
+                                    {myReviews.map((review) => (
+                                        <div key={`${review.assetType}-${review.id}`} className="p-6 hover:bg-cream-50 transition-colors flex flex-col md:flex-row md:items-start justify-between gap-6 group">
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <Link to={review.link} className="text-lg font-black text-charcoal-900 group-hover:text-primary-600 transition-colors uppercase tracking-tight">
+                                                        {review.title}
+                                                    </Link>
+                                                    <span className="text-[8px] font-black uppercase text-charcoal-400 bg-charcoal-100 px-2 py-0.5 rounded-full border border-charcoal-200">
+                                                        {review.assetType}
+                                                    </span>
+                                                    <div className="flex text-yellow-400">
+                                                        {[...Array(5)].map((_, i) => (
+                                                            <span key={i}>{i < review.rating ? '★' : '☆'}</span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <p className="text-charcoal-600 text-sm font-medium leading-relaxed italic">
+                                                    "{review.content}"
+                                                </p>
+                                                <div className="mt-4 flex items-center gap-4 text-[9px] font-black text-charcoal-400 uppercase tracking-widest">
+                                                    <span>Logged on {new Date(review.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                                                    {review.author_response && (
+                                                        <span className="text-emerald-600 flex items-center gap-1">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                                                            Response Received
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <Link
+                                                to={review.link}
+                                                className="btn-secondary py-2 text-[10px] font-black uppercase tracking-widest whitespace-nowrap"
+                                            >
+                                                Edit Feedback
+                                            </Link>
                                         </div>
                                     ))}
                                 </div>

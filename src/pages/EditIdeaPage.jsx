@@ -8,7 +8,7 @@ import SEO from '../components/SEO';
 export default function EditIdeaPage() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, profile } = useAuth();
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -49,7 +49,7 @@ export default function EditIdeaPage() {
 
             if (fetchError) {
                 setError('Failed to load idea data');
-            } else if (idea.author_id !== user.id) {
+            } else if (!profile?.is_admin && idea.author_id !== user.id) {
                 setError('You do not have permission to edit this idea');
             } else {
                 setFormData({
@@ -82,7 +82,7 @@ export default function EditIdeaPage() {
         try {
             const skillsArray = formData.skills_required.split(',').map(s => s.trim()).filter(Boolean);
 
-            const { error: updateError } = await supabase
+            const query = supabase
                 .from('income_ideas')
                 .update({
                     title: formData.title,
@@ -100,8 +100,13 @@ export default function EditIdeaPage() {
                     skills_required: skillsArray,
                     updated_at: new Date()
                 })
-                .eq('id', id)
-                .eq('author_id', user.id);
+                .eq('id', id);
+
+            if (!profile?.is_admin) {
+                query.eq('author_id', user.id);
+            }
+
+            const { error: updateError } = await query;
 
             if (updateError) throw updateError;
             navigate('/my-ideas');

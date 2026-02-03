@@ -7,7 +7,7 @@ import SEO from '../components/SEO';
 
 export default function EditFranchisePage() {
     const { id } = useParams();
-    const { user } = useAuth();
+    const { user, profile } = useAuth();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [updateLoading, setUpdateLoading] = useState(false);
@@ -46,10 +46,9 @@ export default function EditFranchisePage() {
                 .from('franchises')
                 .select('*')
                 .eq('id', id)
-                .eq('author_id', user.id)
                 .single();
 
-            if (error) {
+            if (error || (!profile?.is_admin && data.author_id !== user.id)) {
                 setError('Could not find franchise or permission denied.');
                 setLoading(false);
             } else {
@@ -86,7 +85,7 @@ export default function EditFranchisePage() {
         setUpdateLoading(true);
         setError('');
 
-        const { error } = await supabase
+        const query = supabase
             .from('franchises')
             .update({
                 ...formData,
@@ -99,8 +98,14 @@ export default function EditFranchisePage() {
                 expected_profit_max: formData.expected_profit_max ? parseInt(formData.expected_profit_max) : null,
                 updated_at: new Date()
             })
-            .eq('id', id)
-            .eq('author_id', user.id);
+            .eq('id', id);
+
+        // Filter by author_id only if not admin
+        if (!profile?.is_admin) {
+            query.eq('author_id', user.id);
+        }
+
+        const { error } = await query;
 
         if (error) {
             setError(error.message);

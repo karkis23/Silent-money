@@ -60,6 +60,30 @@ export const AuthProvider = ({ children }) => {
         };
     }, []);
 
+    const handleSignOut = async () => {
+        try {
+            // 1. Sign out from Supabase
+            await authService.signOut();
+
+            // 2. Clear local state IMMEDIATELY
+            setUser(null);
+            setProfile(null);
+            setSession(null);
+
+            // 3. Clear storage keys starting with 'sb-'
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('sb-')) {
+                    localStorage.removeItem(key);
+                }
+            });
+        } catch (err) {
+            console.error('Sign out error in AuthContext:', err);
+            // Safety fallback
+            localStorage.clear();
+            window.location.href = '/';
+        }
+    };
+
     const value = {
         user,
         profile,
@@ -68,7 +92,7 @@ export const AuthProvider = ({ children }) => {
         refreshProfile: () => user && fetchProfile(user.id),
         signUp: authService.signUp,
         signIn: authService.signIn,
-        signOut: authService.signOut,
+        signOut: handleSignOut,
         resetPassword: authService.resetPassword,
         updatePassword: authService.updatePassword,
     };

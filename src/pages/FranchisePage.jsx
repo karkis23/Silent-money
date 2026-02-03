@@ -5,6 +5,7 @@ import { supabase } from '../services/supabase';
 import CardShimmer from '../components/CardShimmer';
 import SEO from '../components/SEO';
 import EmptyState from '../components/EmptyState';
+import ExpertAuditModal from '../components/ExpertAuditModal';
 
 export default function FranchisePage() {
     const [franchises, setFranchises] = useState([]);
@@ -12,10 +13,15 @@ export default function FranchisePage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [savedFranchiseIds, setSavedFranchiseIds] = useState(new Set());
+    const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
     useEffect(() => {
         const fetchFranchises = async () => {
             setLoading(true);
-            let query = supabase.from('franchises').select('*, profiles(full_name, id)').order('is_verified', { ascending: false });
+            let query = supabase.from('franchises')
+                .select('*, profiles(full_name, id)')
+                .eq('is_approved', true) // Moderation Gate
+                .is('deleted_at', null)
+                .order('is_verified', { ascending: false });
 
             if (selectedCategory !== 'all') {
                 query = query.eq('category', selectedCategory);
@@ -205,22 +211,30 @@ export default function FranchisePage() {
                                         viewport={{ once: true }}
                                         transition={{ duration: 0.4, delay: index * 0.05 }}
                                     >
-                                        <Link to={`/franchise/${f.slug}`} className="group relative block bg-white border border-charcoal-100 rounded-[2.5rem] overflow-hidden hover:border-primary-300 hover:shadow-premium transition-all">
-                                            {/* Visual Header */}
-                                            <div className="relative h-60 overflow-hidden m-4 rounded-[2rem]">
+                                        <Link to={`/franchise/${f.slug}`} className="group relative block bg-white border border-charcoal-100 rounded-[2rem] overflow-hidden hover:border-primary-300 hover:shadow-[0_40px_80px_-15px_rgba(37,99,235,0.1)] transition-all h-full flex flex-col p-0">
+                                            {/* Visual Header - Fixed Full Bleed */}
+                                            <div className="relative h-64 overflow-hidden bg-gray-100 shrink-0">
                                                 <img
                                                     src={f.image_url || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1000'}
-                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
                                                     alt={f.name}
+                                                    onError={(e) => {
+                                                        e.target.src = 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=1000';
+                                                        e.target.onerror = null;
+                                                    }}
                                                 />
-                                                <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-4 py-1.5 rounded-full text-[8px] font-black tracking-widest text-primary-600 uppercase border border-primary-50">
+                                                <div className="absolute inset-0 bg-gradient-to-t from-gray-950/40 to-transparent" />
+
+                                                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-xl text-[8px] font-black tracking-widest text-primary-600 uppercase border border-white/20 shadow-sm">
                                                     {f.category}
                                                 </div>
+
                                                 {f.is_verified && (
-                                                    <div className="absolute bottom-4 left-4 bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-[8px] font-black tracking-widest uppercase shadow-lg">
+                                                    <div className="absolute bottom-4 left-4 bg-emerald-500/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-[8px] font-black tracking-widest uppercase shadow-xl">
                                                         ✓ VERIFIED ROI
                                                     </div>
                                                 )}
+
                                                 <button
                                                     onClick={(e) => handleSave(e, f.id)}
                                                     className={`absolute top-4 left-4 w-11 h-11 rounded-2xl backdrop-blur-md flex items-center justify-center transition-all ${savedFranchiseIds.has(f.id)
@@ -234,7 +248,7 @@ export default function FranchisePage() {
                                                 </button>
                                             </div>
 
-                                            <div className="px-8 pb-8 pt-2">
+                                            <div className="px-8 pb-8 pt-6 flex-1 flex flex-col">
                                                 <h3 className="text-2xl font-black text-charcoal-950 group-hover:text-primary-600 transition-colors mb-1 tracking-tightest">
                                                     {f.name}
                                                 </h3>
@@ -294,11 +308,19 @@ export default function FranchisePage() {
                     <p className="text-gray-400 text-base font-medium max-w-xl mb-8 relative z-10">
                         Request a full ROI audit for any Indian brand. Our analysts provide a deep-dive feasibility report within 48 hours.
                     </p>
-                    <button className="px-10 py-5 bg-white text-gray-950 rounded-2xl text-xs font-black uppercase tracking-[0.2em] relative z-10 hover:bg-blue-500 hover:text-white transition-all shadow-2xl">
+                    <button
+                        onClick={() => setIsAuditModalOpen(true)}
+                        className="px-10 py-5 bg-white text-gray-950 rounded-2xl text-xs font-black uppercase tracking-[0.2em] relative z-10 hover:bg-blue-500 hover:text-white transition-all shadow-2xl"
+                    >
                         Request Expert Audit
                     </button>
                 </motion.div>
             </div>
+            {/* Expert Audit Modal */}
+            <ExpertAuditModal
+                isOpen={isAuditModalOpen}
+                onClose={() => setIsAuditModalOpen(false)}
+            />
         </div>
     );
 }

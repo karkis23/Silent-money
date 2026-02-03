@@ -2,6 +2,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import GlobalSearch from './GlobalSearch';
+import NotificationBell from './NotificationBell';
 
 export default function Navbar() {
     const { user, profile, signOut } = useAuth();
@@ -17,8 +19,12 @@ export default function Navbar() {
     }, []);
 
     const handleSignOut = async () => {
-        await signOut();
-        navigate('/');
+        try {
+            await signOut();
+            window.location.href = '/';
+        } catch (error) {
+            window.location.href = '/';
+        }
     };
 
     const navLinks = [
@@ -47,11 +53,15 @@ export default function Navbar() {
                                 Silent Money
                             </span>
                             <span className="bg-charcoal-100 text-charcoal-500 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest border border-charcoal-200/50">
-                                Beta
+                                Beta 2.0
                             </span>
                         </div>
                     </Link>
 
+                    {/* Desktop Search Center */}
+                    <div className="hidden lg:block flex-1 max-w-md mx-8">
+                        <GlobalSearch />
+                    </div>
 
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center space-x-8">
@@ -74,47 +84,47 @@ export default function Navbar() {
                             )
                         ))}
 
-                        <div className="flex items-center gap-4 ml-6">
+                        {user && profile?.is_admin && (
+                            <Link
+                                to="/admin"
+                                className={`text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-lg border-2 border-primary-600/20 text-primary-600 hover:bg-primary-600 hover:text-white transition-all`}
+                            >
+                                MODERATION
+                            </Link>
+                        )}
+
+                        <div className="flex items-center gap-4 ml-6 font-semibold">
                             {user ? (
-                                <div className="flex items-center gap-4">
-                                    <Link
-                                        to="/edit-profile"
-                                        className="w-10 h-10 rounded-full border-2 border-transparent hover:border-primary-600 transition-all overflow-hidden bg-charcoal-100 flex items-center justify-center group"
-                                    >
-                                        {profile?.avatar_url ? (
-                                            <img
-                                                src={profile.avatar_url}
-                                                className="w-full h-full object-cover"
-                                                alt="Profile"
-                                                loading="lazy"
-                                                decoding="async"
-                                            />
-                                        ) : (
-                                            <span className="text-primary-600 font-bold text-sm">{profile?.full_name?.charAt(0) || user.email.charAt(0).toUpperCase()}</span>
-                                        )}
-                                    </Link>
-                                    <button
-                                        onClick={handleSignOut}
-                                        className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest hover:text-red-500 transition-colors"
-                                    >
-                                        Sign Out
-                                    </button>
+                                <div className="flex items-center gap-6">
+                                    <NotificationBell />
+                                    <div className="flex items-center gap-4">
+                                        <Link
+                                            to="/edit-profile"
+                                            className="w-10 h-10 rounded-full border-2 border-transparent hover:border-primary-600 transition-all overflow-hidden bg-charcoal-100 flex items-center justify-center group"
+                                        >
+                                            {profile?.avatar_url ? (
+                                                <img
+                                                    src={profile.avatar_url}
+                                                    className="w-full h-full object-cover"
+                                                    alt="Profile"
+                                                />
+                                            ) : (
+                                                <span className="text-primary-600 font-bold text-sm">{profile?.full_name?.charAt(0) || user.email.charAt(0).toUpperCase()}</span>
+                                            )}
+                                        </Link>
+                                        <button
+                                            onClick={handleSignOut}
+                                            className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest hover:text-red-500 transition-colors"
+                                        >
+                                            Sign Out
+                                        </button>
+                                    </div>
                                 </div>
                             ) : (
-                                <>
-                                    <Link
-                                        to="/login"
-                                        className="text-sm font-semibold text-charcoal-600 hover:text-primary-500"
-                                    >
-                                        Login
-                                    </Link>
-                                    <Link
-                                        to="/signup"
-                                        className="btn-primary py-2 px-5 text-sm"
-                                    >
-                                        Get Started
-                                    </Link>
-                                </>
+                                <div className="flex items-center gap-4">
+                                    <Link to="/login" className="text-sm font-semibold text-charcoal-600 hover:text-primary-500">Login</Link>
+                                    <Link to="/signup" className="btn-primary py-2 px-5 text-sm">Get Started</Link>
+                                </div>
                             )}
                         </div>
                     </div>
@@ -125,12 +135,7 @@ export default function Navbar() {
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                             className="p-2 rounded-xl hover:bg-charcoal-50 text-charcoal-950 transition-colors"
                         >
-                            <svg
-                                className="w-6 h-6"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 {isMenuOpen ? (
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 ) : (
@@ -165,17 +170,15 @@ export default function Navbar() {
                                 ))}
                                 <hr className="border-charcoal-100" />
                                 {user ? (
-                                    <>
-                                        <button
-                                            onClick={() => {
-                                                handleSignOut();
-                                                setIsMenuOpen(false);
-                                            }}
-                                            className="w-full text-left text-base font-semibold text-charcoal-900"
-                                        >
-                                            Sign Out
-                                        </button>
-                                    </>
+                                    <button
+                                        onClick={() => {
+                                            handleSignOut();
+                                            setIsMenuOpen(false);
+                                        }}
+                                        className="w-full text-left text-base font-semibold text-charcoal-900"
+                                    >
+                                        Sign Out
+                                    </button>
                                 ) : (
                                     <div className="grid grid-cols-2 gap-4">
                                         <Link

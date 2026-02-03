@@ -1,8 +1,13 @@
 import BackButton from '../components/BackButton';
+import SEO from '../components/SEO';
 
 export default function AboutPage() {
     return (
         <div className="max-w-4xl mx-auto px-4 py-20 pt-32">
+            <SEO
+                title="The Silent Manifesto | Our Mission"
+                description="Silent Money is dedicated to providing vetted, data-backed passive income roadmaps for the Indian market. No hype, just real ROI."
+            />
             <BackButton label="Home" to="/" className="mb-12" />
             <div className="text-center mb-16">
                 <h1 className="text-5xl font-black text-charcoal-950 mb-6 tracking-tight">

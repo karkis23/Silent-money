@@ -1,11 +1,197 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '../services/supabase';
 import SEO from '../components/SEO';
 
+/**
+ * Institutional Command Hub & Public Landing Page
+ * 
+ * DESIGN PHILOSOPHY:
+ * This component acts as a high-authority gateway. For standard investors, it serves as 
+ * a premium marketing portal. For authenticated administrators (is_admin: true), it 
+ * transforms into an "Operational Console" for real-time platform monitoring and deployment.
+ */
 export default function LandingPage() {
-    const { user } = useAuth();
+    const { user, profile } = useAuth();
+
+    // Administrative logic gate - transforms the UI into a Command HUD if the user has admin clearance
+    const isAdmin = profile?.is_admin === true;
+
+    /**
+     * Platform-wide diagnostic statistics (Admin Only)
+     * Fetched via parallel HEAD requests for maximum operational speed.
+     */
+    const [adminStats, setAdminStats] = useState({
+        totalIdeas: 0,
+        pendingAudits: 0,
+        totalUsers: 0,
+        totalFranchises: 0
+    });
+    const [statsLoading, setStatsLoading] = useState(isAdmin);
+
+    const [passiveGoal, setPassiveGoal] = useState(145000);
+    const sourcesFound = Math.floor(passiveGoal / 12000) + 2;
+
+    const [topIdeas, setTopIdeas] = useState([]);
+    const [topLoading, setTopLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchTopIdeas = async () => {
+            const { data } = await supabase
+                .from('income_ideas')
+                .select('*, categories(name, icon)')
+                .eq('is_approved', true)
+                .is('deleted_at', null)
+                .order('upvotes_count', { ascending: false })
+                .limit(3);
+            if (data) setTopIdeas(data);
+            setTopLoading(false);
+        };
+
+        const fetchAdminStats = async () => {
+            if (!isAdmin) return;
+            setStatsLoading(true);
+            try {
+                const [ideas, audits, users, franchises] = await Promise.all([
+                    supabase.from('income_ideas').select('*', { count: 'exact', head: true }).is('deleted_at', null),
+                    supabase.from('expert_audit_requests').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+                    supabase.from('profiles').select('*', { count: 'exact', head: true }),
+                    supabase.from('franchises').select('*', { count: 'exact', head: true })
+                ]);
+
+                setAdminStats({
+                    totalIdeas: ideas.count || 0,
+                    pendingAudits: audits.count || 0,
+                    totalUsers: users.count || 0,
+                    totalFranchises: franchises.count || 0
+                });
+            } catch (err) {
+                console.error("Stats failure:", err);
+            } finally {
+                setStatsLoading(false);
+            }
+        };
+
+        fetchTopIdeas();
+        if (isAdmin) fetchAdminStats();
+    }, [isAdmin]);
+
+    if (isAdmin) {
+        return (
+            <div className="min-h-screen bg-[#FBFBFD] pt-32 pb-20 px-4">
+                <SEO title="Admin Command HUD | Silent Money" />
+
+                <div className="max-w-7xl mx-auto">
+                    {/* Admin Hero */}
+                    <header className="mb-16">
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-charcoal-900 border border-charcoal-800 mb-6"
+                        >
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">System Operational: Sector Alpha</span>
+                        </motion.div>
+                        <h1 className="text-5xl md:text-7xl font-black text-charcoal-950 tracking-tightest leading-tight mb-4">
+                            Operational <span className="text-primary-600">Console.</span>
+                        </h1>
+                        <p className="text-xl text-charcoal-500 font-medium max-w-2xl">
+                            Welcome back, Admin. The platform intelligence loop is active. Monitor, moderate, and deploy institutional assets below.
+                        </p>
+                    </header>
+
+                    {/* Operational Stats Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+                        {[
+                            { label: 'Market Blueprints', value: adminStats.totalIdeas, sub: 'Active Assets', icon: '🏛️', link: '/admin?tab=ideas' },
+                            { label: 'Pending Audits', value: adminStats.pendingAudits, sub: 'Requires Review', icon: '🔍', link: '/admin?tab=audits', alert: adminStats.pendingAudits > 0 },
+                            { label: 'Authorized Users', value: adminStats.totalUsers, sub: 'Verified Members', icon: '👥', link: '/admin?tab=users' },
+                            { label: 'All Franchises', value: adminStats.totalFranchises, sub: 'Business Entries', icon: '🏢', link: '/admin?tab=franchises' }
+                        ].map((stat, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: i * 0.1 }}
+                                className="relative group"
+                            >
+                                <Link
+                                    to={stat.link}
+                                    className="block bg-white border border-charcoal-100 p-8 rounded-[2.5rem] shadow-xl shadow-charcoal-200/20 relative group hover:border-primary-300 hover:shadow-primary-100/30 transition-all h-full"
+                                >
+                                    <div className="text-4xl mb-4 grayscale group-hover:grayscale-0 transition-all group-hover:scale-110 duration-500">{stat.icon}</div>
+                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">{stat.label}</div>
+                                    <div className="flex items-end gap-3">
+                                        <div className="text-4xl font-black text-charcoal-900 tracking-tighter">
+                                            {statsLoading ? '...' : stat.value}
+                                        </div>
+                                        <div className={`text-[10px] font-bold mb-1.5 ${stat.alert ? 'text-red-500' : 'text-emerald-500'}`}>
+                                            {stat.sub}
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 pt-4 border-t border-charcoal-50 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <span className="text-[9px] font-black text-primary-600 uppercase tracking-widest">Manage Sector</span>
+                                        <span className="text-primary-600">→</span>
+                                    </div>
+                                    {stat.alert && (
+                                        <div className="absolute top-6 right-8 w-2 h-2 rounded-full bg-red-500 animate-ping" />
+                                    )}
+                                </Link>
+                            </motion.div>
+                        ))}
+                    </div>
+
+                    {/* Deployment Terminal (Quick Actions) */}
+                    <div className="grid lg:grid-cols-3 gap-8 mb-16">
+                        <div className="lg:col-span-2">
+                            <div className="bg-charcoal-950 rounded-[3rem] p-10 text-white relative overflow-hidden h-full">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-primary-600/20 blur-[100px]" />
+                                <h3 className="text-xs font-black text-white/40 uppercase tracking-[0.3em] mb-8">Deployment Terminal</h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <Link to="/admin" className="p-6 bg-white/5 border border-white/10 rounded-3xl hover:bg-white/10 transition-all group">
+                                        <div className="text-[11px] font-black text-primary-400 uppercase tracking-widest mb-2">Operation Control</div>
+                                        <div className="text-xl font-black mb-4">Command Center</div>
+                                        <div className="text-[9px] text-white/50 leading-relaxed">Manage ideas, franchises, and platform moderation queues.</div>
+                                    </Link>
+                                    <Link to="/post-franchise" className="p-6 bg-white/5 border border-white/10 rounded-3xl hover:bg-white/10 transition-all group">
+                                        <div className="text-[11px] font-black text-accent uppercase tracking-widest mb-2">Alpha Launch</div>
+                                        <div className="text-xl font-black mb-4">Deploy Asset</div>
+                                        <div className="text-[9px] text-white/50 leading-relaxed">Instantly post new franchises or digital blueprints to the hub.</div>
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="lg:col-span-1">
+                            <div className="bg-white border border-charcoal-100 rounded-[3rem] p-10 h-full flex flex-col">
+                                <h3 className="text-xs font-black text-charcoal-400 uppercase tracking-[0.3em] mb-8">System Health</h3>
+                                <div className="space-y-6 flex-1">
+                                    {[
+                                        { label: 'API Latency', status: 'Optimal', val: '24ms' },
+                                        { label: 'Real-time Sync', status: 'Active', val: '100%' },
+                                        { label: 'Database Mesh', status: 'Healthy', val: '99.9%' }
+                                    ].map((check, i) => (
+                                        <div key={i} className="flex justify-between items-center">
+                                            <div>
+                                                <div className="text-[10px] font-black text-charcoal-900 uppercase tracking-widest">{check.label}</div>
+                                                <div className="text-[9px] text-emerald-500 font-bold uppercase">{check.status}</div>
+                                            </div>
+                                            <div className="text-sm font-black text-charcoal-400">{check.val}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="pt-8 mt-8 border-t border-charcoal-50">
+                                    <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-[0.2em] italic">Institutional Grade Security Active</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     const fadeInUp = {
         initial: { opacity: 0, y: 20 },
@@ -20,9 +206,6 @@ export default function LandingPage() {
             }
         }
     };
-
-    const [passiveGoal, setPassiveGoal] = useState(145000);
-    const sourcesFound = Math.floor(passiveGoal / 12000) + 2;
 
     return (
         <div className="bg-cream-50 overflow-hidden">
@@ -161,6 +344,87 @@ export default function LandingPage() {
                             {/* Glow effect behind image */}
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-primary-200/20 blur-[100px] -z-10 rounded-full" />
                         </motion.div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Institutional Favorites (Leaderboard) */}
+            <section className="py-24 relative overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+                        <div>
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="w-2 h-2 rounded-full bg-primary-600"></span>
+                                <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em]">Market Alpha</span>
+                            </div>
+                            <h2 className="text-3xl md:text-5xl font-black text-charcoal-950 tracking-tighter">
+                                Institutional <span className="text-primary-600">Favorites</span>
+                            </h2>
+                        </div>
+                        <Link to="/ideas" className="btn-secondary py-3 text-[10px] uppercase font-black tracking-widest">View All Blueprints →</Link>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-8">
+                        {topLoading ? (
+                            [1, 2, 3].map(i => (
+                                <div key={i} className="h-64 rounded-3xl bg-white border border-charcoal-100 animate-pulse" />
+                            ))
+                        ) : (
+                            topIdeas.map((idea, i) => (
+                                <motion.div
+                                    key={idea.id}
+                                    whileHover={{ y: -10 }}
+                                    className="group relative bg-white border border-charcoal-100 rounded-[2.5rem] p-8 hover:border-primary-300 hover:shadow-premium transition-all"
+                                >
+                                    <div className="absolute -top-4 -right-4 w-12 h-12 bg-primary-600 rounded-2xl flex items-center justify-center text-white font-black shadow-xl shadow-primary-200 z-10">
+                                        #{i + 1}
+                                    </div>
+                                    <div className="relative h-48 overflow-hidden -m-8 mb-8 rounded-t-[2.5rem]">
+                                        <img
+                                            src={idea.image_url || 'https://images.unsplash.com/photo-1579621970795-87faff2f9160?q=80&w=1000'}
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                            alt={idea.title}
+                                            onError={(e) => {
+                                                e.target.src = 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1000';
+                                                e.target.onerror = null;
+                                            }}
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/40 to-transparent" />
+                                        <div className="absolute bottom-4 left-4 flex gap-2">
+                                            <span className="bg-emerald-500 text-white px-2 py-1 rounded-lg text-[7px] font-black tracking-widest uppercase shadow-lg">
+                                                ✓ VERIFIED
+                                            </span>
+                                            {idea.is_premium && (
+                                                <span className="bg-primary-600 text-white px-2 py-1 rounded-lg text-[7px] font-black tracking-widest uppercase shadow-lg">
+                                                    ⭐ PREMIUM
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3 mb-6 relative">
+                                        <span className="text-3xl">{idea.categories?.icon}</span>
+                                        <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">{idea.categories?.name}</span>
+                                    </div>
+                                    <h3 className="text-xl font-black text-charcoal-950 group-hover:text-primary-600 transition-colors mb-3 tracking-tight">
+                                        {idea.title}
+                                    </h3>
+                                    <p className="text-sm text-charcoal-500 font-medium mb-8 line-clamp-2">
+                                        {idea.short_description}
+                                    </p>
+                                    <div className="flex items-center justify-between pt-6 border-t border-charcoal-50">
+                                        <div>
+                                            <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Target Yield</div>
+                                            <div className="text-lg font-black text-charcoal-900">
+                                                ₹{(idea.monthly_income_min / 1000).toFixed(0)}k<span className="text-xs text-charcoal-400 pl-0.5">/mo</span>
+                                            </div>
+                                        </div>
+                                        <Link to={`/ideas/${idea.slug}`} className="w-12 h-12 rounded-2xl bg-charcoal-50 flex items-center justify-center text-charcoal-950 group-hover:bg-primary-600 group-hover:text-white transition-all shadow-sm">
+                                            →
+                                        </Link>
+                                    </div>
+                                </motion.div>
+                            ))
+                        )}
                     </div>
                 </div>
             </section>

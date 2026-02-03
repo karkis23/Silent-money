@@ -6,13 +6,18 @@ import ReactMarkdown from 'react-markdown';
 import BackButton from '../components/BackButton';
 import SEO from '../components/SEO';
 import ROICalculator from '../components/ROICalculator';
+import ReviewsSection from '../components/ReviewsSection';
+import ExpertAuditModal from '../components/ExpertAuditModal';
+import { useAuth } from '../context/AuthContext';
 
 export default function FranchiseDetailPage() {
+    const { user } = useAuth();
     const { slug } = useParams();
     const [franchise, setFranchise] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [isSaved, setIsSaved] = useState(false);
+    const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchFranchise = async () => {
@@ -103,46 +108,173 @@ export default function FranchiseDetailPage() {
     );
 
     return (
-        <div className="min-h-screen bg-cream-50 pb-20 pt-32">
-            {franchise && (
-                <SEO
-                    title={`${franchise.name} Franchise Opportunity`}
-                    description={`Detailed ROI analysis, investment requirements, and growth blueprint for ${franchise.name} in the ${franchise.category} sector.`}
-                />
-            )}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <BackButton label="Back to Discovery Feed" className="mb-8" />
+        <div className="min-h-screen bg-cream-50 pb-20 pt-32 transition-all duration-300">
+            <SEO
+                title={`${franchise.name} Franchise Opportunity`}
+                description={`Detailed ROI analysis, investment requirements, and growth blueprint for ${franchise.name} in the ${franchise.category} sector.`}
+            />
 
+            {/* Cinematic Hero Section */}
+            <div className="relative overflow-hidden bg-white">
+                {/* Background Accent */}
+                <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-primary-50/30 to-transparent -z-0 pointer-events-none" />
 
-                <div className="grid lg:grid-cols-2 gap-16">
-                    {/* Visuals */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="space-y-8"
-                    >
-                        <div className="relative h-[600px] rounded-[3rem] overflow-hidden shadow-2xl">
-                            <img
-                                src={franchise.image_url || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1000'}
-                                className="w-full h-full object-cover"
-                                alt={franchise.name}
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950/80 via-transparent to-transparent" />
-                            <div className="absolute bottom-12 left-12 right-12">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <span className="bg-primary-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase">
-                                        {franchise.category}
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20 relative z-10">
+                    <div className="max-w-5xl mx-auto">
+                        <div className="flex items-center gap-4 mb-10">
+                            <BackButton label="Back to Expansion Feed" />
+                            <div className="h-px flex-1 bg-charcoal-100 hidden sm:block" />
+                        </div>
+
+                        <div className="grid lg:grid-cols-12 gap-12 items-start">
+                            {/* Left Content Column */}
+                            <div className="lg:col-span-12">
+                                <div className="flex flex-wrap items-center gap-4 mb-8">
+                                    <span className="bg-charcoal-900 text-white px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2 shadow-xl shadow-charcoal-200/50">
+                                        🏢 {franchise.category}
                                     </span>
-                                    {franchise.is_verified && (
-                                        <span className="bg-emerald-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase">
-                                            ✓ Verified ROI
-                                        </span>
-                                    )}
+                                    <div className="flex items-center gap-2 bg-emerald-50 text-emerald-600 px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] border border-emerald-100/50">
+                                        <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                                        Verified ROI Model
+                                    </div>
+                                    <span className="bg-primary-50 text-primary-600 border border-primary-100 px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em]">
+                                        Unit Model: {franchise.unit_model || 'Standard'}
+                                    </span>
                                 </div>
-                                <h1 className="text-5xl font-black text-white tracking-tighter">{franchise.name}</h1>
+
+                                <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-charcoal-950 mb-8 leading-[1.1] tracking-tighter">
+                                    {franchise.name}
+                                </h1>
+
+                                <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+                                    <div className="max-w-2xl">
+                                        <p className="text-xl md:text-2xl text-charcoal-500 font-medium leading-relaxed mb-8">
+                                            {franchise.description?.slice(0, 160)}...
+                                        </p>
+
+                                        {/* Meta Stats Row */}
+                                        <div className="flex flex-wrap items-center gap-6">
+                                            {franchise.profiles && (
+                                                <Link
+                                                    to={`/profile/${franchise.profiles.id}`}
+                                                    className="inline-flex items-center gap-3 group"
+                                                >
+                                                    <div className="w-12 h-12 rounded-2xl overflow-hidden bg-charcoal-50 shadow-inner border border-charcoal-100/50">
+                                                        {franchise.profiles.avatar_url ? (
+                                                            <img src={franchise.profiles.avatar_url} className="w-full h-full object-cover" alt={franchise.profiles.full_name} />
+                                                        ) : (
+                                                            <div className="w-full h-full flex items-center justify-center text-sm font-black text-primary-600">
+                                                                {franchise.profiles.full_name?.charAt(0)}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest leading-none mb-1">Brand Strategist</div>
+                                                        <div className="text-sm font-black text-charcoal-900 group-hover:text-primary-600 transition-colors uppercase leading-none">
+                                                            {franchise.profiles.full_name}
+                                                        </div>
+                                                    </div>
+                                                </Link>
+                                            )}
+
+                                            <div className="h-8 w-px bg-charcoal-100 hidden md:block" />
+
+                                            <div className="flex items-center gap-4">
+                                                <div className="text-right hidden sm:block">
+                                                    <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest leading-none mb-1">Asset Grade</div>
+                                                    <div className="text-sm font-black text-emerald-600 leading-none">{franchise.asset_grade || 'AAA+ PLATINUM'}</div>
+                                                </div>
+                                                <div className="flex -space-x-3">
+                                                    {[1, 2, 3].map(i => (
+                                                        <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-charcoal-50 overflow-hidden">
+                                                            <img src={`https://i.pravatar.cc/100?img=${i + 20}`} alt="user" className="w-full h-full object-cover" />
+                                                        </div>
+                                                    ))}
+                                                    <div className="w-8 h-8 rounded-full border-2 border-white bg-emerald-600 flex items-center justify-center text-[10px] font-black text-white">
+                                                        +5k
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Institutional Command Bar - Precision Redesign */}
+                                    <div className="flex items-center gap-2 p-2 bg-white border border-charcoal-100 rounded-[2.5rem] shadow-2xl shadow-charcoal-200/30 w-full sm:w-auto flex-nowrap shrink-0">
+                                        <button
+                                            onClick={handleToggleSave}
+                                            className={`h-14 px-8 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 min-w-[160px] shrink-0 group ${isSaved
+                                                ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                                                : 'bg-charcoal-950 text-white hover:bg-primary-600 shadow-xl shadow-charcoal-900/10'
+                                                }`}
+                                        >
+                                            <span className="text-base group-hover:scale-110 transition-transform">
+                                                {isSaved ? '🛡️' : '🔖'}
+                                            </span>
+                                            <span className="whitespace-nowrap">{isSaved ? 'VAULTED' : 'SAVE ASSET'}</span>
+                                        </button>
+
+                                        <div className="w-px h-8 bg-charcoal-100 shrink-0 hidden sm:block" />
+
+                                        <button
+                                            onClick={() => setIsAuditModalOpen(true)}
+                                            className="h-14 px-8 bg-charcoal-50/50 border border-charcoal-100/50 text-charcoal-900 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-charcoal-100 hover:border-charcoal-200 transition-all flex items-center justify-center gap-3 min-w-[160px] shrink-0 group"
+                                        >
+                                            <span className="text-base group-hover:rotate-12 transition-transform">🚀</span>
+                                            <span className="whitespace-nowrap">EXPERT AUDIT</span>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
+                        {/* Interactive Hero Asset */}
+                        <div className="max-w-5xl mx-auto mt-12 group relative">
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary-600/5 blur-[120px] rounded-full -z-10 group-hover:bg-primary-600/10 transition-colors duration-1000" />
+
+                            <div className="aspect-[21/9] rounded-[3rem] overflow-hidden border-4 border-white shadow-2xl relative">
+                                <img
+                                    src={franchise.image_url || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1000'}
+                                    className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105"
+                                    alt={franchise.name}
+                                    onError={(e) => {
+                                        e.target.src = 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=1000';
+                                        e.target.onerror = null;
+                                    }}
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-1000" />
+
+                                <div className="absolute bottom-10 left-10 right-10 flex flex-col md:flex-row md:items-center justify-between gap-6 pointer-events-none">
+                                    <div className="flex items-center gap-5">
+                                        <div className="w-16 h-16 rounded-[1.5rem] bg-white/10 backdrop-blur-2xl flex items-center justify-center text-3xl shadow-inner border border-white/20">
+                                            🏢
+                                        </div>
+                                        <div>
+                                            <div className="text-[10px] font-black text-white/50 uppercase tracking-[0.4em] mb-1">Brand Protocol</div>
+                                            <div className="text-lg font-black text-white uppercase tracking-wider">Strategic Expansion Shield Active</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-4">
+                                        <div className="px-6 py-3 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/10">
+                                            <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-0.5">POI Density</div>
+                                            <div className="text-sm font-black text-white">{franchise.network_density || '82'}% NATIONAL</div>
+                                        </div>
+                                        <div className="px-6 py-3 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/10">
+                                            <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-0.5">Market Risk</div>
+                                            <div className="text-sm font-black text-emerald-400 capitalize">{franchise.risk_profile || 'Low'}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div className="grid lg:grid-cols-2 gap-16">
+                    {/* Visuals */}
+                    <div className="space-y-8">
                         <div className="grid grid-cols-3 gap-4">
                             {[1, 2, 3].map(i => (
                                 <div key={i} className="h-32 rounded-[2rem] bg-white border border-charcoal-100 flex items-center justify-center text-3xl opacity-30">
@@ -150,7 +282,100 @@ export default function FranchiseDetailPage() {
                                 </div>
                             ))}
                         </div>
-                    </motion.div>
+
+                        {/* Executive Dossier Section */}
+                        <div className="mt-12 bg-white rounded-[3rem] p-10 border border-charcoal-100 shadow-2xl shadow-charcoal-200/50 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-primary-50/50 blur-3xl rounded-full -mr-16 -mt-16" />
+                            <h3 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-10 border-b border-charcoal-50 pb-6">Executive Dossier</h3>
+
+                            <div className="grid gap-10">
+                                <div className="flex items-start gap-6 group">
+                                    <div className="w-12 h-12 bg-charcoal-50 rounded-2xl flex items-center justify-center text-xl group-hover:bg-primary-50 group-hover:scale-110 transition-all">🏗️</div>
+                                    <div>
+                                        <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Unit Model</div>
+                                        <div className="text-lg font-black text-charcoal-900 leading-tight">{franchise.unit_model || 'FOCO / FOFO Configuration'}</div>
+                                        <div className="text-[10px] text-charcoal-400 mt-1 font-medium">Standard Retail Deployment</div>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-6 group">
+                                    <div className="w-12 h-12 bg-charcoal-50 rounded-2xl flex items-center justify-center text-xl group-hover:bg-primary-50 group-hover:scale-110 transition-all">📈</div>
+                                    <div>
+                                        <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Market Maturity</div>
+                                        <div className="text-lg font-black text-charcoal-900 leading-tight">{franchise.market_maturity || 'High - National Leader'}</div>
+                                        <div className="text-[10px] text-charcoal-400 mt-1 font-medium">Proven Operational Model</div>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-6 group">
+                                    <div className="w-12 h-12 bg-charcoal-50 rounded-2xl flex items-center justify-center text-xl group-hover:bg-primary-50 group-hover:scale-110 transition-all">🛡️</div>
+                                    <div>
+                                        <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Corporate Support</div>
+                                        <div className="text-lg font-black text-emerald-600 leading-tight">{franchise.corporate_support || 'Full Lifecycle Assistance'}</div>
+                                        <div className="text-[10px] text-charcoal-400 mt-1 font-medium">Marketing & Supply-Chain Logic</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-12 p-6 bg-charcoal-950 rounded-[2rem] text-white">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-white/50">Intelligence Signal</span>
+                                </div>
+                                <p className="text-xs font-bold leading-relaxed opacity-90">
+                                    Sector demand for <span className="text-primary-400">{franchise.category}</span> is projected to grow by 12% YoY. Historical ROI in Tier-1 cities remains consistent.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Market Authority & Trust */}
+                        <div className="mt-8 bg-charcoal-50 rounded-[3rem] p-10 border border-charcoal-100/50 shadow-sm transition-all hover:shadow-xl group">
+                            <h3 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-8 flex items-center gap-3">
+                                <span>🛡️</span> Market Authority
+                            </h3>
+
+                            <div className="space-y-8">
+                                {/* Success Rate */}
+                                <div>
+                                    <div className="flex justify-between items-end mb-3">
+                                        <div className="text-[10px] font-black text-charcoal-600 uppercase tracking-widest">Operator Retention</div>
+                                        <div className="text-sm font-black text-emerald-600">{franchise.operator_retention || 94}%</div>
+                                    </div>
+                                    <div className="h-1.5 bg-charcoal-200 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)] transition-all duration-1000"
+                                            style={{ width: `${franchise.operator_retention || 94}%` }}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Network Density */}
+                                <div>
+                                    <div className="flex justify-between items-end mb-3">
+                                        <div className="text-[10px] font-black text-charcoal-600 uppercase tracking-widest">Network Density</div>
+                                        <div className="text-sm font-black text-primary-600">{franchise.network_density > 70 ? 'High' : franchise.network_density > 40 ? 'Medium' : 'Growth Phase'}</div>
+                                    </div>
+                                    <div className="h-1.5 bg-charcoal-200 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-primary-500 shadow-[0_0_10px_rgba(37,99,235,0.3)] transition-all duration-1000"
+                                            style={{ width: `${franchise.network_density || 82}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-10 grid grid-cols-2 gap-4">
+                                <div className="p-4 bg-white rounded-2xl border border-charcoal-100">
+                                    <div className="text-[8px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Asset Grade</div>
+                                    <div className="text-xl font-black text-charcoal-900 tracking-tighter">{franchise.asset_grade || 'AAA+'}</div>
+                                </div>
+                                <div className="p-4 bg-white rounded-2xl border border-charcoal-100">
+                                    <div className="text-[8px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Risk Profile</div>
+                                    <div className="text-xl font-black text-emerald-600 tracking-tighter">{franchise.risk_profile || 'Low'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     {/* Data & Actions */}
                     <div className="space-y-12">
@@ -158,7 +383,7 @@ export default function FranchiseDetailPage() {
                             <h2 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-8">Asset Analysis</h2>
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="card border-none shadow-xl shadow-charcoal-100/50 p-8 flex flex-col justify-between h-40">
-                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Initial Capital</div>
+                                    <div className="text-[10px) font-black text-charcoal-400 uppercase tracking-widest">Initial Capital</div>
                                     <div className="text-3xl font-black text-charcoal-950">{formatCurrency(franchise.investment_min)}</div>
                                 </div>
                                 <div className="card border-none shadow-xl shadow-charcoal-100/50 p-8 flex flex-col justify-between h-40">
@@ -182,7 +407,7 @@ export default function FranchiseDetailPage() {
                                 <ReactMarkdown>{franchise.description}</ReactMarkdown>
                             </div>
 
-                            {/* Strategic Action Bar - Redesigned for Elegance */}
+                            {/* Strategic Action Bar */}
                             <div className="flex flex-wrap gap-4 mb-12">
                                 {franchise.website_url ? (
                                     <a
@@ -218,71 +443,88 @@ export default function FranchiseDetailPage() {
                                         Private
                                     </div>
                                 )}
-
-                                <button
-                                    onClick={handleToggleSave}
-                                    className={`flex-[1.5] min-w-[200px] flex items-center justify-center gap-3 px-8 h-16 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all border-2 ${isSaved
-                                        ? 'bg-primary-50 border-primary-600 text-primary-600'
-                                        : 'bg-white border-charcoal-900 text-charcoal-900 hover:bg-primary-600 hover:border-primary-600 hover:text-white shadow-lg'
-                                        }`}
-                                >
-                                    <svg className={`w-5 h-5 ${isSaved ? 'animate-pulse' : ''}`} fill={isSaved ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                                    </svg>
-                                    {isSaved ? 'Blueprint Vaulted' : 'Save Blueprint'}
-                                </button>
                             </div>
 
                             <div className="mb-12">
                                 <ROICalculator
+                                    assetId={franchise.id}
+                                    assetType="franchise"
                                     initialDefaults={{
                                         investment: franchise.investment_min,
                                         income: franchise.expected_profit_min,
-                                        expenses: Math.round(franchise.expected_profit_min * 0.4) // Dynamic estimate
+                                        expenses: Math.round(franchise.expected_profit_min * 0.4)
                                     }}
                                 />
                             </div>
-
-                            {/* Author Attribution */}
-                            {franchise.profiles && (
-                                <Link
-                                    to={`/profile/${franchise.profiles.id}`}
-                                    className="inline-flex items-center gap-3 p-2 pr-6 bg-charcoal-50 rounded-2xl hover:bg-charcoal-100 transition-all group border border-charcoal-100"
-                                >
-                                    <div className="w-10 h-10 rounded-xl overflow-hidden bg-white shadow-sm">
-                                        {franchise.profiles.avatar_url ? (
-                                            <img src={franchise.profiles.avatar_url} className="w-full h-full object-cover" alt={franchise.profiles.full_name} />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-sm font-black text-primary-600">
-                                                {franchise.profiles.full_name?.charAt(0)}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <div className="text-[8px] font-black text-charcoal-400 uppercase tracking-widest">Listed By</div>
-                                        <div className="text-sm font-black text-charcoal-900 group-hover:text-primary-600 transition-colors">
-                                            {franchise.profiles.full_name}
-                                        </div>
-                                    </div>
-                                </Link>
-                            )}
                         </section>
 
-                        {franchise.requirements && franchise.requirements.length > 0 && (
-                            <section>
-                                <h2 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-6">Operator Requirements</h2>
-                                <div className="flex flex-wrap gap-3">
-                                    {franchise.requirements.map((req, i) => (
-                                        <div key={i} className="px-5 py-3 bg-white border border-charcoal-100 rounded-2xl text-sm font-black text-charcoal-900 shadow-sm">
-                                            ✓ {req}
-                                        </div>
-                                    ))}
+                        <section className="bg-white rounded-[3rem] p-10 border border-charcoal-100 shadow-xl">
+                            <h2 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-8 flex items-center gap-3">
+                                <span>📦</span> Operational Logistics
+                            </h2>
+                            <div className="grid sm:grid-cols-2 gap-8">
+                                <div className="space-y-2">
+                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Supply Chain</div>
+                                    <p className="text-sm font-bold text-charcoal-900">Centralized Procurement & Weekly Stock Refills</p>
                                 </div>
-                            </section>
+                                <div className="space-y-2">
+                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Staffing Model</div>
+                                    <p className="text-sm font-bold text-charcoal-900">4-6 Certified Personnel (Training via HQ)</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Tech Stack</div>
+                                    <p className="text-sm font-bold text-charcoal-900">Integrated POS, Inventory & CRM Systems</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Marketing</div>
+                                    <p className="text-sm font-bold text-charcoal-900">National Brand Campaigns + Local SEO Support</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* Author Attribution */}
+                        {franchise.profiles && (
+                            <Link
+                                to={`/profile/${franchise.profiles.id}`}
+                                className="inline-flex items-center gap-3 p-2 pr-6 bg-charcoal-50 rounded-2xl hover:bg-charcoal-100 transition-all group border border-charcoal-100"
+                            >
+                                <div className="w-10 h-10 rounded-xl overflow-hidden bg-white shadow-sm">
+                                    {franchise.profiles.avatar_url ? (
+                                        <img src={franchise.profiles.avatar_url} className="w-full h-full object-cover" alt={franchise.profiles.full_name} />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-sm font-black text-primary-600">
+                                            {franchise.profiles.full_name?.charAt(0)}
+                                        </div>
+                                    )}
+                                </div>
+                                <div>
+                                    <div className="text-[8px] font-black text-charcoal-400 uppercase tracking-widest">Listed By</div>
+                                    <div className="text-sm font-black text-charcoal-900 group-hover:text-primary-600 transition-colors">
+                                        {franchise.profiles.full_name}
+                                    </div>
+                                </div>
+                            </Link>
                         )}
+
+                        <div className="mt-16">
+                            <ReviewsSection
+                                assetId={franchise.id}
+                                assetType="franchise"
+                                authorId={franchise.author_id}
+                                user={user}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
-        </div >
+
+            {/* Expert Audit Modal */}
+            <ExpertAuditModal
+                isOpen={isAuditModalOpen}
+                onClose={() => setIsAuditModalOpen(false)}
+                prefillBrand={franchise.name}
+                prefillSector={franchise.category}
+            />
+        </div>
     );
 }

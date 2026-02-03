@@ -178,10 +178,20 @@ export default function MyIdeasPage() {
                                             <h2 className="text-2xl font-black text-charcoal-950 group-hover:text-primary-600 transition-colors tracking-tight">
                                                 {asset.name || asset.title}
                                             </h2>
-                                            <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${activeTab === 'saved' ? 'bg-amber-100 text-amber-600' : (asset.is_verified || asset.is_premium ? 'bg-emerald-100 text-emerald-600' : 'bg-charcoal-100 text-charcoal-400')
-                                                }`}>
-                                                {activeTab === 'saved' ? `Saved ${asset.type}` : (asset.is_verified || asset.is_premium ? '✓ Verified Asset' : 'Draft Status')}
-                                            </span>
+                                            {activeTab === 'saved' ? (
+                                                <span className="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-amber-100 text-amber-600">
+                                                    Saved {asset.type}
+                                                </span>
+                                            ) : asset.is_approved ? (
+                                                <span className="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-emerald-100 text-emerald-600">
+                                                    ✓ Live & Verified
+                                                </span>
+                                            ) : (
+                                                <span className="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-amber-50 text-amber-600 border border-amber-100 flex items-center gap-1.5">
+                                                    <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
+                                                    Pending Moderation
+                                                </span>
+                                            )}
                                         </div>
                                         <p className="text-charcoal-500 text-base font-medium mb-4 line-clamp-1">
                                             {asset.short_description || asset.description}

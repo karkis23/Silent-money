@@ -1,6 +1,6 @@
 # 🤖 AGENT.md - Master Project Guide for Silent Money
 
-> **Purpose**: This document serves as the definitive guide for AI agents and developers working on Silent Money. It ensures consistency, maintains project vision, and provides context for all future development work.
+> **Purpose**: This document serves as the definitive guide for AI agents and developers working on Silent Money. It ensures consistency, maintains project vision, and provides context for all future development work in our transition to an **Institutional-Grade Financial Suite**.
 
 ---
 
@@ -8,48 +8,39 @@
 1. [Project Vision & Mission](#project-vision--mission)
 2. [Core Product Principles](#core-product-principles)
 3. [Technical Architecture](#technical-architecture)
-4. [Design System & Branding](#design-system--branding)
+4. [Institutional Strategic Engines](#institutional-strategic-engines)
 5. [Database Schema Overview](#database-schema-overview)
 6. [Key Features & User Flows](#key-features--user-flows)
 7. [Development Guidelines](#development-guidelines)
 8. [Future Roadmap](#future-roadmap)
-9. [Common Pitfalls to Avoid](#common-pitfalls-to-avoid)
 
 ---
 
 ## 🎯 Project Vision & Mission
 
 ### What is Silent Money?
-**Silent Money** is a curated platform for discovering **realistic, India-specific passive income opportunities**. Unlike "get-rich-quick" schemes, we focus on data-backed assessments, real ROI calculations, and honest risk disclosures.
+**Silent Money** is a high-authority terminal for discovering and auditing **realistic, India-specific wealth generation opportunities**. We have evolved from a simple directory into a professional financial command suite that prioritizes data integrity and institutional-grade due diligence.
 
 ### Core Mission
-To cut through the noise of fake financial gurus and provide a vetted roadmap for financial freedom in the Indian context.
+To provide a vetted, high-fidelity roadmap for financial deployment, cutting through the noise with expert-led audits and professional comparison tools.
 
 ### Target Audience
-- **Primary**: Indian millennials and Gen-Z (25-40 years) seeking secondary income streams
-- **Secondary**: Aspiring entrepreneurs looking for low-risk business ideas
-- **Tertiary**: Working professionals wanting to diversify income
-
-### Value Proposition
-- **Realistic Expectations**: No "make ₹1 lakh in 30 days" promises
-- **India-Specific**: All ideas tailored for Indian market, regulations, and currency
-- **Data-Backed**: Every idea includes real numbers, case studies, and risk analysis
-- **Community-Driven**: User ratings, reviews, and success stories
-- **Actionable**: Step-by-step guides and ROI calculators
+- **Primary**: Serious Indian investors seeking verified secondary income streams.
+- **Secondary**: Administrators and Expert Analysts managing the platform's high-clearance content hub.
 
 ---
 
 ## 🧭 Core Product Principles
 
-### 1. **Honesty Over Hype**
-- Always disclose risks, failure rates, and realistic timelines
-- No exaggerated income claims
-- Include "What Can Go Wrong" sections for each idea
+### 1. **Institutional Authority**
+- Professional, high-authority design (Glassmorphism, Dark Modes).
+- Expert-verified content via the "Expert Audit Protocol".
+- Real-time system diagnostics and platform health transparency.
 
-### 2. **Quality Over Quantity**
-- Curated, vetted ideas only
-- Each idea must have verified data and real-world examples
-- Remove or update outdated ideas regularly
+### 2. **Financial Precision**
+- Side-by-side asset comparison using the "Financial Battle Engine".
+- Live ROI trajectory synchronization.
+- Performance gauges for risk and effort.
 
 ### 3. **User Empowerment**
 - Provide tools (ROI calculators, comparison charts)
@@ -72,6 +63,9 @@ To cut through the noise of fake financial gurus and provide a vetted roadmap fo
 ## 🏗️ Technical Architecture
 
 ### Tech Stack
+- **Frontend**: React 18 (Vite), Framer Motion (Institutional Animations), Tailwind CSS.
+- **Backend**: Supabase (PostgreSQL, RLS, Real-time Broadcasts).
+- **Security**: Role-Based Access Control (RBAC) with specific `is_admin` clearance headers.
 
 #### Frontend
 - **Framework**: React 18 with Vite
@@ -140,88 +134,38 @@ silent-money/
 
 ---
 
-## 🎨 Design System & Branding
+## �️ Institutional Strategic Engines
 
-### Brand Identity
-- **Name**: Silent Money
-- **Tagline**: "Build Your Financial Dynasty Quietly"
-- **Logo**: "SM" monogram in electric blue gradient
-- **Aesthetic**: Premium, modern, trustworthy, calm
+### 1. Operational Console (Institutional Command Hub)
+Replaces the public landing page for administrators.
+- **System HUD**: Real-time stats for Blueprints, Audits, Users, and Franchises.
+- **Direct Action links**: Rapid-deployment portals for sector moderation.
+- **Health Diagnostics**: API latency and Database Mesh monitors.
 
-### Color Palette
-Defined in `tailwind.config.js`:
+### 2. Universal Asset Comparator (Financial Battle Engine)
+- **Unified Data Stitching**: Normalizes 'Income Ideas' and 'Franchises' into a single analysis matrix.
+- **Yield Spectrum**: Syncs monthly cash flow with annualized trajectory.
+- **ROI Velocity**: Comparative analysis of capital recovery speeds.
 
-#### Primary (Electric Blue)
-- `primary-500`: `#3d4aff` - Main brand color
-- `primary-600`: `#2529ff` - Hover states
-- Used for: CTAs, links, active states
-
-#### Accent (Neon Green)
-- `accent-light`: `#7ee787` - Success states
-- Used for: Achievement badges, positive indicators
-
-#### Charcoal (Neutrals)
-- `charcoal-950`: `#181818` - Text
-- `charcoal-600`: `#5d5d5d` - Secondary text
-- `charcoal-100`: `#e7e7e7` - Borders
-- Used for: Typography, backgrounds, borders
-
-#### Cream (Backgrounds)
-- `cream-50`: `#fafaf9` - Page background
-- Used for: Main backgrounds
-
-### Typography
-- **Font Family**: 'Outfit', 'Inter', system-ui, sans-serif
-- **Headings**: Bold (700-900), tight tracking
-- **Body**: Medium (500), relaxed leading
-- **Labels**: Uppercase, wide tracking, small size
-
-### Component Patterns
-
-#### Buttons
-```jsx
-// Primary CTA
-className="btn-primary"
-// Defined in index.css: Blue gradient, white text, hover lift
-
-// Secondary
-className="btn-secondary"
-// Outlined style, charcoal text
-```
-
-#### Cards
-```jsx
-// Glass card effect
-className="glass-card"
-// Translucent, backdrop blur, subtle shadow
-```
-
-#### Input Fields
-- Rounded corners (rounded-xl)
-- Border color: charcoal-200
-- Focus state: primary-500 ring
-
-### Animation Principles
-- **Subtle**: Micro-interactions, not distracting
-- **Smooth**: 200-300ms transitions
-- **Purposeful**: Animations should guide user attention
-- **Performance**: Use transform and opacity, avoid layout shifts
+### 3. Expert Audit Protocol
+- **Conduit**: Direct link between investors and the expert moderation panel.
+- **Status HUD**: Real-time tracking from 'Pending' to 'Completed' with PDF report integration.
 
 ---
 
 ## 📊 Database Schema Overview
 
-### Core Tables
+### Core Institutional Tables
 
 #### `profiles`
-```sql
-- id (UUID, FK to auth.users)
-- full_name TEXT
-- bio TEXT
-- avatar_url TEXT
-- is_premium BOOLEAN
-- created_at TIMESTAMP
-```
+- `id (UUID, FK to auth.users)`
+- `full_name TEXT`
+- `bio TEXT`
+- `avatar_url TEXT`
+- `is_premium BOOLEAN`
+- `created_at TIMESTAMP`
+- `is_admin`: Boolean flag granting high-clearance dashboard access.
+- `membership_tier`: Professional ranking (Basic, Pro, Institutional).
 **Purpose**: User metadata and profile information
 
 #### `categories`
@@ -235,29 +179,29 @@ className="glass-card"
 ```
 **Purpose**: Organize income ideas (e.g., Digital Products, Investments, Content Creation)
 
-#### `income_ideas`
-```sql
-- id UUID PRIMARY KEY
-- slug TEXT UNIQUE
-- title TEXT
-- short_description TEXT
-- full_description TEXT
-- category_id UUID (FK to categories)
-- author_id UUID (FK to profiles)
-- monthly_income_min INTEGER
-- monthly_income_max INTEGER
-- initial_investment_min INTEGER
-- initial_investment_max INTEGER
-- effort_level TEXT (Low/Medium/High)
-- risk_level TEXT (Low/Medium/High)
-- success_rate INTEGER (0-100)
-- requirements TEXT
-- steps TEXT
-- risks TEXT
-- case_studies TEXT
-- upvotes_count INTEGER (auto-calculated via trigger)
-- created_at, updated_at TIMESTAMP
-```
+#### `income_ideas` & `franchises`
+- `id UUID PRIMARY KEY`
+- `slug TEXT UNIQUE`
+- `title TEXT`
+- `short_description TEXT`
+- `full_description TEXT`
+- `category_id UUID (FK to categories)`
+- `author_id UUID (FK to profiles)`
+- `monthly_income_min INTEGER`
+- `monthly_income_max INTEGER`
+- `initial_investment_min INTEGER`
+- `initial_investment_max INTEGER`
+- `effort_level TEXT (Low/Medium/High)`
+- `risk_level TEXT (Low/Medium/High)`
+- `success_rate INTEGER (0-100)`
+- `requirements TEXT`
+- `steps TEXT`
+- `risks TEXT`
+- `case_studies TEXT`
+- `upvotes_count INTEGER (auto-calculated via trigger)`
+- `created_at, updated_at TIMESTAMP`
+- `upvotes_count`: Community-driven validation marker.
+- `verified_status`: Mark of expert-led authentication.
 **Purpose**: Core content - passive income opportunities
 
 #### `franchises`
@@ -304,6 +248,11 @@ className="glass-card"
 ```sql
 - Similar structure to user_saved_ideas but for franchises
 ```
+
+#### `expert_audit_requests`
+- `status`: Lifecycle tracking (pending, in-review, completed).
+- `admin_feedback`: Strategic insights from the expert panel.
+- `report_url`: External intelligence report links.
 
 ### Security: Row Level Security (RLS)
 
@@ -497,37 +446,17 @@ if (error) {
 
 ## 🚀 Future Roadmap
 
-### Phase 1: Foundation ✅ (Completed)
-- [x] Core authentication
-- [x] Database schema and RLS
-- [x] Income ideas CRUD
-- [x] Basic filtering and search
-- [x] Landing page and branding
-- [x] Dashboard with saved ideas
-- [x] Upvoting system
-- [x] Franchise opportunities
+### Phase 1-3: Foundation & Institutionalization ✅ (Completed)
+- [x] Core Authentication & RBAC.
+- [x] Institutional Command Hub (Admin HUD).
+- [x] Universal Asset Comparator (Financial Battle Engine).
+- [x] Expert Audit Protocol with Notification Engine.
+- [x] Institutional User Registry & Member Audit Grid.
 
-### Phase 2: Community Features (Next)
-- [ ] User profiles (public view)
-- [ ] Comments on ideas
-- [ ] Success stories submission
-- [ ] Idea reviews and ratings
-- [ ] Follow/unfollow users
-- [ ] Notifications system
-
-### Phase 3: Advanced Tools
-- [ ] Advanced ROI calculator with scenario planning
-- [ ] Comparison tool (compare 2-3 ideas side by side)
-- [ ] Income tracker (track actual earnings)
-- [ ] Expense manager for investments
-- [ ] Tax calculator (India-specific)
-
-### Phase 4: Monetization
-- [ ] Premium membership tier
-- [ ] Exclusive ideas for premium users
-- [ ] One-on-one consultation booking
-- [ ] Affiliate partnerships (earn commission on tools)
-- [ ] Sponsored ideas (clearly marked)
+### Phase 4: Expansion & Intelligence (Ongoing)
+- [ ] Multi-document PDF synthesis for expert reports.
+- [ ] Regional language localization (Hindi, Tamil, etc.).
+- [ ] Mobile-native high-authority app shell.
 
 ### Phase 5: Scale & Optimize
 - [ ] Mobile app (React Native)
@@ -753,15 +682,7 @@ refactor(api): optimize idea fetching query
 ---
 
 ## 🏁 Final Notes
+Silent Money is now a professional wealth-deployment portal. Build with integrity. Code with authority. Ship with institutional confidence.
 
-**Silent Money** is not just another income opportunity directory. It's a trustworthy companion for people seeking financial independence through realistic, vetted, and actionable strategies.
-
-Every line of code, every design decision, and every feature should serve the mission of building user trust and empowering them with knowledge.
-
-**Build with integrity. Code with empathy. Ship with confidence.**
-
----
-
-*Last Updated: January 26, 2026*  
-*Version: 1.0*  
-*Maintained by: Silent Money Team*
+*Last Updated: February 4, 2026*  
+*Version: 2.0 (Institutional Evolution)*
