@@ -206,6 +206,22 @@ export default function AdminDashboardPage() {
         }
     }, [profile, navigate]);
 
+    const logAssetAction = async (assetId, assetType, action, prevStatus, newStatus, feedback = '') => {
+        try {
+            await supabase.from('asset_audit_logs').insert([{
+                asset_id: assetId,
+                asset_type: assetType,
+                modified_by: profile?.id,
+                action: action,
+                previous_status: prevStatus,
+                new_status: newStatus,
+                feedback: feedback
+            }]);
+        } catch (err) {
+            console.warn('Audit logging skipped (infrastructure may be pending):', err.message);
+        }
+    };
+
     const handleDelete = (id, type) => {
         setConfirmConfig({
             isOpen: true,
@@ -219,6 +235,7 @@ export default function AdminDashboardPage() {
                     .eq('id', id);
 
                 if (!error) {
+                    await logAssetAction(id, type, 'DECOMMISSION', 'active', 'deleted', 'Archived by Administrator');
                     toast.success('Asset archived successfully');
                     setPendingIdeas(prev => prev.filter(i => i.id !== id));
                     setApprovedIdeas(prev => prev.filter(i => i.id !== id));
@@ -271,6 +288,7 @@ export default function AdminDashboardPage() {
                         }]);
                     }
                     toast.success('Revision request transmitted.');
+                    await logAssetAction(id, type, 'REVISION_REQUEST', 'pending', 'revision', feedback);
                     // Refresh data
                     setPendingIdeas(prev => prev.map(i => i.id === id ? { ...i, status: 'revision' } : i));
                 } else {
@@ -305,10 +323,12 @@ export default function AdminDashboardPage() {
 
             if (type === 'idea') {
                 const approvedItem = pendingIdeas.find(i => i.id === id);
+                await logAssetAction(id, 'idea', 'AUTHORIZATION', 'pending', 'approved');
                 setPendingIdeas(prev => prev.filter(i => i.id !== id));
                 if (approvedItem) setApprovedIdeas(prev => [{ ...approvedItem, is_approved: true, status: 'approved' }, ...prev]);
             } else {
                 const approvedItem = pendingFranchises.find(f => f.id === id);
+                await logAssetAction(id, 'franchise', 'AUTHORIZATION', 'pending', 'approved');
                 setPendingFranchises(prev => prev.filter(f => f.id !== id));
                 if (approvedItem) setApprovedFranchises(prev => [{ ...approvedItem, is_approved: true, status: 'approved' }, ...prev]);
             }

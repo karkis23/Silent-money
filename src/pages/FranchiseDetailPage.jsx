@@ -9,9 +9,10 @@ import ROICalculator from '../components/ROICalculator';
 import ReviewsSection from '../components/ReviewsSection';
 import ExpertAuditModal from '../components/ExpertAuditModal';
 import { useAuth } from '../context/AuthContext';
+import AssetAuditTrail from '../components/AssetAuditTrail';
 
 export default function FranchiseDetailPage() {
-    const { user } = useAuth();
+    const { user, profile } = useAuth();
     const { slug } = useParams();
     const [franchise, setFranchise] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -514,6 +515,11 @@ export default function FranchiseDetailPage() {
                                 user={user}
                             />
                         </div>
+
+                        {/* Institutional Audit Trail - Visible only to author or admin */}
+                        {(user?.id === franchise.author_id || profile?.is_admin) && (
+                            <AssetAuditTrail assetId={franchise.id} assetType="franchise" />
+                        )}
                     </div>
                 </div>
             </div>

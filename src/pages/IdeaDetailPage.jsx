@@ -8,11 +8,12 @@ import ReviewsSection from '../components/ReviewsSection';
 import SEO from '../components/SEO';
 import BackButton from '../components/BackButton';
 import ExpertAuditModal from '../components/ExpertAuditModal';
+import AssetAuditTrail from '../components/AssetAuditTrail';
 
 export default function IdeaDetailPage() {
     const { slug } = useParams();
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, profile } = useAuth();
 
     const [idea, setIdea] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -468,6 +469,11 @@ export default function IdeaDetailPage() {
 
                         {/* Reviews */}
                         <ReviewsSection assetId={idea.id} assetType="idea" authorId={idea.author_id} user={user} />
+
+                        {/* Institutional Audit Trail - Visible only to author or admin */}
+                        {(user?.id === idea.author_id || profile?.is_admin) && (
+                            <AssetAuditTrail assetId={idea.id} assetType="idea" />
+                        )}
                     </div>
 
                     {/* Sidebar */}
