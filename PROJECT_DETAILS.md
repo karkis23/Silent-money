@@ -38,8 +38,10 @@ The core content table.
 - `is_approved`: Boolean flag for public visibility
 - `status`: Tracking (pending, approved, revision, rejected)
 - `admin_feedback`: Feedback for authors on revision requests
+- `is_verified`: Secondary high-authority verification tag for institutional assets
 - `deleted_at`: Soft-delete timestamp for data protection
 - `upvotes_count`: Aggregated count for performance
+- `step_progress`: Internal marker for multi-step submission tracking (1-2)
 
 ### `categories`
 Organizes ideas (e.g., Investments, Content, Digital Products).
@@ -113,3 +115,5 @@ Centralized member management sector within the Moderation Terminal.
 - **Soft-Delete Mechanism**: Database-level data protection using `deleted_at` timestamps.
 - **Real-time Subscriptions**: Supabase channel-based updates for instant UI synchronization on new audits and assets.
 - **Collision-Resistant Slugs**: Automated random suffix generation for asset URLs.
+- **Intelligence Preview Protocol**: Secure, read-only visualization of pending assets in isolated operational tabs (`target="_blank"`) for administrative vetting.
+- **Consolidated Deployment Flow**: Multi-step submission forms (Ideas/Franchises) refactored from 3-step to high-velocity 2-step sequences ("Foundation" & "Full Intelligence").

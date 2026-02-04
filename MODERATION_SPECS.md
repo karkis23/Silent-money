@@ -14,9 +14,10 @@ The "Brain" of the platform, accessible only to users with `is_admin = true`.
 
 ### Capabilities
 -   **Approve**: Validates an asset, marks it as live, and notifies the author.
--   **Request Revision**: Sends the asset back to the author with specific feedback (e.g., "Add better proof").
--   **Global Edit**: Admins can directly modify any asset's content (SEO, descriptions, financials).
--   **Soft Delete**: Removes assets from public view while preserving the raw data in the database.
+-   **Request Intel**: Replaces generic "Revision" requests with a strategic feedback loop, sending assets back with actionable operational guidance.
+-   **Intelligence Preview**: Launches a high-fidelity, read-only visualization of the pending asset in a secure operational tab (`target="_blank"`) for visual vetting.
+-   **Technical Edit**: Admins can directly modify any asset's content (SEO, descriptions, financials).
+-   **Archive (Decommission)**: Soft-deletes assets from public view while preserving raw data for audit trails.
 
 ---
 
@@ -26,6 +27,15 @@ A real-time communication engine that keeps authors informed about their content
 -   **Instant Alerts**: Red-dot notification bell updates immediately via Supabase Broadcast.
 -   **Contextual Links**: Notifications link directly to the relevant dashboard or live page.
 -   **Status Messages**: Clean, encouraging messaging for approvals and clear actionable feedback for revisions.
+-   **Telemetry Indicators**: Pulsating status beacons (PENDING/AUTHORIZED) provide real-time visual cues for asset maturity.
+
+---
+
+## 🏗️ 3. UI Architecture: The Command Strip
+To maintain institutional clarity, the moderation interface follows a strict "Command Strip" layout.
+- **Docking**: All action controls are anchored at the base of asset cards to prevent layout shifting on long titles.
+- **Action Gridding**: Controls are logically grouped: `Authorization` (Approve/Intel) → `Intelligence` (Preview) → `Tools` (Edit) → `Management` (Archive).
+- **High-Density Scaling**: Reduced padding (`p-5`) and optimized typography for professional data-heavy vetting environments.
 
 ---
 
