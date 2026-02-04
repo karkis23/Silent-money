@@ -20,10 +20,10 @@ export default function AddIdeaPage() {
         short_description: '',
         full_description: '',
         reality_check: '',
-        initial_investment_min: 0,
-        initial_investment_max: 0,
-        monthly_income_min: 0,
-        monthly_income_max: 0,
+        initial_investment_min: '',
+        initial_investment_max: '',
+        monthly_income_min: '',
+        monthly_income_max: '',
         time_to_first_income_days: 30,
         effort_level: 'semi-passive',
         risk_level: 'medium',
@@ -54,11 +54,7 @@ export default function AddIdeaPage() {
 
     const nextStep = () => {
         if (step === 1 && (!formData.title || !formData.category_id || !formData.short_description)) {
-            setError('Please complete all foundational fields.');
-            return;
-        }
-        if (step === 2 && (!formData.full_description || !formData.reality_check)) {
-            setError('Operational intelligence is required.');
+            setError('Foundational intelligence required (Title, Category, Summary).');
             return;
         }
         setError('');
@@ -73,6 +69,19 @@ export default function AddIdeaPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Strategic Safeguard: Prevent submission if not on the final Intelligence step
+        if (step < 2) {
+            nextStep();
+            return;
+        }
+
+        // Final Validation Check
+        if (!formData.full_description || !formData.initial_investment_min || !formData.monthly_income_min) {
+            setError('Incomplete Blueprint: Investment metrics and Operational Guide are required.');
+            return;
+        }
+
         setLoading(true);
         setError('');
 
@@ -134,12 +143,12 @@ export default function AddIdeaPage() {
                                 Deploy <span className="text-primary-600">Blueprint</span>
                             </h1>
                             <p className="text-charcoal-500 font-bold uppercase text-[10px] tracking-[0.3em]">
-                                Step {step} of 3 • {step === 1 ? 'Foundation' : step === 2 ? 'Intelligence' : 'Matrix'}
+                                Step {step} of 2 • {step === 1 ? 'Foundation' : 'Full Intelligence'}
                             </p>
                         </div>
                         <div className="flex gap-1 mb-2">
-                            {[1, 2, 3].map(i => (
-                                <div key={i} className={`h-1.5 w-8 rounded-full transition-all duration-500 ${step >= i ? 'bg-primary-600' : 'bg-charcoal-100'}`} />
+                            {[1, 2].map(i => (
+                                <div key={i} className={`h-1.5 w-12 rounded-full transition-all duration-500 ${step >= i ? 'bg-primary-600' : 'bg-charcoal-100'}`} />
                             ))}
                         </div>
                     </div>
@@ -181,68 +190,78 @@ export default function AddIdeaPage() {
                         )}
 
                         {step === 2 && (
-                            <motion.div key="step2" variants={stepVariants} initial="hidden" animate="visible" exit="exit" className="space-y-10">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Operational Guide (Deep Intel)</label>
-                                    <textarea name="full_description" rows={8} value={formData.full_description} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-medium text-charcoal-700 transition-all min-h-[200px]" placeholder="Explain the mechanics of this wealth engine..." />
-                                </div>
-                                <div className="grid md:grid-cols-2 gap-8">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Reality Protocol (Risks)</label>
-                                        <textarea name="reality_check" rows={6} value={formData.reality_check} onChange={handleChange} className="w-full px-5 py-4 bg-amber-50/50 border border-amber-100 rounded-2xl outline-none font-medium text-amber-900 transition-all" placeholder="Be brutally honest about the risks..." />
+                            <motion.div key="step2" variants={stepVariants} initial="hidden" animate="visible" exit="exit" className="space-y-12">
+                                {/* Financial Matrix Segment */}
+                                <div className="space-y-8 pb-8 border-b border-charcoal-50">
+                                    <div className="flex items-center gap-3">
+                                        <span className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm">💰</span>
+                                        <h2 className="text-[10px] font-black uppercase tracking-widest text-charcoal-950">Financial matrix</h2>
                                     </div>
-                                    <ImageUpload label="Verification Proof (Private)" bucket="proofs" onUpload={(url) => setFormData(prev => ({ ...prev, proof_url: url }))} currentUrl={formData.proof_url} />
+                                    <div className="grid md:grid-cols-2 gap-8">
+                                        <div className="space-y-6">
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Min Capital (₹)</label>
+                                                    <input required type="number" name="initial_investment_min" value={formData.initial_investment_min} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-black text-charcoal-950" placeholder="0" />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Max Capital (₹)</label>
+                                                    <input type="number" name="initial_investment_max" value={formData.initial_investment_max} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-black text-charcoal-950" placeholder="0" />
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Min Monthly (₹)</label>
+                                                    <input required type="number" name="monthly_income_min" value={formData.monthly_income_min} onChange={handleChange} className="w-full px-5 py-4 bg-emerald-50/30 border border-emerald-100 rounded-2xl outline-none font-black text-emerald-700" placeholder="0" />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Max Monthly (₹)</label>
+                                                    <input type="number" name="monthly_income_max" value={formData.monthly_income_max} onChange={handleChange} className="w-full px-5 py-4 bg-emerald-50/30 border border-emerald-100 rounded-2xl outline-none font-black text-emerald-700" placeholder="0" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-6">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Risk Exposure</label>
+                                                <select name="risk_level" value={formData.risk_level} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-bold text-charcoal-900 appearance-none">
+                                                    <option value="low">Low Risk</option>
+                                                    <option value="medium">Medium Risk</option>
+                                                    <option value="high">High Risk</option>
+                                                </select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Deployment Effort</label>
+                                                <select name="effort_level" value={formData.effort_level} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-bold text-charcoal-900 appearance-none">
+                                                    <option value="passive">Autonomous (Passive)</option>
+                                                    <option value="semi-passive">Monitoring (Semi-Passive)</option>
+                                                    <option value="active">Operational (Active)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </motion.div>
-                        )}
 
-                        {step === 3 && (
-                            <motion.div key="step3" variants={stepVariants} initial="hidden" animate="visible" exit="exit" className="space-y-10">
-                                <div className="grid md:grid-cols-2 gap-8">
-                                    <div className="space-y-6">
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Min Capital (₹)</label>
-                                                <input type="number" name="initial_investment_min" value={formData.initial_investment_min} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-black text-charcoal-950" />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Max Capital (₹)</label>
-                                                <input type="number" name="initial_investment_max" value={formData.initial_investment_max} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-black text-charcoal-950" />
-                                            </div>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Min Monthly (₹)</label>
-                                                <input type="number" name="monthly_income_min" value={formData.monthly_income_min} onChange={handleChange} className="w-full px-5 py-4 bg-emerald-50/30 border border-emerald-100 rounded-2xl outline-none font-black text-emerald-700" />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Max Monthly (₹)</label>
-                                                <input type="number" name="monthly_income_max" value={formData.monthly_income_max} onChange={handleChange} className="w-full px-5 py-4 bg-emerald-50/30 border border-emerald-100 rounded-2xl outline-none font-black text-emerald-700" />
-                                            </div>
-                                        </div>
+                                {/* Operational Intelligence Segment */}
+                                <div className="space-y-6">
+                                    <div className="flex items-center gap-3">
+                                        <span className="w-8 h-8 rounded-lg bg-primary-50 text-primary-600 flex items-center justify-center text-sm">📖</span>
+                                        <h2 className="text-[10px] font-black uppercase tracking-widest text-charcoal-950">Operational Guide</h2>
                                     </div>
-                                    <div className="space-y-6">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Risk Level</label>
-                                            <select name="risk_level" value={formData.risk_level} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-bold text-charcoal-900 appearance-none">
-                                                <option value="low">Low Risk</option>
-                                                <option value="medium">Medium Risk</option>
-                                                <option value="high">High Risk</option>
-                                            </select>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Engagement</label>
-                                            <select name="effort_level" value={formData.effort_level} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-bold text-charcoal-900 appearance-none">
-                                                <option value="passive">Autonomous (Passive)</option>
-                                                <option value="semi-passive">Maintenance (Semi-Passive)</option>
-                                                <option value="active">Active (Hustle)</option>
-                                            </select>
-                                        </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Execution Workflow (Deep Intel)</label>
+                                        <textarea required name="full_description" rows={10} value={formData.full_description} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-medium text-charcoal-700 transition-all min-h-[250px]" placeholder="Explain the mechanics of this wealth engine step-by-step..." />
                                     </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Required Expertise (Comma Separated)</label>
-                                    <input type="text" name="skills_required" value={formData.skills_required} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-bold text-charcoal-900 transition-all" placeholder="e.g. Sales, Technical Writing" />
+                                    <div className="grid md:grid-cols-2 gap-8">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Reality Protocol (Boundaries & Risks)</label>
+                                            <textarea required name="reality_check" rows={6} value={formData.reality_check} onChange={handleChange} className="w-full px-5 py-4 bg-amber-50/50 border border-amber-100 rounded-2xl outline-none font-medium text-amber-900 transition-all" placeholder="Be brutally honest about the market risks..." />
+                                        </div>
+                                        <ImageUpload label="Verification Proof (Confidential)" bucket="proofs" onUpload={(url) => setFormData(prev => ({ ...prev, proof_url: url }))} currentUrl={formData.proof_url} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Required Expertise (Comma Separated)</label>
+                                        <input type="text" name="skills_required" value={formData.skills_required} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-bold text-charcoal-900 transition-all" placeholder="e.g. Digital Marketing, Basic Spreadsheet Skills" />
+                                    </div>
                                 </div>
                             </motion.div>
                         )}
@@ -254,9 +273,9 @@ export default function AddIdeaPage() {
                                 Previous
                             </button>
                         )}
-                        {step < 3 ? (
+                        {step < 2 ? (
                             <button type="button" onClick={nextStep} className="flex-1 py-5 bg-charcoal-900 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-primary-600 transition-all shadow-xl shadow-charcoal-100">
-                                Proceed to {step === 1 ? 'Intelligence' : 'Matrix'}
+                                Proceed to Full Intelligence
                             </button>
                         ) : (
                             <button type="submit" disabled={loading} className="flex-1 py-5 bg-primary-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-emerald-600 transition-all shadow-xl shadow-primary-200">

@@ -592,60 +592,76 @@ export default function AdminDashboardPage() {
                                     </div>
                                 ) : (
                                     (activeTab === 'pending' ? pendingIdeas : activeTab === 'history' ? approvedIdeas : allIdeas).map(idea => (
-                                        <div key={idea.id} className="p-6 bg-charcoal-50 rounded-2xl border border-charcoal-100 group hover:border-primary-200 transition-all">
-                                            <div className="flex justify-between items-start mb-4">
-                                                <div className="flex-1 pr-4">
-                                                    <h3 className="text-lg font-black text-charcoal-950 uppercase tracking-tight leading-tight mb-1">{idea.title}</h3>
-                                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest flex items-center gap-2">
+                                        <div key={idea.id} className="p-5 bg-charcoal-50 rounded-xl border border-charcoal-100 group hover:border-primary-200 transition-all">
+                                            <div className="flex justify-between items-start mb-3">
+                                                <div className="flex-1">
+                                                    <h3 className="text-base font-black text-charcoal-950 uppercase tracking-tight leading-tight mb-1">{idea.title}</h3>
+                                                    <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest flex items-center gap-2">
                                                         <span>By {idea.profiles?.full_name || 'Anonymous Author'}</span>
                                                         {idea.is_approved ? (
-                                                            <span className="text-emerald-500">● LIVE</span>
+                                                            <span className="text-emerald-500 flex items-center gap-1 ring-1 ring-emerald-100 px-2 py-0.5 rounded-full bg-emerald-50/50">
+                                                                <span className="w-1 h-1 rounded-full bg-emerald-500 opacity-50" /> AUTH
+                                                            </span>
                                                         ) : (
-                                                            <span className="text-amber-500">● PENDING</span>
+                                                            <span className="text-amber-500 flex items-center gap-1 ring-1 ring-amber-100 px-2 py-0.5 rounded-full bg-amber-50/50">
+                                                                <span className="w-1 h-1 rounded-full bg-amber-500 animate-pulse" /> PENDING
+                                                            </span>
                                                         )}
                                                     </div>
                                                 </div>
-                                                <div className="flex gap-2">
-                                                    {activeTab === 'pending' && (
-                                                        <div className="flex gap-2">
-                                                            <button
-                                                                onClick={() => handleApprove(idea.id, 'idea')}
-                                                                className="px-4 py-2 bg-charcoal-950 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all"
-                                                            >
-                                                                Approve
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleRequestRevision(idea.id, 'idea')}
-                                                                className="px-4 py-2 bg-amber-500 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-amber-600 transition-all"
-                                                            >
-                                                                Revision
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                    <Link
-                                                        to={`/edit-idea/${idea.id}`}
-                                                        className="px-4 py-2 bg-white text-primary-600 border border-primary-100 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-primary-600 hover:text-white transition-all text-center"
-                                                    >
-                                                        Edit
-                                                    </Link>
-                                                    <button
-                                                        onClick={() => handleDelete(idea.id, 'idea')}
-                                                        className="px-4 py-2 bg-white text-red-500 border border-red-100 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all"
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </div>
                                             </div>
-                                            <div className="flex justify-between items-center mt-4 pt-4 border-t border-charcoal-100/50">
-                                                <p className="text-sm text-charcoal-500 line-clamp-1 leading-relaxed font-medium">
+
+                                            <div className="mb-4">
+                                                <p className="text-xs text-charcoal-500 line-clamp-2 leading-relaxed font-medium">
                                                     {idea.short_description}
                                                 </p>
-                                                {idea.proof_url && (
-                                                    <a href={idea.proof_url} target="_blank" rel="noreferrer" className="text-[9px] font-black text-primary-600 uppercase tracking-widest hover:underline flex items-center gap-1 shrink-0 ml-4">
-                                                        <span>📎</span> View Proof
-                                                    </a>
-                                                )}
                                             </div>
+
+                                            <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-charcoal-100/50">
+                                                {activeTab === 'pending' && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => handleApprove(idea.id, 'idea')}
+                                                            className="px-3.5 py-1.5 bg-emerald-600 text-white rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-emerald-700 transition-all"
+                                                        >
+                                                            Approve
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleRequestRevision(idea.id, 'idea')}
+                                                            className="px-3.5 py-1.5 bg-white text-amber-600 border border-amber-200 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-amber-50 transition-all"
+                                                        >
+                                                            Request Intel
+                                                        </button>
+                                                    </>
+                                                )}
+                                                <Link
+                                                    to={`/ideas/${idea.slug}`}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="px-3.5 py-1.5 bg-charcoal-100 text-charcoal-600 border border-charcoal-200 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-charcoal-900 hover:text-white transition-all"
+                                                >
+                                                    Preview
+                                                </Link>
+                                                <Link
+                                                    to={`/edit-idea/${idea.id}`}
+                                                    className="px-3.5 py-1.5 bg-white text-primary-600 border border-primary-100 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-primary-600 hover:text-white transition-all"
+                                                >
+                                                    Edit
+                                                </Link>
+                                                <button
+                                                    onClick={() => handleDelete(idea.id, 'idea')}
+                                                    className="ml-auto px-3.5 py-1.5 bg-white text-red-400 border border-transparent rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-red-50 hover:text-red-600 transition-all"
+                                                >
+                                                    Archive
+                                                </button>
+                                            </div>
+                                            {idea.proof_url && (
+                                                <div className="mt-3 text-right">
+                                                    <a href={idea.proof_url} target="_blank" rel="noreferrer" className="text-[8px] font-black text-primary-600 uppercase tracking-widest hover:underline inline-flex items-center gap-1 opacity-60 hover:opacity-100">
+                                                        <span>📁</span> Operational Proof Attached
+                                                    </a>
+                                                </div>
+                                            )}
                                         </div>
                                     ))
                                 )}
@@ -670,65 +686,79 @@ export default function AdminDashboardPage() {
                                     </div>
                                 ) : (
                                     (activeTab === 'pending' ? pendingFranchises : activeTab === 'history' ? approvedFranchises : allFranchises).map(fran => (
-                                        <div key={fran.id} className="p-6 bg-charcoal-50 rounded-2xl border border-charcoal-100 group hover:border-emerald-200 transition-all">
-                                            <div className="flex justify-between items-start mb-4">
-                                                <div className="flex-1 pr-4">
-                                                    <h3 className="text-lg font-black text-charcoal-950 uppercase tracking-tight leading-tight mb-1">{fran.name}</h3>
-                                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest flex items-center gap-2">
+                                        <div key={fran.id} className="p-5 bg-charcoal-50 rounded-xl border border-charcoal-100 group hover:border-emerald-200 transition-all">
+                                            <div className="flex justify-between items-start mb-3">
+                                                <div className="flex-1">
+                                                    <h3 className="text-base font-black text-charcoal-950 uppercase tracking-tight leading-tight mb-1">{fran.name}</h3>
+                                                    <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest flex items-center gap-2">
                                                         <span>By {fran.profiles?.full_name || 'Anonymous Author'}</span>
                                                         {fran.is_approved ? (
-                                                            <span className="text-emerald-500">● VERIFIED</span>
+                                                            <span className="text-emerald-500 flex items-center gap-1 ring-1 ring-emerald-100 px-2 py-0.5 rounded-full bg-emerald-50/50">
+                                                                <span className="w-1 h-1 rounded-full bg-emerald-500 opacity-50" /> VERIFIED
+                                                            </span>
                                                         ) : (
-                                                            <span className="text-amber-500">● PENDING</span>
+                                                            <span className="text-amber-500 flex items-center gap-1 ring-1 ring-amber-100 px-2 py-0.5 rounded-full bg-amber-50/50">
+                                                                <span className="w-1 h-1 rounded-full bg-amber-500 animate-pulse" /> PENDING
+                                                            </span>
                                                         )}
                                                     </div>
                                                 </div>
-                                                <div className="flex gap-2">
-                                                    {activeTab === 'pending' && (
-                                                        <div className="flex gap-2">
-                                                            <button
-                                                                onClick={() => handleApprove(fran.id, 'franchise')}
-                                                                className="px-4 py-2 bg-charcoal-950 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all"
-                                                            >
-                                                                Approve
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleRequestRevision(fran.id, 'franchise')}
-                                                                className="px-4 py-2 bg-amber-500 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-amber-600 transition-all"
-                                                            >
-                                                                Revision
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                    <Link
-                                                        to={`/edit-franchise/${fran.id}`}
-                                                        className="px-4 py-2 bg-white text-primary-600 border border-primary-100 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-primary-600 hover:text-white transition-all text-center"
-                                                    >
-                                                        Edit
-                                                    </Link>
-                                                    <button
-                                                        onClick={() => handleDelete(fran.id, 'franchise')}
-                                                        className="px-4 py-2 bg-white text-red-500 border border-red-100 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all"
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </div>
                                             </div>
-                                            <div className="flex justify-between items-center mt-4 pt-4 border-t border-charcoal-100/50">
-                                                <div className="flex gap-2">
-                                                    <span className="text-[10px] font-black text-charcoal-400 bg-white border border-charcoal-100 px-2.5 py-1 rounded-lg uppercase tracking-widest">
-                                                        {fran.category}
-                                                    </span>
-                                                    <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg uppercase tracking-widest">
-                                                        ₹{(fran.investment_min / 100000).toFixed(1)}L Min
-                                                    </span>
-                                                </div>
-                                                {fran.proof_url && (
-                                                    <a href={fran.proof_url} target="_blank" rel="noreferrer" className="text-[9px] font-black text-primary-600 uppercase tracking-widest hover:underline flex items-center gap-1 shrink-0 ml-4">
-                                                        <span>📎</span> View Proof
-                                                    </a>
+
+                                            <div className="flex flex-wrap gap-2 mb-4">
+                                                <span className="text-[8px] font-black text-charcoal-400 bg-white border border-charcoal-100 px-2 py-1 rounded-md uppercase tracking-widest">
+                                                    {fran.category}
+                                                </span>
+                                                <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-1 rounded-md uppercase tracking-widest">
+                                                    {(fran.investment_min / 100000).toFixed(1)}L Min
+                                                </span>
+                                            </div>
+
+                                            <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-charcoal-100/50">
+                                                {activeTab === 'pending' && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => handleApprove(fran.id, 'franchise')}
+                                                            className="px-3.5 py-1.5 bg-emerald-600 text-white rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-emerald-700 transition-all"
+                                                        >
+                                                            Verify
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleRequestRevision(fran.id, 'franchise')}
+                                                            className="px-3.5 py-1.5 bg-white text-amber-600 border border-amber-200 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-amber-50 transition-all"
+                                                        >
+                                                            Request
+                                                        </button>
+                                                    </>
                                                 )}
+                                                <Link
+                                                    to={`/franchise/${fran.slug}`}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="px-3.5 py-1.5 bg-charcoal-100 text-charcoal-600 border border-charcoal-200 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-charcoal-900 hover:text-white transition-all"
+                                                >
+                                                    Preview
+                                                </Link>
+                                                <Link
+                                                    to={`/edit-franchise/${fran.id}`}
+                                                    className="px-3.5 py-1.5 bg-white text-primary-600 border border-primary-100 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-primary-600 hover:text-white transition-all"
+                                                >
+                                                    Modify
+                                                </Link>
+                                                <button
+                                                    onClick={() => handleDelete(fran.id, 'franchise')}
+                                                    className="ml-auto px-3.5 py-1.5 bg-white text-red-400 border border-transparent rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-red-50 hover:text-red-600 transition-all"
+                                                >
+                                                    Archive
+                                                </button>
                                             </div>
+                                            {fran.proof_url && (
+                                                <div className="mt-3 text-right">
+                                                    <a href={fran.proof_url} target="_blank" rel="noreferrer" className="text-[8px] font-black text-primary-600 uppercase tracking-widest hover:underline inline-flex items-center gap-1 opacity-60 hover:opacity-100">
+                                                        <span>📁</span> Verification Ledger Attached
+                                                    </a>
+                                                </div>
+                                            )}
                                         </div>
                                     ))
                                 )}

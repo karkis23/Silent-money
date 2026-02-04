@@ -60,6 +60,13 @@ export default function PostFranchisePage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Strategic Safeguard: Only allow submission on the final Phase
+        if (step < 3) {
+            nextStep();
+            return;
+        }
+
         setLoading(true);
         setError('');
 
@@ -213,7 +220,7 @@ export default function PostFranchisePage() {
                         )}
                         {step < 3 ? (
                             <button type="button" onClick={nextStep} className="flex-1 py-5 bg-charcoal-900 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-primary-600 transition-all shadow-xl shadow-charcoal-100">
-                                Proceed to {step === 1 ? 'Metrics' : 'Connectivity'}
+                                Proceed to {step === 1 ? 'Operational Metrics' : 'Connectivity Protocol'}
                             </button>
                         ) : (
                             <button type="submit" disabled={loading} className="flex-1 py-5 bg-primary-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-emerald-600 transition-all shadow-xl shadow-primary-200">
