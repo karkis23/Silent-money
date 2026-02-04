@@ -1,74 +1,215 @@
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import BackButton from '../components/BackButton';
 import SEO from '../components/SEO';
 
 export default function AboutPage() {
+    const navigate = useNavigate();
+    const { user } = useAuth();
+    const fadeIn = {
+        initial: { opacity: 0, y: 20 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0.6 }
+    };
+
+    const coreProtocols = [
+        {
+            stage: "01",
+            title: "Expert Intelligence Vetting",
+            desc: "Every asset submission undergoes a surgical review by our internal analysts to verify legality and market viability within the Indian regulatory framework.",
+            icon: "🔭"
+        },
+        {
+            stage: "02",
+            title: "Risk-Reward Matrix Analysis",
+            desc: "We deployed advanced ROI calculators that factor in hidden operational costs, taxes, and inflation to provide a 'Reality Checked' success probability.",
+            icon: "📊"
+        },
+        {
+            stage: "03",
+            title: "Expert Panel Audit",
+            desc: "High-value opportunities are audited by third-party experts to provide institutional-grade due-diligence reports for our verified members.",
+            icon: "🛡️"
+        },
+        {
+            stage: "04",
+            title: "Platform Synchronization",
+            desc: "Once authorized, the blueprint is synchronized with our global database and made accessible to the fleet for active deployment.",
+            icon: "🔄"
+        }
+    ];
+
     return (
-        <div className="max-w-4xl mx-auto px-4 py-20 pt-32">
+        <div className="min-h-screen bg-cream-50 pt-32 pb-20 px-4">
             <SEO
-                title="The Silent Manifesto | Our Mission"
-                description="Silent Money is dedicated to providing vetted, data-backed passive income roadmaps for the Indian market. No hype, just real ROI."
+                title="The Silent Manifesto | Institutional Intelligence"
+                description="Silent Money is the institutional standard for vetted, data-backed passive income roadmaps in India. Explore our methodology and mission."
             />
-            <BackButton label="Home" to="/" className="mb-12" />
-            <div className="text-center mb-16">
-                <h1 className="text-5xl font-black text-charcoal-950 mb-6 tracking-tight">
-                    The <span className="text-primary-600">Silent</span> Manifesto
-                </h1>
-                <p className="text-xl text-charcoal-500 font-bold uppercase tracking-widest text-xs">
-                    Democratizing honest wealth for 1.4 billion people.
-                </p>
-            </div>
 
-            <div className="space-y-12">
-                <section>
-                    <div className="card text-charcoal-700 leading-relaxed bg-white border-none shadow-premium p-10">
-                        <h2 className="text-2xl font-black text-charcoal-900 mb-6 flex items-center gap-3">
-                            <span className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center text-white text-sm">01</span>
-                            Our Mission
+            <div className="max-w-6xl mx-auto">
+                <motion.div {...fadeIn} className="mb-12">
+                    <BackButton label="Home" to="/" />
+                </motion.div>
+
+                {/* Dossier Hero */}
+                <header className="mb-24 text-center">
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-50 border border-primary-100 mb-8"
+                    >
+                        <span className="w-2 h-2 rounded-full bg-primary-600 animate-pulse" />
+                        <span className="text-[10px] font-black text-primary-600 uppercase tracking-[0.2em]">Institutional Standard v2.0</span>
+                    </motion.div>
+
+                    <motion.h1
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-6xl md:text-8xl font-black text-charcoal-950 tracking-tightest leading-tight mb-8"
+                    >
+                        The <span className="text-primary-600">Silent</span> <br /> Manifesto.
+                    </motion.h1>
+
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.4 }}
+                        className="text-xl text-charcoal-500 font-bold uppercase tracking-[0.3em] max-w-2xl mx-auto leading-relaxed"
+                    >
+                        Democratizing honest wealth for 1.4 billion people through surgical data and zero hype.
+                    </motion.p>
+                </header>
+
+                {/* The Conflict: Hype vs Reality */}
+                <section className="grid lg:grid-cols-2 gap-12 mb-32">
+                    <motion.div
+                        whileHover={{ y: -5 }}
+                        className="card bg-white border-none shadow-premium p-12 overflow-hidden relative group"
+                    >
+                        <div className="absolute top-0 left-0 w-1.5 h-full bg-red-500 opacity-20 group-hover:opacity-100 transition-opacity" />
+                        <div className="text-4xl mb-8">🚫</div>
+                        <h2 className="text-3xl font-black text-charcoal-900 mb-6 tracking-tight">The Industry Noise</h2>
+                        <ul className="space-y-6">
+                            {[
+                                "Inflated ROI percentages designed to harvest clicks.",
+                                "Lack of geographical context (US methods in Indian markets).",
+                                "Omission of operational costs and tax liabilities.",
+                                "Gatekept secrets sold as 'masterclasses' at premium prices."
+                            ].map((item, i) => (
+                                <li key={i} className="flex gap-4 text-charcoal-500 font-medium">
+                                    <span className="text-red-500 mt-1">✕</span>
+                                    <span>{item}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </motion.div>
+
+                    <motion.div
+                        whileHover={{ y: -5 }}
+                        className="card bg-charcoal-950 text-white border-none shadow-2xl p-12 overflow-hidden relative group"
+                    >
+                        <div className="absolute top-0 left-0 w-1.5 h-full bg-primary-600 opacity-20 group-hover:opacity-100 transition-opacity" />
+                        <div className="text-4xl mb-8">🛡️</div>
+                        <h2 className="text-3xl font-black mb-6 tracking-tight">The Silent Standard</h2>
+                        <ul className="space-y-6">
+                            {[
+                                "Surgical ROI calculations with 98% data accuracy.",
+                                "India-specific blueprints (GST, local demand, logistics).",
+                                "Transparent operational tracking for every saved asset.",
+                                "Zero-gatekeeping policy: Professional intel for the masses."
+                            ].map((item, i) => (
+                                <li key={i} className="flex gap-4 text-primary-400 font-medium">
+                                    <span className="text-primary-500 mt-1">✓</span>
+                                    <span>{item}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </motion.div>
+                </section>
+
+                {/* Verification Protocol Timeline */}
+                <section className="mb-32">
+                    <div className="text-center mb-16">
+                        <div className="text-[10px] font-black text-primary-600 uppercase tracking-[0.4em] mb-4">Operational Lifecycle</div>
+                        <h2 className="text-4xl font-black text-charcoal-950 tracking-tighter">Verification Protocol</h2>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {coreProtocols.map((p, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ delay: i * 0.1 }}
+                                viewport={{ once: true }}
+                                className="card bg-white border-charcoal-50 p-8 hover:border-primary-200 transition-all flex flex-col h-full"
+                            >
+                                <div className="text-[40px] mb-6">{p.icon}</div>
+                                <div className="text-[10px] font-black text-charcoal-300 uppercase tracking-widest mb-2">Stage {p.stage}</div>
+                                <h3 className="text-lg font-black text-charcoal-900 mb-4 tracking-tight leading-tight">{p.title}</h3>
+                                <p className="text-sm text-charcoal-500 font-medium leading-relaxed mb-auto">
+                                    {p.desc}
+                                </p>
+                            </motion.div>
+                        ))}
+                    </div>
+                </section>
+
+                {/* Institutional Metrics Hub */}
+                <section className="mb-32">
+                    <div className="card bg-charcoal-900 border-none p-12 overflow-hidden relative">
+                        <div className="absolute inset-0 bg-mesh-gradient opacity-20" />
+
+                        <div className="relative z-10 grid md:grid-cols-3 gap-12 text-center">
+                            <div>
+                                <div className="text-5xl font-black text-white mb-2 tracking-tighter">1.4B+</div>
+                                <div className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">Target Reach</div>
+                            </div>
+                            <div>
+                                <div className="text-5xl font-black text-primary-400 mb-2 tracking-tighter">100%</div>
+                                <div className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">Hype-Free Guarantee</div>
+                            </div>
+                            <div>
+                                <div className="text-5xl font-black text-white mb-2 tracking-tighter">∞</div>
+                                <div className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">Wealth Potential</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Call to Action */}
+                <section className="text-center max-w-3xl mx-auto">
+                    <motion.div
+                        whileInView={{ scale: [0.95, 1], opacity: [0, 1] }}
+                        className="space-y-10"
+                    >
+                        <h2 className="text-4xl md:text-5xl font-black text-charcoal-950 tracking-tightest leading-tight">
+                            Ready to join the <span className="text-primary-600">silent revolution?</span>
                         </h2>
-                        <p className="mb-6 text-lg font-medium">
-                            The internet is flooded with &quot;Get Rich Quick&quot; schemes, flashy screenshots, and fake gurus promising overnight millions. Especially in India, thousands of people lose their hard-earned savings to these scams every year.
+                        <p className="text-lg text-charcoal-500 font-medium leading-relaxed">
+                            Stop chasing flashy screenshots. Start deploying proven assets. Silent Money is more than a directory; it&apos;s your operational command center for financial freedom.
                         </p>
-                        <p className="text-lg font-black text-primary-600">
-                            Silent Money exists to stand against this noise.
-                        </p>
-                        <p className="mt-6 text-charcoal-500 font-medium">
-                            We believe in building wealth quietly and steadily. Our mission is to provide an honest, data-backed directory of passive income ideas that actually work in the Indian context. We don&apos;t sell dreams; we provide roadmaps.
-                        </p>
-                    </div>
-                </section>
-
-                <section className="grid md:grid-cols-3 gap-8">
-                    <div className="card bg-white border-none shadow-sm hover:shadow-xl transition-all p-8">
-                        <div className="text-4xl mb-6">🔍</div>
-                        <h3 className="font-black text-charcoal-950 mb-3 tracking-tight">Vetted Ideas</h3>
-                        <p className="text-sm text-charcoal-500 font-medium leading-relaxed">
-                            Every idea on this platform is researched for legality, viability, and scalability in India.
-                        </p>
-                    </div>
-                    <div className="card bg-white border-none shadow-sm hover:shadow-xl transition-all p-8">
-                        <div className="text-4xl mb-6">📊</div>
-                        <h3 className="font-black text-charcoal-950 mb-3 tracking-tight">Real ROI</h3>
-                        <p className="text-sm text-charcoal-500 font-medium leading-relaxed">
-                            We provide realistic calculators, not inflated numbers. We include expenses and taxes.
-                        </p>
-                    </div>
-                    <div className="card bg-white border-none shadow-sm hover:shadow-xl transition-all p-8">
-                        <div className="text-4xl mb-6">🇮🇳</div>
-                        <h3 className="font-black text-charcoal-950 mb-3 tracking-tight">India First</h3>
-                        <p className="text-sm text-charcoal-500 font-medium leading-relaxed">
-                            Content tailored for Indian markets, payment gateways, and regulations.
-                        </p>
-                    </div>
-                </section>
-
-                <section>
-                    <div className="card bg-charcoal-950 text-white border-none p-12 overflow-hidden relative">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary-600/20 blur-3xl rounded-full" />
-                        <h2 className="text-2xl font-black mb-6 relative z-10">The Architects</h2>
-                        <p className="text-charcoal-400 font-medium text-lg leading-relaxed relative z-10">
-                            Silent Money is built by a small team of developers and finance enthusiasts who got tired of the hype. We are building this platform for ourselves as much as for you - a place to track real progress towards financial freedom.
-                        </p>
-                    </div>
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => navigate(user ? '/dashboard' : '/signup')}
+                                className="btn-primary w-full sm:w-auto px-12 py-5 text-sm"
+                            >
+                                Start Your Mission
+                            </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => navigate('/ideas')}
+                                className="btn-secondary w-full sm:w-auto px-12 py-5 text-sm"
+                            >
+                                View Intelligence Feed
+                            </motion.button>
+                        </div>
+                    </motion.div>
                 </section>
             </div>
         </div>
