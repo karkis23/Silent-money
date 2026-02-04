@@ -28,6 +28,7 @@ const ContactPage = lazy(() => import('../pages/ContactPage'));
 const PublicProfilePage = lazy(() => import('../pages/PublicProfilePage'));
 const ComparisonPage = lazy(() => import('../pages/ComparisonPage'));
 const AdminDashboardPage = lazy(() => import('../pages/AdminDashboardPage'));
+import ErrorPage from '../pages/ErrorPage';
 
 const PageLoader = () => (
     <div className="min-h-screen bg-cream-50 flex items-center justify-center">
@@ -44,6 +45,7 @@ const router = createBrowserRouter([
                 <Layout />
             </Suspense>
         ),
+        errorElement: <ErrorPage />,
         children: [
             {
                 index: true,
