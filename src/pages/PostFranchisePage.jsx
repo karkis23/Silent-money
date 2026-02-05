@@ -30,6 +30,18 @@ export default function PostFranchisePage() {
         contact_email: '',
         contact_phone: '',
         proof_url: '',
+        // Enhanced Data Fields
+        unit_model: '',
+        market_maturity: '',
+        corporate_support: '',
+        operator_retention: '',
+        network_density: '',
+        asset_grade: 'A',
+        risk_profile: 'Low',
+        supply_chain: '',
+        staffing_model: '',
+        tech_stack: '',
+        marketing_support: '',
     });
 
     const categories = ['Food & Beverage', 'Retail', 'Healthcare', 'Logistics', 'Education', 'Automotive', 'Service'];
@@ -83,6 +95,18 @@ export default function PostFranchisePage() {
             space_required_sqft: parseInt(formData.space_required_sqft),
             expected_profit_min: parseInt(formData.expected_profit_min),
             expected_profit_max: parseInt(formData.expected_profit_max),
+            // Pass Enhanced Fields
+            unit_model: formData.unit_model,
+            market_maturity: formData.market_maturity,
+            corporate_support: formData.corporate_support,
+            operator_retention: formData.operator_retention ? parseInt(formData.operator_retention) : null,
+            network_density: formData.network_density ? parseInt(formData.network_density) : null,
+            asset_grade: formData.asset_grade,
+            risk_profile: formData.risk_profile,
+            supply_chain: formData.supply_chain,
+            staffing_model: formData.staffing_model,
+            tech_stack: formData.tech_stack,
+            marketing_support: formData.marketing_support,
             author_id: user.id,
             is_approved: false // Require moderation
         }]);
@@ -183,15 +207,93 @@ export default function PostFranchisePage() {
                                     </div>
                                     <ImageUpload label="Verification Proof (Private)" bucket="proofs" onUpload={(url) => setFormData(prev => ({ ...prev, proof_url: url }))} currentUrl={formData.proof_url} />
                                 </div>
-                                <div className="space-y-2">
-                                    <div className="flex justify-between items-center mb-1 pr-1">
-                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Operational Analytics & Description</label>
-                                        <div className="text-[8px] font-bold text-primary-600/60 uppercase tracking-widest">
-                                            **bold** • - list • {">"} quote • # header
+
+                                {/* Enhanced Data Input Section */}
+                                <div className="space-y-8 pt-8 border-t border-charcoal-100">
+                                    {/* Business Intelligence */}
+                                    <div className="space-y-4">
+                                        <h3 className="text-sm font-black text-charcoal-900 uppercase tracking-widest pl-1 border-l-4 border-primary-600 ml-1">Business Intelligence</h3>
+                                        <div className="grid md:grid-cols-3 gap-6">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Unit Model</label>
+                                                <input name="unit_model" value={formData.unit_model} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-bold" placeholder="e.g. FOCO" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Market Maturity</label>
+                                                <input name="market_maturity" value={formData.market_maturity} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-bold" placeholder="e.g. High" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Corporate Support</label>
+                                                <input name="corporate_support" value={formData.corporate_support} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-bold" placeholder="e.g. Full Training" />
+                                            </div>
                                         </div>
                                     </div>
-                                    <textarea name="description" rows={8} value={formData.description} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-medium min-h-[200px] research-editor resize-y" placeholder="Explain the business model, support, and track record..." />
-                                </div>
+
+                                    {/* Market Strength */}
+                                    <div className="space-y-4">
+                                        <h3 className="text-sm font-black text-charcoal-900 uppercase tracking-widest pl-1 border-l-4 border-emerald-500 ml-1">Market Strength</h3>
+                                        <div className="grid md:grid-cols-4 gap-6">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Retention (%)</label>
+                                                <input type="number" name="operator_retention" value={formData.operator_retention} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-bold" max="100" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Density (%)</label>
+                                                <input type="number" name="network_density" value={formData.network_density} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-bold" max="100" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Asset Grade</label>
+                                                <select name="asset_grade" value={formData.asset_grade} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-bold">
+                                                    <option value="AAA+">AAA+</option>
+                                                    <option value="AA">AA</option>
+                                                    <option value="A">A</option>
+                                                    <option value="B+">B+</option>
+                                                    <option value="B">B</option>
+                                                </select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Risk Profile</label>
+                                                <select name="risk_profile" value={formData.risk_profile} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-bold">
+                                                    <option value="Low">Low</option>
+                                                    <option value="Medium">Medium</option>
+                                                    <option value="High">High</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Operational Logistics */}
+                                    <div className="space-y-4">
+                                        <h3 className="text-sm font-black text-charcoal-900 uppercase tracking-widest pl-1 border-l-4 border-amber-500 ml-1">Operational Logistics</h3>
+                                        <div className="grid md:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Supply Chain</label>
+                                                <input name="supply_chain" value={formData.supply_chain} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-bold" placeholder="e.g. Centralized" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Staffing Model</label>
+                                                <input name="staffing_model" value={formData.staffing_model} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-bold" placeholder="e.g. 4-6 Certified" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Tech Stack</label>
+                                                <input name="tech_stack" value={formData.tech_stack} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-bold" placeholder="e.g. POS & CRM" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Marketing Support</label>
+                                                <input name="marketing_support" value={formData.marketing_support} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-bold" placeholder="e.g. National Ads" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between items-center mb-1 pr-1">
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Operational Analytics & Description</label>
+                                            <div className="text-[8px] font-bold text-primary-600/60 uppercase tracking-widest">
+                                                **bold** • - list • {">"} quote • # header
+                                            </div>
+                                        </div>
+                                        <textarea name="description" rows={8} value={formData.description} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-medium min-h-[200px] research-editor resize-y" placeholder="Explain the business model, support, and track record..." />
+                                    </div>
                             </motion.div>
                         )}
 

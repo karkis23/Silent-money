@@ -29,6 +29,19 @@ export default function EditFranchisePage() {
         website_url: '',
         contact_email: '',
         contact_phone: '',
+        // Enhanced Data Fields
+        unit_model: '',
+        market_maturity: '',
+        corporate_support: '',
+        operator_retention: '',
+        network_density: '',
+        asset_grade: 'A',
+        risk_profile: 'Low',
+        supply_chain: '',
+        staffing_model: '',
+        tech_stack: '',
+        marketing_support: '',
+        slug: '',
     });
 
     const categories = [
@@ -68,6 +81,19 @@ export default function EditFranchisePage() {
                     website_url: data.website_url || '',
                     contact_email: data.contact_email || '',
                     contact_phone: data.contact_phone || '',
+                    // Enhanced Data Population
+                    unit_model: data.unit_model || '',
+                    market_maturity: data.market_maturity || '',
+                    corporate_support: data.corporate_support || '',
+                    operator_retention: data.operator_retention?.toString() || '',
+                    network_density: data.network_density?.toString() || '',
+                    asset_grade: data.asset_grade || 'A',
+                    risk_profile: data.risk_profile || 'Low',
+                    supply_chain: data.supply_chain || '',
+                    staffing_model: data.staffing_model || '',
+                    tech_stack: data.tech_stack || '',
+                    marketing_support: data.marketing_support || '',
+                    slug: data.slug,
                 });
                 setLoading(false);
             }
@@ -97,6 +123,9 @@ export default function EditFranchisePage() {
                 space_required_sqft: formData.space_required_sqft ? parseInt(formData.space_required_sqft) : null,
                 expected_profit_min: formData.expected_profit_min ? parseInt(formData.expected_profit_min) : null,
                 expected_profit_max: formData.expected_profit_max ? parseInt(formData.expected_profit_max) : null,
+                // Parse Numbers for Enhanced Fields
+                operator_retention: formData.operator_retention ? parseInt(formData.operator_retention) : null,
+                network_density: formData.network_density ? parseInt(formData.network_density) : null,
                 updated_at: new Date()
             })
             .eq('id', id);
@@ -112,7 +141,7 @@ export default function EditFranchisePage() {
             setError(error.message);
             setUpdateLoading(false);
         } else {
-            navigate('/my-ideas'); // Go back to assets
+            navigate(`/franchise/${formData.slug}`); // Go back to detail page
         }
     };
 
@@ -227,13 +256,89 @@ export default function EditFranchisePage() {
                         </div>
 
                         <div className="space-y-4">
-                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Brand Visual</label>
+                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Brand Visual (Banner)</label>
                             <div className="bg-charcoal-50 p-6 rounded-2xl border border-charcoal-100">
                                 <ImageUpload
                                     label="Upload Banner Image"
                                     currentUrl={formData.image_url}
                                     onUpload={(url) => setFormData(prev => ({ ...prev, image_url: url }))}
+                                    bucket="franchises"
                                 />
+                            </div>
+                        </div>
+
+                        {/* Enhanced Business Intelligence Section */}
+                        <div className="space-y-6">
+                            <h3 className="text-sm font-black text-charcoal-900 uppercase tracking-widest pl-1 border-l-4 border-primary-600 ml-1">Business Intelligence</h3>
+                            <div className="grid md:grid-cols-3 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Unit Model</label>
+                                    <input name="unit_model" value={formData.unit_model} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none transition-all font-bold" placeholder="e.g. FOCO / FOFO" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Market Maturity</label>
+                                    <input name="market_maturity" value={formData.market_maturity} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none transition-all font-bold" placeholder="e.g. High - National" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Corporate Support</label>
+                                    <input name="corporate_support" value={formData.corporate_support} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none transition-all font-bold" placeholder="e.g. Full Training" />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Market Strength & Risk Section */}
+                        <div className="space-y-6">
+                            <h3 className="text-sm font-black text-charcoal-900 uppercase tracking-widest pl-1 border-l-4 border-emerald-500 ml-1">Market Strength</h3>
+                            <div className="grid md:grid-cols-4 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Retention (%)</label>
+                                    <input type="number" name="operator_retention" value={formData.operator_retention} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none transition-all font-bold" max="100" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Density (%)</label>
+                                    <input type="number" name="network_density" value={formData.network_density} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none transition-all font-bold" max="100" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Asset Grade</label>
+                                    <select name="asset_grade" value={formData.asset_grade} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none transition-all font-bold">
+                                        <option value="AAA+">AAA+</option>
+                                        <option value="AA">AA</option>
+                                        <option value="A">A</option>
+                                        <option value="B+">B+</option>
+                                        <option value="B">B</option>
+                                    </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Risk Profile</label>
+                                    <select name="risk_profile" value={formData.risk_profile} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none transition-all font-bold">
+                                        <option value="Low">Low</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="High">High</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Operational Logistics Section */}
+                        <div className="space-y-6">
+                            <h3 className="text-sm font-black text-charcoal-900 uppercase tracking-widest pl-1 border-l-4 border-amber-500 ml-1">Operational Logistics</h3>
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Supply Chain</label>
+                                    <input name="supply_chain" value={formData.supply_chain} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none transition-all font-bold" placeholder="e.g. Centralized Procurement" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Staffing Model</label>
+                                    <input name="staffing_model" value={formData.staffing_model} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none transition-all font-bold" placeholder="e.g. 4-6 Certified Personnel" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Tech Stack</label>
+                                    <input name="tech_stack" value={formData.tech_stack} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none transition-all font-bold" placeholder="e.g. Integrated POS & CRM" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Marketing Support</label>
+                                    <input name="marketing_support" value={formData.marketing_support} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none transition-all font-bold" placeholder="e.g. National Brand Campaigns" />
+                                </div>
                             </div>
                         </div>
 

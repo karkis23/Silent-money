@@ -21,6 +21,7 @@ export default function FranchiseDetailPage() {
     const [isSaved, setIsSaved] = useState(false);
     const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
     const [activeInfoTab, setActiveInfoTab] = useState('requirements');
+    const [isExpanded, setIsExpanded] = useState(false);
 
     useEffect(() => {
         const fetchFranchise = async () => {
@@ -621,8 +622,22 @@ export default function FranchiseDetailPage() {
 
                         <section>
                             <h2 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-6">About Business</h2>
-                            <div className="text-charcoal-600 leading-relaxed active-prose prose prose-charcoal max-w-none prose-headings:font-black prose-headings:text-charcoal-900 prose-p:text-lg prose-p:font-medium prose-li:text-charcoal-600 prose-strong:text-charcoal-900 prose-strong:font-black prose-a:text-primary-600 mb-10 whitespace-pre-wrap">
-                                <ReactMarkdown>{franchise.description}</ReactMarkdown>
+                            <div className={`card p-8 bg-white border border-charcoal-100 rounded-3xl relative transition-all duration-500 ${isExpanded ? '' : 'max-h-[500px] overflow-hidden'}`}>
+                                <div className="text-charcoal-600 leading-relaxed active-prose prose prose-charcoal max-w-none prose-headings:font-black prose-headings:text-charcoal-900 prose-p:text-lg prose-p:font-medium prose-li:text-charcoal-600 prose-strong:text-charcoal-900 prose-strong:font-black prose-a:text-primary-600 whitespace-pre-wrap">
+                                    <ReactMarkdown>{franchise.description}</ReactMarkdown>
+                                </div>
+                                {!isExpanded && (
+                                    <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white to-transparent" />
+                                )}
+                            </div>
+                            <div className="flex justify-center -mt-6 relative z-10 mb-10">
+                                <button
+                                    onClick={() => setIsExpanded(!isExpanded)}
+                                    className="bg-white border border-charcoal-100 text-charcoal-900 px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg hover:bg-charcoal-50 transition-all flex items-center gap-2"
+                                >
+                                    {isExpanded ? 'Collapse Analysis' : 'Read Full Analysis'}
+                                    <span className="text-lg">{isExpanded ? '↑' : '↓'}</span>
+                                </button>
                             </div>
 
                             {/* Strategic Action Bar */}
@@ -685,19 +700,19 @@ export default function FranchiseDetailPage() {
                             <div className="grid sm:grid-cols-2 gap-8">
                                 <div className="space-y-2">
                                     <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Supply Chain</div>
-                                    <p className="text-sm font-bold text-charcoal-900">Centralized Procurement & Weekly Stock Refills</p>
+                                    <p className="text-sm font-bold text-charcoal-900">{franchise.supply_chain || 'Centralized Procurement & Weekly Stock Refills'}</p>
                                 </div>
                                 <div className="space-y-2">
                                     <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Staffing Model</div>
-                                    <p className="text-sm font-bold text-charcoal-900">4-6 Certified Personnel (Training via HQ)</p>
+                                    <p className="text-sm font-bold text-charcoal-900">{franchise.staffing_model || '4-6 Certified Personnel (Training via HQ)'}</p>
                                 </div>
                                 <div className="space-y-2">
                                     <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Tech Stack</div>
-                                    <p className="text-sm font-bold text-charcoal-900">Integrated POS, Inventory & CRM Systems</p>
+                                    <p className="text-sm font-bold text-charcoal-900">{franchise.tech_stack || 'Integrated POS, Inventory & CRM Systems'}</p>
                                 </div>
                                 <div className="space-y-2">
                                     <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Marketing</div>
-                                    <p className="text-sm font-bold text-charcoal-900">National Brand Campaigns + Local SEO Support</p>
+                                    <p className="text-sm font-bold text-charcoal-900">{franchise.marketing_support || 'National Brand Campaigns + Local SEO Support'}</p>
                                 </div>
                             </div>
                         </section>

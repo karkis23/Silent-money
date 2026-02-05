@@ -33,7 +33,9 @@ export default function IdeaDetailPage() {
     // Upvote state
     const [hasUpvoted, setHasUpvoted] = useState(false);
     const [voteCount, setVoteCount] = useState(0);
+    const [voteCount, setVoteCount] = useState(0);
     const [voteLoading, setVoteLoading] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
 
     useEffect(() => {
         const fetchIdea = async () => {
@@ -437,9 +439,9 @@ export default function IdeaDetailPage() {
                     {/* Main Content Column */}
                     <div className="md:col-span-2 space-y-8">
                         {/* Reality Check */}
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-4 opacity-10 text-6xl">⚠️</div>
-                            <h2 className="text-lg font-bold text-yellow-900 mb-3 flex items-center gap-2">
+                        <div className="card max-h-[300px] overflow-y-auto custom-scrollbar p-6 bg-yellow-50 border border-yellow-200 rounded-xl relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-4 opacity-10 text-6xl pointer-events-none">⚠️</div>
+                            <h2 className="text-lg font-bold text-yellow-900 mb-3 flex items-center gap-2 sticky top-0 bg-yellow-50 pt-1 pb-2 z-10 w-full">
                                 <span className="text-xl">⚠️</span> Reality Check
                             </h2>
                             <div className="text-yellow-900 leading-relaxed prose prose-yellow max-w-none prose-p:my-2 prose-headings:text-yellow-900 prose-headings:font-bold prose-headings:text-sm prose-headings:uppercase prose-headings:tracking-widest whitespace-pre-wrap">
@@ -447,13 +449,25 @@ export default function IdeaDetailPage() {
                             </div>
                         </div>
 
-                        <div className="card">
+                        <div className={`card p-8 bg-white border border-charcoal-100 rounded-3xl relative transition-all duration-500 ${isExpanded ? '' : 'max-h-[500px] overflow-hidden'}`}>
                             <h3 className="text-xl font-bold text-charcoal-900 mb-6 flex items-center gap-2">
                                 <span>🚀</span> How it works
                             </h3>
                             <div className="prose prose-charcoal max-w-none prose-headings:font-black prose-headings:text-charcoal-900 prose-p:text-charcoal-600 prose-li:text-charcoal-600 prose-strong:text-charcoal-900 prose-strong:font-black prose-a:text-primary-600 whitespace-pre-wrap">
                                 <ReactMarkdown>{idea.full_description}</ReactMarkdown>
                             </div>
+                            {!isExpanded && (
+                                <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white to-transparent" />
+                            )}
+                        </div>
+                        <div className="flex justify-center -mt-6 relative z-10 mb-10">
+                            <button
+                                onClick={() => setIsExpanded(!isExpanded)}
+                                className="bg-white border border-charcoal-100 text-charcoal-900 px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg hover:bg-charcoal-50 transition-all flex items-center gap-2"
+                            >
+                                {isExpanded ? 'Collapse Blueprint' : 'Read Full Blueprint'}
+                                <span className="text-lg">{isExpanded ? '↑' : '↓'}</span>
+                            </button>
                         </div>
 
                         {/* Skills */}
