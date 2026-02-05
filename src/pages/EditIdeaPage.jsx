@@ -262,14 +262,19 @@ export default function EditIdeaPage() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Operational Guide (Markdown)</label>
+                                <div className="flex justify-between items-center mb-1 pr-1">
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Operational Guide (Markdown)</label>
+                                    <div className="text-[8px] font-bold text-primary-600/60 uppercase tracking-widest">
+                                        **bold** • - list • {">"} quote • # header
+                                    </div>
+                                </div>
                                 <textarea
                                     name="full_description"
                                     required
-                                    rows={8}
+                                    rows={10}
                                     value={formData.full_description}
                                     onChange={handleChange}
-                                    className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 focus:bg-white outline-none font-medium text-charcoal-700 transition-all min-h-[200px]"
+                                    className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 focus:bg-white outline-none font-medium text-charcoal-700 transition-all min-h-[250px] research-editor resize-y"
                                 />
                             </div>
 

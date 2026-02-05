@@ -238,14 +238,20 @@ export default function EditFranchisePage() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Detailed Analysis & Description</label>
+                            <div className="flex justify-between items-center mb-1 pr-1">
+                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Detailed Analysis & Description</label>
+                                <div className="text-[8px] font-bold text-primary-600/60 uppercase tracking-widest">
+                                    **bold** • - list • {">"} quote • # header
+                                </div>
+                            </div>
                             <textarea
                                 required
                                 name="description"
                                 value={formData.description}
                                 onChange={handleChange}
-                                rows={6}
-                                className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none transition-all font-bold resize-none"
+                                rows={10}
+                                className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none transition-all research-editor resize-y"
+                                placeholder="Paste your research here..."
                             />
                         </div>
 

@@ -621,7 +621,7 @@ export default function FranchiseDetailPage() {
 
                         <section>
                             <h2 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-6">About Business</h2>
-                            <div className="text-charcoal-600 leading-relaxed active-prose prose prose-charcoal max-w-none prose-headings:font-black prose-headings:text-charcoal-900 prose-p:text-lg prose-p:font-medium prose-li:text-charcoal-600 prose-strong:text-charcoal-900 prose-strong:font-black prose-a:text-primary-600 mb-10">
+                            <div className="text-charcoal-600 leading-relaxed active-prose prose prose-charcoal max-w-none prose-headings:font-black prose-headings:text-charcoal-900 prose-p:text-lg prose-p:font-medium prose-li:text-charcoal-600 prose-strong:text-charcoal-900 prose-strong:font-black prose-a:text-primary-600 mb-10 whitespace-pre-wrap">
                                 <ReactMarkdown>{franchise.description}</ReactMarkdown>
                             </div>
 

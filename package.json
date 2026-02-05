@@ -20,7 +20,9 @@
     "react-helmet-async": "^2.0.5",
     "react-hot-toast": "^2.6.0",
     "react-markdown": "^10.1.0",
-    "react-router-dom": "^7.13.0"
+    "react-router-dom": "^7.13.0",
+    "remark-breaks": "^4.0.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

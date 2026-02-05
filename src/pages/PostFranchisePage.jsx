@@ -184,8 +184,13 @@ export default function PostFranchisePage() {
                                     <ImageUpload label="Verification Proof (Private)" bucket="proofs" onUpload={(url) => setFormData(prev => ({ ...prev, proof_url: url }))} currentUrl={formData.proof_url} />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Operational Analytics & Description</label>
-                                    <textarea name="description" rows={5} value={formData.description} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-medium min-h-[150px]" placeholder="Explain the business model, support, and track record..." />
+                                    <div className="flex justify-between items-center mb-1 pr-1">
+                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Operational Analytics & Description</label>
+                                        <div className="text-[8px] font-bold text-primary-600/60 uppercase tracking-widest">
+                                            **bold** • - list • {">"} quote • # header
+                                        </div>
+                                    </div>
+                                    <textarea name="description" rows={8} value={formData.description} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-medium min-h-[200px] research-editor resize-y" placeholder="Explain the business model, support, and track record..." />
                                 </div>
                             </motion.div>
                         )}

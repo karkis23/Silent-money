@@ -181,9 +181,18 @@
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
-  
+
   .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  .research-editor {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+    line-height: 1.6 !important;
+    tab-size: 4 !important;
+    @apply bg-charcoal-50 text-charcoal-900 border-charcoal-200 !important;
   }
 }

@@ -442,7 +442,7 @@ export default function IdeaDetailPage() {
                             <h2 className="text-lg font-bold text-yellow-900 mb-3 flex items-center gap-2">
                                 <span className="text-xl">⚠️</span> Reality Check
                             </h2>
-                            <div className="text-yellow-900 leading-relaxed prose prose-yellow max-w-none prose-p:my-2 prose-headings:text-yellow-900 prose-headings:font-bold prose-headings:text-sm prose-headings:uppercase prose-headings:tracking-widest">
+                            <div className="text-yellow-900 leading-relaxed prose prose-yellow max-w-none prose-p:my-2 prose-headings:text-yellow-900 prose-headings:font-bold prose-headings:text-sm prose-headings:uppercase prose-headings:tracking-widest whitespace-pre-wrap">
                                 <ReactMarkdown>{idea.reality_check}</ReactMarkdown>
                             </div>
                         </div>
@@ -451,7 +451,7 @@ export default function IdeaDetailPage() {
                             <h3 className="text-xl font-bold text-charcoal-900 mb-6 flex items-center gap-2">
                                 <span>🚀</span> How it works
                             </h3>
-                            <div className="prose prose-charcoal max-w-none prose-headings:font-black prose-headings:text-charcoal-900 prose-p:text-charcoal-600 prose-li:text-charcoal-600 prose-strong:text-charcoal-900 prose-strong:font-black prose-a:text-primary-600">
+                            <div className="prose prose-charcoal max-w-none prose-headings:font-black prose-headings:text-charcoal-900 prose-p:text-charcoal-600 prose-li:text-charcoal-600 prose-strong:text-charcoal-900 prose-strong:font-black prose-a:text-primary-600 whitespace-pre-wrap">
                                 <ReactMarkdown>{idea.full_description}</ReactMarkdown>
                             </div>
                         </div>

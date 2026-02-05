@@ -248,13 +248,18 @@ export default function AddIdeaPage() {
                                         <h2 className="text-[10px] font-black uppercase tracking-widest text-charcoal-950">Operational Guide</h2>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Execution Workflow (Deep Intel)</label>
-                                        <textarea required name="full_description" rows={10} value={formData.full_description} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-medium text-charcoal-700 transition-all min-h-[250px]" placeholder="Explain the mechanics of this wealth engine step-by-step..." />
+                                        <div className="flex justify-between items-center mb-1 pr-1">
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Execution Workflow (Deep Intel)</label>
+                                            <div className="text-[8px] font-bold text-primary-600/60 uppercase tracking-widest">
+                                                **bold** • - list • {">"} quote • # header
+                                            </div>
+                                        </div>
+                                        <textarea required name="full_description" rows={10} value={formData.full_description} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-medium text-charcoal-700 transition-all min-h-[250px] research-editor resize-y" placeholder="Explain the mechanics of this wealth engine step-by-step..." />
                                     </div>
                                     <div className="grid md:grid-cols-2 gap-8">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Reality Protocol (Boundaries & Risks)</label>
-                                            <textarea required name="reality_check" rows={6} value={formData.reality_check} onChange={handleChange} className="w-full px-5 py-4 bg-amber-50/50 border border-amber-100 rounded-2xl outline-none font-medium text-amber-900 transition-all" placeholder="Be brutally honest about the market risks..." />
+                                            <textarea required name="reality_check" rows={6} value={formData.reality_check} onChange={handleChange} className="w-full px-5 py-4 bg-amber-50/50 border border-amber-100 rounded-2xl outline-none font-medium text-amber-900 transition-all research-editor resize-y" placeholder="Be brutally honest about the market risks..." />
                                         </div>
                                         <ImageUpload label="Verification Proof (Confidential)" bucket="proofs" onUpload={(url) => setFormData(prev => ({ ...prev, proof_url: url }))} currentUrl={formData.proof_url} />
                                     </div>
