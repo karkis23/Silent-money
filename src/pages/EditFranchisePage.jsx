@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { supabase } from '../services/supabase';
 import BackButton from '../components/BackButton';
 import SEO from '../components/SEO';
+import ImageUpload from '../components/ImageUpload';
 
 export default function EditFranchisePage() {
     const { id } = useParams();
@@ -225,14 +226,15 @@ export default function EditFranchisePage() {
                             />
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Image URL</label>
-                            <input
-                                name="image_url"
-                                value={formData.image_url}
-                                onChange={handleChange}
-                                className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none transition-all font-bold"
-                            />
+                        <div className="space-y-4">
+                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Brand Visual</label>
+                            <div className="bg-charcoal-50 p-6 rounded-2xl border border-charcoal-100">
+                                <ImageUpload
+                                    label="Upload Banner Image"
+                                    currentUrl={formData.image_url}
+                                    onUpload={(url) => setFormData(prev => ({ ...prev, image_url: url }))}
+                                />
+                            </div>
                         </div>
 
                         <div className="space-y-2">

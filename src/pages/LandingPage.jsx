@@ -36,16 +36,34 @@ export default function LandingPage() {
 
     const [topIdeas, setTopIdeas] = useState([]);
     const [topLoading, setTopLoading] = useState(true);
-
     useEffect(() => {
         const fetchTopIdeas = async () => {
-            const { data } = await supabase
+            // First, try to get featured items
+            let { data } = await supabase
                 .from('income_ideas')
                 .select('*, categories(name, icon)')
                 .eq('is_approved', true)
                 .is('deleted_at', null)
-                .order('upvotes_count', { ascending: false })
+                .eq('is_featured', true)
                 .limit(3);
+
+            // If we don't have 3 featured items, fill with most upvoted items
+            if (!data || data.length < 3) {
+                const excludedIds = data ? data.map(item => item.id) : [];
+                const { data: upvoted } = await supabase
+                    .from('income_ideas')
+                    .select('*, categories(name, icon)')
+                    .eq('is_approved', true)
+                    .is('deleted_at', null)
+                    .not('id', 'in', excludedIds.length > 0 ? excludedIds : [null]) // Handle empty array
+                    .order('upvotes_count', { ascending: false })
+                    .limit(3 - (data?.length || 0));
+
+                if (upvoted) {
+                    data = [...(data || []), ...upvoted];
+                }
+            }
+
             if (data) setTopIdeas(data);
             setTopLoading(false);
         };
@@ -92,23 +110,23 @@ export default function LandingPage() {
                             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-charcoal-900 border border-charcoal-800 mb-6"
                         >
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">System Operational: Sector Alpha</span>
+                            <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Admin Access</span>
                         </motion.div>
                         <h1 className="text-5xl md:text-7xl font-black text-charcoal-950 tracking-tightest leading-tight mb-4">
-                            Operational <span className="text-primary-600">Console.</span>
+                            Admin <span className="text-primary-600">Dashboard.</span>
                         </h1>
                         <p className="text-xl text-charcoal-500 font-medium max-w-2xl">
-                            Welcome back, Admin. The platform intelligence loop is active. Monitor, moderate, and deploy institutional assets below.
+                            Welcome back. Manage your platform, approve new ideas, and moderate user content here.
                         </p>
                     </header>
 
                     {/* Operational Stats Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
                         {[
-                            { label: 'Market Blueprints', value: adminStats.totalIdeas, sub: 'Active Assets', icon: '🏛️', link: '/admin?tab=ideas' },
-                            { label: 'Pending Audits', value: adminStats.pendingAudits, sub: 'Requires Review', icon: '🔍', link: '/admin?tab=audits', alert: adminStats.pendingAudits > 0 },
-                            { label: 'Authorized Users', value: adminStats.totalUsers, sub: 'Verified Members', icon: '👥', link: '/admin?tab=users' },
-                            { label: 'All Franchises', value: adminStats.totalFranchises, sub: 'Business Entries', icon: '🏢', link: '/admin?tab=franchises' }
+                            { label: 'Total Ideas', value: adminStats.totalIdeas, sub: 'Live Ideas', icon: '🏛️', link: '/admin?tab=ideas' },
+                            { label: 'Pending Audits', value: adminStats.pendingAudits, sub: 'Needs Review', icon: '🔍', link: '/admin?tab=audits', alert: adminStats.pendingAudits > 0 },
+                            { label: 'Active Users', value: adminStats.totalUsers, sub: 'Registered Members', icon: '👥', link: '/admin?tab=users' },
+                            { label: 'Franchises', value: adminStats.totalFranchises, sub: 'Business Listings', icon: '🏢', link: '/admin?tab=franchises' }
                         ].map((stat, i) => (
                             <motion.div
                                 key={i}
@@ -143,22 +161,22 @@ export default function LandingPage() {
                         ))}
                     </div>
 
-                    {/* Deployment Terminal (Quick Actions) */}
+                    {/* System Controls (Quick Actions) */}
                     <div className="grid lg:grid-cols-3 gap-8 mb-16">
                         <div className="lg:col-span-2">
                             <div className="bg-charcoal-950 rounded-[3rem] p-10 text-white relative overflow-hidden h-full">
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary-600/20 blur-[100px]" />
-                                <h3 className="text-xs font-black text-white/40 uppercase tracking-[0.3em] mb-8">Deployment Terminal</h3>
+                                <h3 className="text-xs font-black text-white/40 uppercase tracking-[0.3em] mb-8">System Controls</h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <Link to="/admin" className="p-6 bg-white/5 border border-white/10 rounded-3xl hover:bg-white/10 transition-all group">
-                                        <div className="text-[11px] font-black text-primary-400 uppercase tracking-widest mb-2">Operation Control</div>
-                                        <div className="text-xl font-black mb-4">Command Center</div>
-                                        <div className="text-[9px] text-white/50 leading-relaxed">Manage ideas, franchises, and platform moderation queues.</div>
+                                        <div className="text-[11px] font-black text-primary-400 uppercase tracking-widest mb-2">Platform Management</div>
+                                        <div className="text-xl font-black mb-4">Admin Dashboard</div>
+                                        <div className="text-[9px] text-white/50 leading-relaxed">Manage ideas, franchises, and user requests.</div>
                                     </Link>
                                     <Link to="/post-franchise" className="p-6 bg-white/5 border border-white/10 rounded-3xl hover:bg-white/10 transition-all group">
-                                        <div className="text-[11px] font-black text-accent uppercase tracking-widest mb-2">Alpha Launch</div>
-                                        <div className="text-xl font-black mb-4">Deploy Asset</div>
-                                        <div className="text-[9px] text-white/50 leading-relaxed">Instantly post new franchises or digital blueprints to the hub.</div>
+                                        <div className="text-[11px] font-black text-accent uppercase tracking-widest mb-2">Growth</div>
+                                        <div className="text-xl font-black mb-4">Post New Opportunity</div>
+                                        <div className="text-[9px] text-white/50 leading-relaxed">Instantly add new franchises or blueprints to the platform.</div>
                                     </Link>
                                 </div>
                             </div>
@@ -169,9 +187,9 @@ export default function LandingPage() {
                                 <h3 className="text-xs font-black text-charcoal-400 uppercase tracking-[0.3em] mb-8">System Health</h3>
                                 <div className="space-y-6 flex-1">
                                     {[
-                                        { label: 'API Latency', status: 'Optimal', val: '24ms' },
-                                        { label: 'Real-time Sync', status: 'Active', val: '100%' },
-                                        { label: 'Database Mesh', status: 'Healthy', val: '99.9%' }
+                                        { label: 'Platform Speed', status: 'Optimal', val: '24ms' },
+                                        { label: 'Data Sync', status: 'Active', val: '100%' },
+                                        { label: 'Database Health', status: 'Healthy', val: '99.9%' }
                                     ].map((check, i) => (
                                         <div key={i} className="flex justify-between items-center">
                                             <div>
@@ -247,7 +265,7 @@ export default function LandingPage() {
 
                             <motion.h1 variants={fadeInUp} className="text-5xl md:text-7xl font-extrabold text-charcoal-950 mb-6 leading-[1.1]">
                                 Build Your <br />
-                                <span className="text-gradient">Financial Dynasty</span> <br />
+                                <span className="text-gradient">Income Portfolio</span> <br />
                                 <span className="text-primary-600">Quietly.</span>
                             </motion.h1>
 

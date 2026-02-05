@@ -2,10 +2,20 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../services/supabase';
+import { useAuth } from '../context/AuthContext';
 import CardShimmer from '../components/CardShimmer';
 import SEO from '../components/SEO';
 import EmptyState from '../components/EmptyState';
 
+/**
+ * IdeasPage: The primary intelligence feed for passive income blueprints.
+ * 
+ * Features:
+ * - Real-time filtering by Category, Risk, Effort, and Investment.
+ * - Dynamic sorting (Newest, Highest Income, Top Rated).
+ * - "To Goal" Indicators: Calculates how much each idea contributes to the user's specific income goal.
+ * - Access-Controlled Visibility: Filters out unapproved or deleted content at the query level.
+ */
 export default function IdeasPage() {
     const [ideas, setIdeas] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -16,7 +26,11 @@ export default function IdeasPage() {
     const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [minIncome, setMinIncome] = useState(0);
+    const [selectedRisk, setSelectedRisk] = useState('all');
+    const [selectedEffort, setSelectedEffort] = useState('all');
+    const [smartMatch, setSmartMatch] = useState(false);
     const [sortBy, setSortBy] = useState('created_at');
+    const { profile } = useAuth();
 
     useEffect(() => {
         const query = searchParams.get('search');
@@ -27,7 +41,7 @@ export default function IdeasPage() {
     useEffect(() => {
         const fetchCategories = async () => {
             const { data } = await supabase.from('categories').select('*').order('display_order');
-            if (data) setCategories(data);
+            setCategories(data || []);
         };
         fetchCategories();
     }, []);
@@ -39,6 +53,7 @@ export default function IdeasPage() {
             let query = supabase
                 .from('income_ideas')
                 .select('*, categories (name, slug), profiles(full_name, id)')
+                .order('is_featured', { ascending: false })
                 .order(sortBy, { ascending: false });
 
             // Moderation Gate: Only show approved and non-deleted ideas
@@ -52,13 +67,32 @@ export default function IdeasPage() {
                 query = query.gte('monthly_income_min', minIncome);
             }
 
+            if (selectedRisk !== 'all') {
+                query = query.eq('risk_level', selectedRisk);
+            }
+
+            if (selectedEffort !== 'all') {
+                query = query.eq('effort_level', selectedEffort);
+            }
+
+            if (smartMatch && profile) {
+                // Apply smart match based on user profile
+                if (profile.risk_tolerance) query = query.eq('risk_level', profile.risk_tolerance.toLowerCase());
+                if (profile.investment_budget) {
+                    const budgetMax = profile.investment_budget.includes('Under 5L') ? 500000 :
+                        profile.investment_budget.includes('5-25L') ? 2500000 :
+                            profile.investment_budget.includes('25-50L') ? 5000000 : 999999999;
+                    query = query.lte('initial_investment_min', budgetMax);
+                }
+            }
+
             if (searchQuery) {
                 query = query.ilike('title', `%${searchQuery}%`);
             }
 
             const { data, error } = await query;
             if (error) console.error(error);
-            if (data) setIdeas(data);
+            setIdeas(data || []);
             setLoading(false);
         };
 
@@ -67,7 +101,7 @@ export default function IdeasPage() {
         }, 100);
 
         return () => clearTimeout(timer);
-    }, [selectedCategory, searchQuery, minIncome, sortBy]);
+    }, [selectedCategory, searchQuery, minIncome, selectedRisk, selectedEffort, smartMatch, sortBy, profile]);
 
     const formatCurrencyShort = (amount) => {
         if (amount === 0) return 'Free';
@@ -103,10 +137,10 @@ export default function IdeasPage() {
                         <div>
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="w-2 h-2 rounded-full bg-primary-600 animate-pulse"></span>
-                                <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em]">Institutional Grade Assets</span>
+                                <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em]">Verified Business Ideas</span>
                             </div>
                             <h1 className="text-4xl md:text-5xl font-black text-charcoal-950 tracking-tightest leading-none">
-                                DISCOVERY <span className="text-primary-600">HUB.</span>
+                                Browse <span className="text-primary-600">Ideas.</span>
                             </h1>
                         </div>
 
@@ -127,7 +161,7 @@ export default function IdeasPage() {
                             <span className="absolute left-6 top-1/2 -translate-y-1/2 text-charcoal-400">🔍</span>
                             <input
                                 type="text"
-                                placeholder="Search the asset matrix..."
+                                placeholder="Search ideas..."
                                 value={searchQuery}
                                 aria-label="Search income ideas"
                                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -137,7 +171,7 @@ export default function IdeasPage() {
                         <div className="flex">
                             <div className="px-6 py-5 border-r border-charcoal-50 hidden lg:block">
                                 <div className="flex items-center gap-4">
-                                    <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Yield Floor</span>
+                                    <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Min Monthly Income</span>
                                     <input
                                         type="range"
                                         min="0"
@@ -147,7 +181,7 @@ export default function IdeasPage() {
                                         onChange={(e) => setMinIncome(parseInt(e.target.value))}
                                         className="w-32 accent-primary-600 h-1 bg-charcoal-100 rounded-lg cursor-pointer"
                                     />
-                                    <span className="text-xs font-black text-primary-600 font-mono">₹{(minIncome / 1000).toFixed(0)}k+</span>
+                                    <span className="text-xs font-black text-primary-600">₹{(minIncome / 1000).toFixed(0)}k+</span>
                                 </div>
                             </div>
 
@@ -158,10 +192,10 @@ export default function IdeasPage() {
                                     className={`h-full px-8 py-5 flex items-center gap-3 cursor-pointer transition-all rounded-tr-[2rem] md:rounded-tr-[2rem] md:rounded-tl-none ${showSortDropdown ? 'bg-charcoal-50' : 'hover:bg-charcoal-50/50'}`}
                                 >
                                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-charcoal-900 whitespace-nowrap">
-                                        {sortBy === 'created_at' ? 'Recency Index' :
-                                            sortBy === 'upvotes_count' ? 'Popularity Index' :
-                                                sortBy === 'monthly_income_min' ? 'Yield Matrix' :
-                                                    'Opportunity Matrix'}
+                                        {sortBy === 'created_at' ? 'Newest First' :
+                                            sortBy === 'upvotes_count' ? 'Most Popular' :
+                                                sortBy === 'monthly_income_min' ? 'Highest Income' :
+                                                    'Highest Income'}
                                     </span>
                                     <motion.span
                                         animate={{ rotate: showSortDropdown ? 180 : 0 }}
@@ -182,10 +216,9 @@ export default function IdeasPage() {
                                         >
                                             <div className="bg-white border border-charcoal-100 rounded-[1.5rem] shadow-2xl overflow-hidden shadow-charcoal-900/10 backdrop-blur-xl">
                                                 {[
-                                                    { id: 'created_at', label: 'Recency Index', icon: '📅' },
-                                                    { id: 'upvotes_count', label: 'Popularity Index', icon: '🔥' },
-                                                    { id: 'monthly_income_min', label: 'Yield Matrix', icon: '💰' },
-                                                    { id: 'monthly_income_max', label: 'Opportunity Matrix', icon: '🚀' }
+                                                    { id: 'created_at', label: 'Newest First', icon: '📅' },
+                                                    { id: 'upvotes_count', label: 'Most Popular', icon: '🔥' },
+                                                    { id: 'monthly_income_min', label: 'Highest Income', icon: '💰' },
                                                 ].map((option) => (
                                                     <button
                                                         key={option.id}
@@ -204,27 +237,66 @@ export default function IdeasPage() {
                                     )}
                                 </AnimatePresence>
                             </div>
+
+                            {/* SMART MATCH TOGGLE */}
+                            {profile && (
+                                <div className="flex items-center px-6 py-5 border-l border-charcoal-50 bg-primary-50/20">
+                                    <button
+                                        onClick={() => setSmartMatch(!smartMatch)}
+                                        className={`flex items-center gap-3 px-4 py-2 rounded-xl transition-all ${smartMatch ? 'bg-primary-600 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
+                                    >
+                                        <span className="text-sm">{smartMatch ? '🎯' : '⭕'}</span>
+                                        <span className="text-[10px] font-black uppercase tracking-widest leading-none">Smart Match</span>
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    {/* Bottom Row: Classification Pills */}
-                    <div className="p-3 flex flex-wrap gap-2 bg-charcoal-50/30 rounded-b-[2rem]">
-                        <button
-                            onClick={() => setSelectedCategory('all')}
-                            className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${selectedCategory === 'all' ? 'bg-charcoal-900 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
-                        >
-                            All Categories
-                        </button>
-                        {categories.map((category) => (
+                    {/* Bottom Row: Classification Pills & Expanded Filters */}
+                    <div className="p-3 flex flex-col md:flex-row gap-4 bg-charcoal-50/30 rounded-b-[2rem] items-center">
+                        <div className="flex flex-wrap gap-2 flex-1">
                             <button
-                                key={category.id}
-                                onClick={() => setSelectedCategory(category.id)}
-                                className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${selectedCategory === category.id ? 'bg-primary-600 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
+                                onClick={() => setSelectedCategory('all')}
+                                className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${selectedCategory === 'all' ? 'bg-charcoal-900 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
                             >
-                                <span>{category.icon}</span>
-                                {category.name}
+                                All Categories
                             </button>
-                        ))}
+                            {categories.map((category) => (
+                                <button
+                                    key={category.id}
+                                    onClick={() => setSelectedCategory(category.id)}
+                                    className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${selectedCategory === category.id ? 'bg-primary-600 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
+                                >
+                                    <span>{category.icon}</span>
+                                    {category.name}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="flex gap-2 border-l border-charcoal-100 pl-4 h-full py-1">
+                            <select
+                                value={selectedRisk}
+                                onChange={(e) => setSelectedRisk(e.target.value)}
+                                className="bg-white border border-charcoal-100 rounded-xl px-4 py-2 text-[9px] font-black uppercase tracking-widest outline-none cursor-pointer"
+                            >
+                                <option value="all">All Risk</option>
+                                <option value="low">Low Risk</option>
+                                <option value="medium">Medium Risk</option>
+                                <option value="high">High Risk</option>
+                            </select>
+
+                            <select
+                                value={selectedEffort}
+                                onChange={(e) => setSelectedEffort(e.target.value)}
+                                className="bg-white border border-charcoal-100 rounded-xl px-4 py-2 text-[9px] font-black uppercase tracking-widest outline-none cursor-pointer"
+                            >
+                                <option value="all">All Effort</option>
+                                <option value="passive">Passive</option>
+                                <option value="semi-passive">Semi-Passive</option>
+                                <option value="active">Active</option>
+                            </select>
+                        </div>
                     </div>
                 </section>
 
@@ -237,8 +309,8 @@ export default function IdeasPage() {
                     ) : ideas.length === 0 ? (
                         <EmptyState
                             icon="📭"
-                            title="Null Result"
-                            message="No asset matches your current parameters. Reset the matrix to see all blueprints."
+                            title="No Results"
+                            message="No ideas match your filters. Try resetting to see all ideas."
                             onAction={() => { setSearchQuery(''); setSelectedCategory('all'); setMinIncome(0); }}
                         />
                     ) : (
@@ -276,14 +348,23 @@ export default function IdeasPage() {
                                                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl text-[8px] font-black tracking-widest text-blue-600 uppercase border border-white/20 shadow-sm">
                                                     {idea.categories?.name}
                                                 </div>
-
                                                 <div className="absolute bottom-4 left-4 flex gap-2">
+                                                    {idea.is_featured && (
+                                                        <span className="bg-amber-500/90 backdrop-blur-sm text-white px-2 py-1.5 rounded-lg text-[7px] font-black tracking-widest uppercase shadow-xl flex items-center gap-1">
+                                                            ⭐ FEATURED
+                                                        </span>
+                                                    )}
                                                     <span className="bg-emerald-500/90 backdrop-blur-sm text-white px-2 py-1.5 rounded-lg text-[7px] font-black tracking-widest uppercase shadow-xl">
                                                         ✓ VERIFIED
                                                     </span>
                                                     {idea.is_premium && (
                                                         <span className="bg-primary-600/90 backdrop-blur-sm text-white px-2 py-1.5 rounded-lg text-[7px] font-black tracking-widest uppercase shadow-xl">
                                                             ⭐ PREMIUM
+                                                        </span>
+                                                    )}
+                                                    {profile?.income_goal > 0 && (
+                                                        <span className="bg-emerald-600/90 backdrop-blur-sm text-white px-2 py-1.5 rounded-lg text-[7px] font-black tracking-widest uppercase shadow-xl border border-white/20">
+                                                            🚀 +{Math.round((idea.monthly_income_min / profile.income_goal) * 100)}% TO GOAL
                                                         </span>
                                                     )}
                                                 </div>
@@ -312,7 +393,7 @@ export default function IdeasPage() {
                                                 {idea.profiles && (
                                                     <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1">
                                                         <span>by</span>
-                                                        <span className="text-gray-900 group-hover:text-blue-600 transition-colors uppercase">{idea.profiles.full_name}</span>
+                                                        <span className="text-gray-900 group-hover:text-blue-600 transition-colors uppercase">{idea.profiles?.full_name || 'Anonymous'}</span>
                                                     </div>
                                                 )}
                                                 <p className="text-[13px] text-gray-500 line-clamp-2 leading-relaxed h-[2.5rem] mb-8 font-medium">
@@ -322,15 +403,15 @@ export default function IdeasPage() {
                                                 {/* Detailed Metrics */}
                                                 <div className="flex items-center gap-6 mb-8 py-5 border-y border-gray-50">
                                                     <div className="flex-1">
-                                                        <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 font-mono">Potential Yield</div>
-                                                        <div className="text-xl font-black text-gray-950 font-mono tracking-tighter">
+                                                        <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Monthly Income</div>
+                                                        <div className="text-xl font-black text-gray-950 tracking-tighter">
                                                             {formatCurrencyShort(idea.monthly_income_min)}
                                                             <span className="text-[10px] text-gray-400 font-medium pl-0.5 tracking-normal">/mo</span>
                                                         </div>
                                                     </div>
                                                     <div className="w-[1px] h-10 bg-gray-100"></div>
                                                     <div className="flex-1">
-                                                        <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 font-mono">Risk Level</div>
+                                                        <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ">Risk Level</div>
                                                         <div className={`text-[12px] font-black uppercase tracking-widest flex items-center gap-2 ${idea.risk_level === 'low' ? 'text-emerald-500' : 'text-amber-500'}`}>
                                                             <span className={`w-1.5 h-1.5 rounded-full ${idea.risk_level === 'low' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`}></span>
                                                             {idea.risk_level}
@@ -359,7 +440,7 @@ export default function IdeasPage() {
                         </div>
                     )}
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }

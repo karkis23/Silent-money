@@ -9,6 +9,7 @@ import SEO from '../components/SEO';
 import BackButton from '../components/BackButton';
 import ExpertAuditModal from '../components/ExpertAuditModal';
 import AssetAuditTrail from '../components/AssetAuditTrail';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 export default function IdeaDetailPage() {
     const { slug } = useParams();
@@ -272,12 +273,17 @@ export default function IdeaDetailPage() {
                                     </span>
                                     <div className="flex items-center gap-2 bg-emerald-50 text-emerald-600 px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] border border-emerald-100/50">
                                         <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                                        Verified Intelligence
+                                        Verified Idea
                                     </div>
                                     {idea.is_premium && (
                                         <span className="bg-amber-400 text-amber-950 px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-amber-200/50">
-                                            Institutional Grade
+                                            Premium
                                         </span>
+                                    )}
+                                    {profile?.income_goal > 0 && (
+                                        <div className="bg-emerald-600/90 backdrop-blur-sm text-white px-5 py-2 rounded-2xl text-[10px] font-black tracking-widest uppercase shadow-xl border border-white/20">
+                                            🚀 +{Math.round((idea.monthly_income_min / profile.income_goal) * 100)}% To Goal
+                                        </div>
                                     )}
                                 </div>
 
@@ -308,7 +314,7 @@ export default function IdeaDetailPage() {
                                                         )}
                                                     </div>
                                                     <div>
-                                                        <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest leading-none mb-1">Strategist</div>
+                                                        <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest leading-none mb-1">Listed By</div>
                                                         <div className="text-sm font-black text-charcoal-900 group-hover:text-primary-600 transition-colors uppercase leading-none">
                                                             {idea.profiles.full_name}
                                                         </div>
@@ -320,7 +326,7 @@ export default function IdeaDetailPage() {
 
                                             <div className="flex items-center gap-4">
                                                 <div className="text-right hidden sm:block">
-                                                    <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest leading-none mb-1">Asset Rating</div>
+                                                    <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest leading-none mb-1">Rating</div>
                                                     <div className="text-sm font-black text-charcoal-900 leading-none">A+ SECURE</div>
                                                 </div>
                                                 <div className="flex -space-x-3">
@@ -346,7 +352,7 @@ export default function IdeaDetailPage() {
                                                 className={`flex items-center gap-3 font-black text-[10px] uppercase tracking-[0.2em] transition-all whitespace-nowrap ${hasUpvoted ? 'text-primary-600' : 'text-charcoal-400 hover:text-charcoal-900'}`}
                                             >
                                                 <span className="text-xl">{hasUpvoted ? '❤️' : '🤍'}</span>
-                                                <span>{voteCount} POTENTIALS</span>
+                                                <span>{voteCount} LIKES</span>
                                             </button>
                                         </div>
 
@@ -366,7 +372,7 @@ export default function IdeaDetailPage() {
                                                     <span className="text-lg group-hover:scale-110 transition-transform">
                                                         {isSaved ? '🛡️' : '🔖'}
                                                     </span>
-                                                    <span className="whitespace-nowrap">{isSaved ? 'VAULTED' : 'SAVE BLUEPRINT'}</span>
+                                                    <span className="whitespace-nowrap">{isSaved ? 'SAVED' : 'SAVE IDEA'}</span>
                                                 </>
                                             )}
                                         </button>
@@ -397,8 +403,15 @@ export default function IdeaDetailPage() {
                                             🛡️
                                         </div>
                                         <div>
-                                            <div className="text-[10px] font-black text-white/50 uppercase tracking-[0.4em] mb-1">Asset Protocol</div>
-                                            <div className="text-lg font-black text-white uppercase tracking-wider">Intelligence Shield Activated</div>
+                                            <div className="text-[10px] font-black text-white/50 uppercase tracking-[0.4em] mb-1">Status</div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="text-lg font-black text-white uppercase tracking-wider">Verified Idea</div>
+                                                {idea.is_featured && (
+                                                    <span className="bg-amber-500 text-white px-2 py-0.5 rounded text-[8px] font-black tracking-widest uppercase shadow-lg shadow-amber-500/20 flex items-center gap-1">
+                                                        ⭐ Featured
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
 
@@ -434,10 +447,9 @@ export default function IdeaDetailPage() {
                             </div>
                         </div>
 
-                        {/* Protocol Description */}
                         <div className="card">
                             <h3 className="text-xl font-bold text-charcoal-900 mb-6 flex items-center gap-2">
-                                <span>🚀</span> Operational Protocol
+                                <span>🚀</span> How it works
                             </h3>
                             <div className="prose prose-charcoal max-w-none prose-headings:font-black prose-headings:text-charcoal-900 prose-p:text-charcoal-600 prose-li:text-charcoal-600 prose-strong:text-charcoal-900 prose-strong:font-black prose-a:text-primary-600">
                                 <ReactMarkdown>{idea.full_description}</ReactMarkdown>
@@ -457,18 +469,22 @@ export default function IdeaDetailPage() {
                         </div>
 
                         {/* Calculator */}
-                        <ROICalculator
-                            assetId={idea.id}
-                            assetType="idea"
-                            initialDefaults={{
-                                investment: idea.initial_investment_min,
-                                income: idea.monthly_income_min,
-                                expenses: 0
-                            }}
-                        />
+                        <ErrorBoundary compact>
+                            <ROICalculator
+                                assetId={idea.id}
+                                assetType="idea"
+                                initialDefaults={{
+                                    investment: idea.initial_investment_min,
+                                    income: idea.monthly_income_min,
+                                    expenses: 0
+                                }}
+                            />
+                        </ErrorBoundary>
 
                         {/* Reviews */}
-                        <ReviewsSection assetId={idea.id} assetType="idea" authorId={idea.author_id} user={user} />
+                        <ErrorBoundary compact>
+                            <ReviewsSection assetId={idea.id} assetType="idea" authorId={idea.author_id} user={user} />
+                        </ErrorBoundary>
 
                         {/* Institutional Audit Trail - Visible only to author or admin */}
                         {(user?.id === idea.author_id || profile?.is_admin) && (
@@ -482,7 +498,7 @@ export default function IdeaDetailPage() {
                             <div className="card border-none shadow-xl p-8 bg-white overflow-hidden relative">
                                 <div className="absolute top-0 left-0 w-full h-1 bg-primary-600" />
                                 <h3 className="text-lg font-black text-charcoal-900 mb-6 flex items-center gap-3 tracking-tight">
-                                    <span className="text-xl">📝</span> Your Deployment
+                                    <span className="text-xl">📝</span> Your Notes
                                 </h3>
 
                                 <div className="space-y-6">
@@ -503,7 +519,7 @@ export default function IdeaDetailPage() {
                                     </div>
 
                                     <div>
-                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest block mb-2 pl-1">Mission Notes</label>
+                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest block mb-2 pl-1">My Notes</label>
                                         <textarea
                                             value={userNotes}
                                             onChange={(e) => setUserNotes(e.target.value)}
@@ -533,12 +549,12 @@ export default function IdeaDetailPage() {
 
                         <div className="card sticky top-24 border-none shadow-xl p-8 bg-primary-600 text-white">
                             <h3 className="text-lg font-black text-white mb-8 tracking-tight flex items-center gap-2">
-                                <span>🎯</span> Vitals & Metrics
+                                <span>🎯</span> Key Metrics
                             </h3>
 
                             <div className="space-y-4">
                                 <div className="p-4 bg-white/10 rounded-2xl border border-white/10">
-                                    <div className="text-[10px] font-black text-white/50 uppercase tracking-widest pl-1 leading-none mb-1">Capital Required</div>
+                                    <div className="text-[10px] font-black text-white/50 uppercase tracking-widest pl-1 leading-none mb-1">Investment</div>
                                     <div className="text-lg font-black tracking-tighter">
                                         {formatCurrency(idea.initial_investment_min)}
                                     </div>

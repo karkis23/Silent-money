@@ -1,12 +1,20 @@
--- Silent Money Database Schema
--- Run this in your Supabase SQL Editor
+-- =================================================================================
+-- SILENT MONEY: MASTER DATABASE SCHEMA
+-- 2025 Institutional Grade Wealth Platform
+-- 
+-- ARCHITECTURE:
+-- - All tables use Row Level Security (RLS) for multi-tenant data isolation.
+-- - Identity is managed via auth.users linked to the custom profiles table.
+-- - Post-deployment triggers track asset upvotes and user participation ranks.
+-- =================================================================================
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- ============================================
--- PROFILES TABLE
--- ============================================
+-- =================================================================================
+-- 👤 PROFILES TABLE
+-- Stores user metadata, financial goals, and institutional ranking tags.
+-- =================================================================================
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID REFERENCES auth.users(id) PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,

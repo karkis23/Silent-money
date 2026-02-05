@@ -4,6 +4,7 @@ import { supabase } from '../services/supabase';
 import { useAuth } from '../context/AuthContext';
 import BackButton from '../components/BackButton';
 import SEO from '../components/SEO';
+import ImageUpload from '../components/ImageUpload';
 
 export default function EditIdeaPage() {
     const { id } = useParams();
@@ -30,6 +31,7 @@ export default function EditIdeaPage() {
         risk_level: 'medium',
         success_rate_percentage: 50,
         skills_required: '',
+        image_url: '',
     });
 
     useEffect(() => {
@@ -98,6 +100,7 @@ export default function EditIdeaPage() {
                     time_to_first_income_days: Number(formData.time_to_first_income_days),
                     success_rate_percentage: Number(formData.success_rate_percentage),
                     skills_required: skillsArray,
+                    image_url: formData.image_url,
                     updated_at: new Date()
                 })
                 .eq('id', id);
@@ -202,6 +205,53 @@ export default function EditIdeaPage() {
                                     onChange={handleChange}
                                     className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 focus:bg-white outline-none font-medium text-charcoal-700 transition-all"
                                 />
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-8 pt-4">
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Brand Visual (Image URL)</label>
+                                    <div className="space-y-4">
+                                        <input
+                                            type="url"
+                                            name="image_url"
+                                            placeholder="https://images.unsplash.com/..."
+                                            value={formData.image_url}
+                                            onChange={handleChange}
+                                            className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 focus:bg-white outline-none font-medium text-charcoal-700 transition-all"
+                                        />
+                                        <div className="text-[9px] font-bold text-charcoal-400 uppercase tracking-widest text-center px-4">
+                                            — OR —
+                                        </div>
+                                        <ImageUpload
+                                            label="Institutional Upload"
+                                            onUpload={(url) => setFormData(prev => ({ ...prev, image_url: url }))}
+                                            currentUrl={formData.image_url}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Operational Preview</label>
+                                    <div className="aspect-video bg-charcoal-50 rounded-3xl border border-charcoal-100 overflow-hidden relative group shadow-inner">
+                                        {formData.image_url ? (
+                                            <img
+                                                src={formData.image_url}
+                                                alt="Preview"
+                                                className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                                onError={(e) => {
+                                                    e.target.onerror = null;
+                                                    e.target.src = 'https://placehold.co/600x400?text=Invalid+Image+URL';
+                                                }}
+                                            />
+                                        ) : (
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center text-charcoal-400 text-[8px] font-black uppercase tracking-widest text-center px-4">
+                                                <span>🖼️ System Ready</span>
+                                                <span className="mt-1 opacity-50">Visual Asset Required</span>
+                                            </div>
+                                        )}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/40 to-transparent pointer-events-none" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

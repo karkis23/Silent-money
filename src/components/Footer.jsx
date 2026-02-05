@@ -33,21 +33,21 @@ export default function Footer() {
                         <div>
                             <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] mb-6">Platform</h3>
                             <ul className="space-y-4 text-sm font-bold">
-                                <li><Link to="/ideas" className="hover:text-primary-400 transition-colors">Income Motherboard</Link></li>
-                                <li><Link to="/franchise" className="hover:text-primary-400 transition-colors">Franchise Data</Link></li>
-                                <li><Link to="/dashboard" className="hover:text-primary-400 transition-colors">Commander Center</Link></li>
+                                <li><Link to="/ideas" className="hover:text-primary-400 transition-colors">Browse Ideas</Link></li>
+                                <li><Link to="/franchise" className="hover:text-primary-400 transition-colors">Franchises</Link></li>
+                                <li><Link to="/dashboard" className="hover:text-primary-400 transition-colors">My Dashboard</Link></li>
                             </ul>
                         </div>
                         <div>
                             <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] mb-6">Company</h3>
                             <ul className="space-y-4 text-sm font-bold">
-                                <li><Link to="/about" className="hover:text-primary-400 transition-colors">Our Manifesto</Link></li>
-                                <li><Link to="/privacy" className="hover:text-primary-400 transition-colors">Privacy Guard</Link></li>
-                                <li><Link to="/terms" className="hover:text-primary-400 transition-colors">Service Terms</Link></li>
+                                <li><Link to="/about" className="hover:text-primary-400 transition-colors">About Us</Link></li>
+                                <li><Link to="/privacy" className="hover:text-primary-400 transition-colors">Privacy Policy</Link></li>
+                                <li><Link to="/terms" className="hover:text-primary-400 transition-colors">Terms of Service</Link></li>
                             </ul>
                         </div>
                         <div className="col-span-2 md:col-span-1">
-                            <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] mb-6">Reality Check</h3>
+                            <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] mb-6">Disclaimer</h3>
                             <p className="text-xs text-charcoal-500 font-bold leading-relaxed uppercase tracking-tight">
                                 ⚠️ Past performance is not a guarantee of future success. Passive income requires dedication and vetting.
                             </p>
@@ -57,9 +57,9 @@ export default function Footer() {
 
                 {/* Bottom Bar */}
                 <div className="border-t border-charcoal-900 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p className="text-xs font-bold text-charcoal-600">© {currentYear} SILENT MONEY PLATFORM. ALL RIGHTS RESERVED.</p>
+                    <p className="text-xs font-bold text-charcoal-600">© {currentYear} SILENT MONEY. ALL RIGHTS RESERVED.</p>
                     <div className="flex items-center gap-6">
-                        <span className="text-[10px] font-black text-accent uppercase tracking-widest border border-accent/20 px-3 py-1 rounded-full">System v1.4.2 Status: Online</span>
+                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest border border-emerald-500/20 px-3 py-1 rounded-full">All Systems Operational</span>
                     </div>
                 </div>
             </div>

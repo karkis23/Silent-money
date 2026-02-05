@@ -5,19 +5,33 @@ import { supabase } from '../services/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '../components/SEO';
 import ConfirmModal from '../components/ConfirmModal';
+import { toast } from 'react-hot-toast';
 
+/**
+ * DashboardPage: The "Command Center" for the user.
+ * 
+ * This component aggregates all user-specific operational data including:
+ * - Saved income blueprints (ideas) and franchises.
+ * - Created content (ideas/franchises authored by the user).
+ * - Social intelligence (reviews/intel provided by the user).
+ * - Financial goals and real-time progress tracking.
+ * - Expert audit requests for business validation.
+ */
 export default function DashboardPage() {
     const { user, profile } = useAuth();
-    const [savedIdeas, setSavedIdeas] = useState([]);
-    const [savedFranchises, setSavedFranchises] = useState([]);
-    const [savedCalculations, setSavedCalculations] = useState([]);
-    const [myReviews, setMyReviews] = useState([]);
-    const [myAudits, setMyAudits] = useState([]);
-    const [myIdeaCount, setMyIdeaCount] = useState(0);
+
+    // Core Operational State
+    const [savedIdeas, setSavedIdeas] = useState([]);      // Bookmarked income blueprints
+    const [savedFranchises, setSavedFranchises] = useState([]); // Bookmarked franchise opportunities
+    const [savedCalculations, setSavedCalculations] = useState([]); // Saved ROI projection models
+    const [myReviews, setMyReviews] = useState([]);        // User-generated intelligence/reviews
+    const [myAudits, setMyAudits] = useState([]);          // Active expert validation requests
+    const [myIdeaCount, setMyIdeaCount] = useState(0);      // Total blueprints deployed by user
     const [loading, setLoading] = useState(true);
 
     const [myFranchiseCount, setMyFranchiseCount] = useState(0);
-    const [activeTab, setActiveTab] = useState('ideas');
+    const [activeTab, setActiveTab] = useState('ideas');    // UI Navigation state
+    const [recommendations, setRecommendations] = useState({ ideas: [], franchises: [] }); // Empty-state suggestions
 
     // Confirm Modal State
     const [confirmConfig, setConfirmConfig] = useState({
@@ -138,6 +152,23 @@ export default function DashboardPage() {
             setMyAudits(audits || []);
             setMyIdeaCount(count || 0);
             setMyFranchiseCount(fCount || 0);
+
+            // Fetch recommendations for empty states
+            const { data: recIdeas } = await supabase
+                .from('income_ideas')
+                .select('id, title, slug, categories(icon)')
+                .eq('is_approved', true)
+                .order('upvotes_count', { ascending: false })
+                .limit(3);
+
+            const { data: recFran } = await supabase
+                .from('franchises')
+                .select('id, name, slug')
+                .eq('is_approved', true)
+                .order('roi_months_min', { ascending: true })
+                .limit(3);
+
+            setRecommendations({ ideas: recIdeas || [], franchises: recFran || [] });
             setLoading(false);
         };
 
@@ -152,8 +183,8 @@ export default function DashboardPage() {
 
         setConfirmConfig({
             isOpen: true,
-            title: 'De-vault Blueprint?',
-            message: 'Are you sure you want to remove this blueprint from your strategic vault? This action is permanent.',
+            title: 'Remove Idea?',
+            message: 'Are you sure you want to remove this idea from your saved list? This action is permanent.',
             onConfirm: async () => {
                 const { error } = await supabase
                     .from('user_saved_ideas')
@@ -162,8 +193,10 @@ export default function DashboardPage() {
 
                 if (!error) {
                     setSavedIdeas(prev => prev.filter(item => item.id !== savedId));
+                    toast.success('Idea removed successfully.');
                 } else {
                     console.error('Error removing idea:', error);
+                    toast.error('Failed to remove idea.');
                 }
             },
             type: 'danger'
@@ -176,8 +209,8 @@ export default function DashboardPage() {
 
         setConfirmConfig({
             isOpen: true,
-            title: 'Terminate Tracking?',
-            message: 'Are you sure you want to remove this franchise from your tracking fleet? Data will be archived.',
+            title: 'Stop Tracking?',
+            message: 'Are you sure you want to remove this franchise from your list?',
             onConfirm: async () => {
                 const { error } = await supabase
                     .from('user_saved_franchises')
@@ -186,8 +219,10 @@ export default function DashboardPage() {
 
                 if (!error) {
                     setSavedFranchises(prev => prev.filter(item => item.id !== savedId));
+                    toast.success('Franchise removed successfully.');
                 } else {
                     console.error('Error removing franchise:', error);
+                    toast.error('Failed to remove franchise.');
                 }
             },
             type: 'danger'
@@ -199,8 +234,8 @@ export default function DashboardPage() {
 
         setConfirmConfig({
             isOpen: true,
-            title: 'Retract Intel?',
-            message: 'Are you sure you want to permanently remove this feedback? This action is irreversible.',
+            title: 'Delete Review?',
+            message: 'Are you sure you want to permanently delete this review?',
             onConfirm: async () => {
                 const { error } = await supabase
                     .from(tableName)
@@ -209,8 +244,10 @@ export default function DashboardPage() {
 
                 if (!error) {
                     setMyReviews(prev => prev.filter(r => r.id !== reviewId));
+                    toast.success('Review deleted successfully.');
                 } else {
                     console.error('Error removing intel:', error);
+                    toast.error('Failed to delete review.');
                 }
             },
             type: 'danger'
@@ -220,8 +257,8 @@ export default function DashboardPage() {
     const handleDeleteAudit = (auditId) => {
         setConfirmConfig({
             isOpen: true,
-            title: 'Decommission Audit?',
-            message: 'Are you sure you want to permanently remove this audit request from your fleet records?',
+            title: 'Delete Audit Request?',
+            message: 'Are you sure you want to cancel this audit request?',
             onConfirm: async () => {
                 const { error } = await supabase
                     .from('expert_audit_requests')
@@ -230,12 +267,33 @@ export default function DashboardPage() {
 
                 if (!error) {
                     setMyAudits(prev => prev.filter(a => a.id !== auditId));
+                    toast.success('Audit request cancelled.');
                 } else {
                     console.error('Error removing audit:', error);
+                    toast.error('Failed to cancel audit request.');
                 }
             },
             type: 'danger'
         });
+    };
+
+    const handleUpdateStatus = async (id, newStatus, type = 'idea') => {
+        const table = type === 'idea' ? 'user_saved_ideas' : 'user_saved_franchises';
+        const { error } = await supabase
+            .from(table)
+            .update({ status: newStatus })
+            .eq('id', id);
+
+        if (!error) {
+            if (type === 'idea') {
+                setSavedIdeas(prev => prev.map(item => item.id === id ? { ...item, status: newStatus } : item));
+            } else {
+                setSavedFranchises(prev => prev.map(item => item.id === id ? { ...item, status: newStatus } : item));
+            }
+            toast.success(`Deployment status updated to: ${newStatus}`);
+        } else {
+            toast.error('Operational error. Could not update status.');
+        }
     };
 
     const calculatePotentialIncome = () => {
@@ -245,54 +303,132 @@ export default function DashboardPage() {
         }, 0);
     };
 
+    const calculateAchievedIncome = () => {
+        const ideaIncome = savedIdeas
+            .filter(item => item.status === 'Active')
+            .reduce((total, item) => total + (item.income_ideas?.monthly_income_min || 0), 0);
+
+        const franchiseIncome = savedFranchises
+            .filter(item => item.status === 'Active')
+            .reduce((total, item) => total + (item.franchises?.expected_profit_min || 0), 0);
+
+        return ideaIncome + franchiseIncome;
+    };
+
+    const achieved = calculateAchievedIncome();
+    const goal = profile?.income_goal || 100000;
+    const progress = Math.min(100, Math.round((achieved / goal) * 100));
+
+    const getCommanderRank = () => {
+        const totalAssets = (savedIdeas?.length || 0) + (savedFranchises?.length || 0);
+        if (totalAssets === 0) return { title: 'Market Explorer', color: 'text-charcoal-400', icon: '🛰️' };
+        if (totalAssets < 3) return { title: 'Wealth Strategist', color: 'text-blue-500', icon: '⚔️' };
+        if (totalAssets < 5) return { title: 'Portfolio Commander', color: 'text-primary-600', icon: '🎖️' };
+        return { title: 'Elite Wealth Commander', color: 'text-amber-500', icon: '💎' };
+    };
+
+    const rank = getCommanderRank();
+
     return (
         <div className="min-h-screen bg-cream-50 pb-20 pt-32">
             <SEO
-                title="Commander Dashboard | Vaulted Assets"
-                description="Manage your saved blueprints, track ROI progress, and monitor your passive income fleet in real-time."
+                title="Command Center | Silent Money"
+                description="Manage your saved ideas, track ROI progress, and monitor your passive income."
             />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Header */}
-                <div className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-8">
-                    <div className="flex items-center gap-8">
-                        <div className="w-24 h-24 rounded-[2rem] bg-white flex items-center justify-center text-4xl shadow-2xl border border-charcoal-100 overflow-hidden relative group">
-                            <div className="absolute inset-0 bg-primary-600 opacity-0 group-hover:opacity-10 transition-opacity" />
-                            {profile?.avatar_url ? (
-                                <img
-                                    src={profile.avatar_url}
-                                    className="w-full h-full object-cover"
-                                    alt="Profile"
-                                    loading="lazy"
-                                    decoding="async"
-                                />
-                            ) : (
-                                <span className="text-primary-600 font-black tracking-tighter">{profile?.full_name?.charAt(0) || user?.email?.charAt(0).toUpperCase()}</span>
-                            )}
-                        </div>
-                        <div>
-                            <div className="flex items-center gap-2 mb-1">
-                                <span className="w-2 h-2 rounded-full bg-primary-600 animate-pulse"></span>
-                                <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em]">Operational Commander</span>
+                {/* Header HUD */}
+                <div className="mb-12 bg-white rounded-[3rem] p-8 md:p-12 border border-charcoal-100 shadow-premium relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-12">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary-50 rounded-full blur-[100px] -mr-32 -mt-32 opacity-50" />
+
+                    <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-10">
+                        {/* Profile Image with Rank Ring */}
+                        <div className="relative group">
+                            <div className={`w-32 h-32 rounded-[2.5rem] overflow-hidden border-4 shadow-2xl relative z-10 bg-charcoal-50 ${rank.title.includes('Elite') ? 'border-amber-400' : 'border-white'}`}>
+                                {profile?.avatar_url ? (
+                                    <img src={profile.avatar_url} className="w-full h-full object-cover transition-transform group-hover:scale-110" alt={profile.full_name} />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-4xl font-black text-primary-600">
+                                        {profile?.full_name?.charAt(0) || user.email?.charAt(0).toUpperCase()}
+                                    </div>
+                                )}
                             </div>
-                            <h1 className="text-4xl md:text-5xl font-black text-charcoal-950 tracking-tighter leading-none">
-                                Welcome, <span className="text-primary-600">{profile?.full_name?.split(' ')[0] || 'Commander'}</span>
+                            <div className="absolute -bottom-3 -right-3 bg-charcoal-900 text-white w-10 h-10 rounded-2xl flex items-center justify-center text-lg shadow-xl z-20 border-2 border-white">
+                                {rank.icon}
+                            </div>
+                        </div>
+
+                        <div className="text-center md:text-left">
+                            <div className="flex items-center justify-center md:justify-start gap-2 mb-3">
+                                <span className={`text-[10px] font-black uppercase tracking-[0.3em] ${rank.color}`}>{rank.title}</span>
+                                <span className="w-1 h-1 rounded-full bg-charcoal-200"></span>
+                                <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em]">System Status: Optimal</span>
+                            </div>
+                            <h1 className="text-4xl md:text-5xl font-black text-charcoal-950 tracking-tighter mb-4">
+                                {profile?.full_name?.split(' ')[0] || 'Commander'}<span className="text-primary-600">.</span>
                             </h1>
-                            <p className="text-charcoal-500 font-medium mt-2">
-                                Monitoring {savedIdeas.length + savedFranchises.length} active wealth engines & {myReviews.length} intel logs.
-                            </p>
+                            <div className="flex flex-wrap justify-center md:justify-start gap-4">
+                                <div className="bg-charcoal-50 px-4 py-2 rounded-xl text-[10px] font-black text-charcoal-600 uppercase tracking-widest border border-charcoal-100">
+                                    ID: SM-{user.id.substring(0, 5)}
+                                </div>
+                                <div className="bg-emerald-50 px-4 py-2 rounded-xl text-[10px] font-black text-emerald-600 uppercase tracking-widest border border-emerald-100">
+                                    Status: Verified
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <Link
-                        to="/edit-profile"
-                        className="btn-secondary flex items-center gap-3 px-8 text-xs h-14"
-                    >
-                        <span>⚙️</span> COMMAND CONFIG
-                    </Link>
+
+                    <div className="relative z-10 flex flex-col sm:flex-row items-center gap-8 md:pl-12 pt-8 md:pt-0 border-t md:border-t-0 md:border-l border-charcoal-100">
+                        {/* Freedom Tracker HUD */}
+                        <div className="flex items-center gap-6 min-w-[280px]">
+                            <div className="relative w-16 h-16 flex-shrink-0">
+                                <svg className="w-full h-full transform -rotate-90">
+                                    <circle
+                                        cx="32"
+                                        cy="32"
+                                        r="28"
+                                        stroke="currentColor"
+                                        strokeWidth="6"
+                                        fill="transparent"
+                                        className="text-charcoal-50"
+                                    />
+                                    <motion.circle
+                                        cx="32"
+                                        cy="32"
+                                        r="28"
+                                        stroke="currentColor"
+                                        strokeWidth="6"
+                                        fill="transparent"
+                                        strokeDasharray={175.9}
+                                        initial={{ strokeDashoffset: 175.9 }}
+                                        animate={{ strokeDashoffset: 175.9 - (175.9 * progress) / 100 }}
+                                        className="text-emerald-500"
+                                    />
+                                </svg>
+                                <div className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-emerald-600">
+                                    {progress}%
+                                </div>
+                            </div>
+                            <div>
+                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Income Progress</div>
+                                <div className="text-2xl font-black text-charcoal-900 tracking-tighter">
+                                    ₹{(achieved / 1000).toFixed(1)}k <span className="text-charcoal-300 text-sm">/ {goal / 1000}k</span>
+                                </div>
+                                <div className="text-[8px] font-black text-emerald-600 uppercase tracking-widest mt-1 mr-4">Live Yield Achieved</div>
+                            </div>
+                        </div>
+
+                        <Link to="/edit-profile" className="flex items-center gap-3 bg-charcoal-900 text-white px-8 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest hover:bg-primary-600 transition-all shadow-xl self-center md:self-auto">
+                            <span>⚙️</span> Edit Profile & Goals
+                        </Link>
+                    </div>
                 </div>
 
                 {/* Stats Grid */}
-                <div className="grid md:grid-cols-4 gap-6 mb-12">
-                    <div className="card !p-6 group hover-lift">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                    <div
+                        onClick={() => setActiveTab('ideas')}
+                        className="card !p-6 group hover-lift cursor-pointer transition-colors hover:bg-charcoal-50/50"
+                    >
                         {loading ? (
                             <>
                                 <div className="skeleton h-4 w-24 mb-2 rounded"></div>
@@ -300,7 +436,7 @@ export default function DashboardPage() {
                             </>
                         ) : (
                             <>
-                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1.5 font-mono">Vault Assets</div>
+                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1.5 ">Saved Blueprints</div>
                                 <div className="text-3xl font-black text-charcoal-950 tracking-tighter">
                                     {savedIdeas.length + savedFranchises.length}
                                 </div>
@@ -316,16 +452,19 @@ export default function DashboardPage() {
                             </>
                         ) : (
                             <>
-                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1.5 font-mono">My Deployments</div>
+                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1.5">My Contributions</div>
                                 <div className="text-3xl font-black text-charcoal-950 tracking-tighter">
                                     {myIdeaCount + myFranchiseCount}
                                 </div>
-                                <Link to="/my-ideas" className="text-[9px] font-black text-primary-600 uppercase tracking-widest mt-2 px-3 py-1 bg-primary-50 rounded-full inline-block hover:bg-primary-100 transition-colors">Manage Fleet →</Link>
+                                <Link to="/my-ideas" className="text-[9px] font-black text-primary-600 uppercase tracking-widest mt-2 px-3 py-1 bg-primary-50 rounded-full inline-block hover:bg-primary-100 transition-colors">Manage Posts →</Link>
                             </>
                         )}
                     </div>
 
-                    <div className="card !p-6 bg-gradient-to-br from-emerald-500 to-emerald-700 border-none group shadow-2xl shadow-emerald-500/20 hover-lift relative overflow-hidden">
+                    <div
+                        onClick={() => setActiveTab('projections')}
+                        className="card !p-6 bg-gradient-to-br from-emerald-500 to-emerald-700 border-none group shadow-2xl shadow-emerald-500/20 hover-lift relative overflow-hidden cursor-pointer"
+                    >
                         <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-12 -mt-12"></div>
                         {loading ? (
                             <>
@@ -334,7 +473,7 @@ export default function DashboardPage() {
                             </>
                         ) : (
                             <>
-                                <div className="text-[10px] font-black text-white/70 uppercase tracking-widest mb-1.5 font-mono relative z-10">Projected Yield</div>
+                                <div className="text-[10px] font-black text-white/70 uppercase tracking-widest mb-1.5 relative z-10">Projected Yield</div>
                                 <div className="text-3xl font-black text-white tracking-tighter relative z-10">
                                     ₹{(calculatePotentialIncome() / 1000).toFixed(1)}k<span className="text-md text-white/50 ml-1">/mo</span>
                                 </div>
@@ -355,19 +494,19 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="bg-primary-600 !p-5 rounded-[2.5rem] shadow-2xl shadow-primary-600/20 flex flex-col justify-between hover-lift">
-                        <div className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-3 font-mono">New Deployment</div>
+                        <div className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-3">Quick Actions</div>
                         <div className="flex flex-col gap-2">
                             <Link
                                 to="/add-idea"
                                 className="w-full bg-white text-primary-700 font-black text-[9px] py-3 rounded-2xl text-center uppercase tracking-widest hover:bg-cream-50 transition-all shadow-xl shadow-primary-700/20 flex items-center justify-center gap-2"
                             >
-                                <span className="text-xs">+</span> Forge Idea
+                                <span className="text-xs">+</span> Add Idea
                             </Link>
                             <Link
                                 to="/post-franchise"
                                 className="w-full bg-primary-800 text-white font-black text-[9px] py-3 rounded-2xl text-center uppercase tracking-widest hover:bg-primary-900 transition-all flex items-center justify-center gap-2"
                             >
-                                <span className="text-xs">+</span> Deploy Brand
+                                <span className="text-xs">+</span> Add Franchise
                             </Link>
                             <Link
                                 to="/compare"
@@ -413,7 +552,7 @@ export default function DashboardPage() {
                         onClick={() => setActiveTab('audits')}
                         className={`pb-4 text-[12px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'audits' ? 'text-primary-600' : 'text-charcoal-400 hover:text-charcoal-600'}`}
                     >
-                        Lead Accelerator ({myAudits.length})
+                        Audits ({myAudits.length})
                         {activeTab === 'audits' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-primary-600 rounded-full" />}
                     </button>
                 </div>
@@ -433,26 +572,57 @@ export default function DashboardPage() {
                             </div>
                             {savedIdeas.length === 0 ? (
                                 <div className="text-center py-16 px-4">
-                                    <div className="text-4xl mb-4">🔖</div>
-                                    <h3 className="text-lg font-bold text-charcoal-900 mb-2">No Saved Blueprints</h3>
-                                    <p className="text-charcoal-500 mb-6 text-sm font-medium">Explore the discovery hub to track high-yield income streams.</p>
-                                    <Link to="/ideas" className="btn-primary py-2 px-6 text-xs">Explore Hub</Link>
+                                    <div className="text-4xl mb-6">🔖</div>
+                                    <h3 className="text-lg font-black text-charcoal-900 mb-2 uppercase tracking-tight">Vault Empty</h3>
+                                    <p className="text-charcoal-500 mb-10 text-sm font-medium">Browse Ideas</p>
+
+                                    <div className="max-w-md mx-auto space-y-4">
+                                        <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest text-left mb-2 pl-2">Recommended for You</div>
+                                        {recommendations.ideas.map(idea => (
+                                            <Link key={idea.id} to={`/ideas/${idea.slug}`} className="flex items-center justify-between p-4 bg-charcoal-50 rounded-2xl hover:bg-primary-50 transition-all group">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-xl">{idea.categories?.icon || '💡'}</span>
+                                                    <span className="text-sm font-black text-charcoal-900">{idea.title}</span>
+                                                </div>
+                                                <span className="text-primary-600 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                                            </Link>
+                                        ))}
+                                        <Link to="/ideas" className="btn-primary w-full py-4 text-xs mt-4">Browse Ideas</Link>
+                                    </div>
                                 </div>
                             ) : (
                                 <div className="divide-y divide-charcoal-100">
                                     {savedIdeas.map((saved) => (
                                         <div key={saved.id} className="p-6 hover:bg-cream-50 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 group">
                                             <div className="flex-1">
-                                                <Link to={`/ideas/${saved.income_ideas.slug}`} className="text-lg font-black text-charcoal-900 group-hover:text-primary-600 transition-colors">
-                                                    {saved.income_ideas.title}
+                                                <Link to={`/ideas/${saved.income_ideas?.slug}`} className="text-lg font-black text-charcoal-900 group-hover:text-primary-600 transition-colors">
+                                                    {saved.income_ideas?.title || 'Unknown Asset'}
                                                 </Link>
-                                                <p className="text-sm text-charcoal-500 mb-2 font-medium line-clamp-1">{saved.income_ideas.short_description}</p>
-                                                <div className="flex flex-wrap gap-4 text-[10px] font-black uppercase tracking-widest text-charcoal-400">
-                                                    <span className="text-emerald-600">₹{(saved.income_ideas.monthly_income_min / 1000).toFixed(0)}k/mo Yield</span>
-                                                    <span>• {saved.income_ideas.effort_level} Effort</span>
-                                                    <span className="bg-charcoal-900 text-white px-2 py-0.5 rounded-md text-[8px] animate-pulse">
-                                                        📡 {saved.status}
-                                                    </span>
+                                                <p className="text-sm text-charcoal-500 mb-2 font-medium line-clamp-1">{saved.income_ideas?.short_description || 'This asset details are no longer available.'}</p>
+                                                <div className="flex flex-wrap gap-4 text-[10px] font-black uppercase tracking-widest text-charcoal-400 items-center">
+                                                    <span className="text-emerald-600">₹{((saved.income_ideas?.monthly_income_min || 0) / 1000).toFixed(0)}k/mo Yield</span>
+                                                    <span>• {saved.income_ideas?.effort_level || 'Unknown'} Effort</span>
+
+                                                    <div className="relative inline-block">
+                                                        <select
+                                                            value={saved.status}
+                                                            onChange={(e) => handleUpdateStatus(saved.id, e.target.value, 'idea')}
+                                                            className={`appearance-none bg-charcoal-900 text-white pl-8 pr-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest outline-none cursor-pointer hover:bg-black transition-all border-none ${saved.status === 'Active' ? 'shadow-[0_0_15px_rgba(16,185,129,0.3)] !bg-emerald-600' : ''}`}
+                                                        >
+                                                            <option value="Interested">Interested</option>
+                                                            <option value="Researching">Researching</option>
+                                                            <option value="Deploying">Deploying</option>
+                                                            <option value="Active">Active</option>
+                                                        </select>
+                                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px]">📡</span>
+                                                    </div>
+
+                                                    {/* Personality Match Tag */}
+                                                    {profile?.risk_tolerance === saved.income_ideas?.risk_level && (
+                                                        <span className="px-2 py-0.5 bg-primary-50 text-primary-600 rounded-md text-[8px] border border-primary-100">
+                                                            🎯 RISK MATCH
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-3">
@@ -465,7 +635,7 @@ export default function DashboardPage() {
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>
                                                 </button>
-                                                <Link to={`/ideas/${saved.income_ideas.slug}`} className="btn-secondary py-2 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">View Asset</Link>
+                                                <Link to={`/ideas/${saved.income_ideas?.slug || ''}`} className="btn-secondary py-2 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">View Details</Link>
                                             </div>
                                         </div>
                                     ))}
@@ -480,23 +650,54 @@ export default function DashboardPage() {
                             </div>
                             {savedFranchises.length === 0 ? (
                                 <div className="text-center py-16 px-4">
-                                    <div className="text-4xl mb-4">🏢</div>
-                                    <h3 className="text-lg font-bold text-charcoal-900 mb-2">No Saved Franchises</h3>
-                                    <p className="text-charcoal-500 mb-6 text-sm font-medium">Bookmark established brands with high ROI potential.</p>
-                                    <Link to="/franchise" className="btn-primary py-2 px-6 text-xs bg-emerald-600 hover:bg-emerald-700">View Franchises</Link>
+                                    <div className="text-4xl mb-6">🏢</div>
+                                    <h3 className="text-lg font-black text-charcoal-900 mb-2 uppercase tracking-tight">No Tracked Brands</h3>
+                                    <p className="text-charcoal-500 mb-10 text-sm font-medium">Expansion fleet inactive. Monitor established brands for deployment.</p>
+
+                                    <div className="max-w-md mx-auto space-y-4">
+                                        <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest text-left mb-2 pl-2">Top Franchises</div>
+                                        {recommendations.franchises.map(fran => (
+                                            <Link
+                                                key={fran.id}
+                                                to={`/franchise/${fran.slug}`}
+                                                className="flex items-center justify-between p-4 bg-charcoal-50 rounded-2xl hover:bg-emerald-50 transition-all group"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-xl">🏢</span>
+                                                    <span className="text-sm font-black text-charcoal-900">{fran.name}</span>
+                                                </div>
+                                                <span className="text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                                            </Link>
+                                        ))}
+                                        <Link to="/franchise" className="btn-primary w-full py-4 text-xs mt-4 bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200">View All Franchises</Link>
+                                    </div>
                                 </div>
                             ) : (
                                 <div className="divide-y divide-charcoal-100">
                                     {savedFranchises.map((saved) => (
                                         <div key={saved.id} className="p-6 hover:bg-cream-50 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 group">
                                             <div className="flex-1">
-                                                <Link to={`/franchise/${saved.franchises.slug}`} className="text-lg font-black text-charcoal-900 group-hover:text-emerald-600 transition-colors">
-                                                    {saved.franchises.name}
+                                                <Link to={`/franchise/${saved.franchises?.slug || ''}`} className="text-lg font-black text-charcoal-900 group-hover:text-emerald-600 transition-colors">
+                                                    {saved.franchises?.name || 'Unknown Brand'}
                                                 </Link>
-                                                <p className="text-sm text-charcoal-500 mb-2 font-medium line-clamp-1">{saved.franchises.description}</p>
-                                                <div className="flex gap-4 text-[10px] font-black uppercase tracking-widest text-charcoal-400">
-                                                    <span className="text-emerald-600">{saved.franchises.roi_months_min}-{saved.franchises.roi_months_max}m ROI</span>
-                                                    <span>• ₹{(saved.franchises.investment_min / 100000).toFixed(1)}L Capital</span>
+                                                <p className="text-sm text-charcoal-500 mb-2 font-medium line-clamp-1">{saved.franchises?.description || 'Expansion data is no longer available.'}</p>
+                                                <div className="flex gap-4 text-[10px] font-black uppercase tracking-widest text-charcoal-400 items-center">
+                                                    <span className="text-emerald-600">{saved.franchises?.roi_months_min || '?'}-{saved.franchises?.roi_months_max || '?'}m ROI</span>
+                                                    <span>• ₹{((saved.franchises?.investment_min || 0) / 100000).toFixed(1)}L Capital</span>
+
+                                                    <div className="relative inline-block">
+                                                        <select
+                                                            value={saved.status}
+                                                            onChange={(e) => handleUpdateStatus(saved.id, e.target.value, 'franchise')}
+                                                            className={`appearance-none bg-emerald-600 text-white pl-8 pr-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest outline-none cursor-pointer hover:bg-emerald-700 transition-all border-none`}
+                                                        >
+                                                            <option value="Interested">Interested</option>
+                                                            <option value="Researching">Researching</option>
+                                                            <option value="Audit Requested">Audit Requested</option>
+                                                            <option value="Active">Operational</option>
+                                                        </select>
+                                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px]">🏢</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-3">
@@ -509,7 +710,7 @@ export default function DashboardPage() {
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>
                                                 </button>
-                                                <Link to={`/franchise/${saved.franchises.slug}`} className="btn-secondary py-2 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Open Portal</Link>
+                                                <Link to={`/franchise/${saved.franchises?.slug || ''}`} className="btn-secondary py-2 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">View Details</Link>
                                             </div>
                                         </div>
                                     ))}
@@ -519,7 +720,7 @@ export default function DashboardPage() {
                     ) : activeTab === 'projections' ? (
                         <div className="p-6">
                             <div className="flex justify-between items-center mb-8">
-                                <h2 className="text-sm font-black text-charcoal-900 uppercase tracking-widest">Financial Intelligence Reports</h2>
+                                <h2 className="text-sm font-black text-charcoal-900 uppercase tracking-widest">Saved ROI Projections</h2>
                             </div>
 
                             {savedCalculations.length === 0 ? (
@@ -558,6 +759,7 @@ export default function DashboardPage() {
                                                     <div className="text-[8px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Break Even</div>
                                                     <div className="text-xs font-black text-charcoal-900">{calc.break_even_months || 'N/A'} Mo</div>
                                                 </div>
+
                                             </div>
 
                                             <div className="flex justify-between items-center text-[8px] font-black text-charcoal-400 uppercase tracking-widest pt-4 border-t border-charcoal-100">
@@ -603,24 +805,24 @@ export default function DashboardPage() {
                                     <table className="w-full text-left">
                                         <thead>
                                             <tr className="bg-charcoal-50 border-b border-charcoal-100">
-                                                <th className="px-6 py-4 text-[10px] font-black text-charcoal-400 uppercase tracking-widest font-mono">Brand Details</th>
-                                                <th className="px-6 py-4 text-[10px] font-black text-charcoal-400 uppercase tracking-widest font-mono">Budget/Target</th>
-                                                <th className="px-6 py-4 text-[10px] font-black text-charcoal-400 uppercase tracking-widest font-mono">Status</th>
-                                                <th className="px-6 py-4 text-[10px] font-black text-charcoal-400 uppercase tracking-widest font-mono text-right">Requested</th>
+                                                <th className="px-6 py-4 text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Brand Details</th>
+                                                <th className="px-6 py-4 text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Budget/Target</th>
+                                                <th className="px-6 py-4 text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Status</th>
+                                                <th className="px-6 py-4 text-[10px] font-black text-charcoal-400 uppercase tracking-widest text-right">Requested</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-charcoal-100">
                                             {myAudits.map((audit) => (
                                                 <tr key={audit.id} className="hover:bg-cream-50 transition-colors group">
-                                                    <td className="px-6 py-6 font-mono">
+                                                    <td className="px-6 py-6">
                                                         <div className="text-sm font-black text-charcoal-900">{audit.brand_name}</div>
                                                         <div className="text-[10px] text-charcoal-400 uppercase tracking-widest mt-1">{audit.brand_sector || 'General Sector'}</div>
                                                     </td>
-                                                    <td className="px-6 py-6 font-mono">
+                                                    <td className="px-6 py-6">
                                                         <div className="text-xs font-black text-charcoal-900">{audit.investment_budget || 'N/A'}</div>
                                                         <div className="text-[10px] text-charcoal-400 uppercase tracking-widest mt-1">📍 {audit.location_target || 'PAN India'}</div>
                                                     </td>
-                                                    <td className="px-6 py-6 font-mono">
+                                                    <td className="px-6 py-6">
                                                         <div className="flex flex-col gap-3">
                                                             <span className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest inline-flex items-center gap-2 w-fit ${audit.status === 'pending' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
                                                                 audit.status === 'in-review' ? 'bg-primary-50 text-primary-600 border border-primary-100' :
@@ -653,7 +855,7 @@ export default function DashboardPage() {
                                                             )}
                                                         </div>
                                                     </td>
-                                                    <td className="px-6 py-6 font-mono text-right">
+                                                    <td className="px-6 py-6 text-right">
                                                         <div className="flex flex-col items-end gap-3">
                                                             <div className="flex items-center gap-3">
                                                                 <div className="text-[10px] font-black text-charcoal-600 uppercase tracking-widest">
@@ -661,7 +863,7 @@ export default function DashboardPage() {
                                                                 </div>
                                                                 <button
                                                                     onClick={() => handleDeleteAudit(audit.id)}
-                                                                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-charcoal-100 text-charcoal-300 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100"
+                                                                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-charcoal-100 text-charcoal-300 hover:text-red-500 hover:bg-red-50 transition-all"
                                                                     title="Decommission Audit"
                                                                 >
                                                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -770,6 +972,6 @@ export default function DashboardPage() {
                 message={confirmConfig.message}
                 type={confirmConfig.type}
             />
-        </div>
+        </div >
     );
 }

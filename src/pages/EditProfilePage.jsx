@@ -26,6 +26,10 @@ export default function EditProfilePage() {
     const [name, setName] = useState('');
     const [bio, setBio] = useState('');
     const [avatarUrl, setAvatarUrl] = useState('');
+    const [budget, setBudget] = useState('5-25L');
+    const [risk, setRisk] = useState('Medium');
+    const [sectors, setSectors] = useState('');
+    const [incomeGoal, setIncomeGoal] = useState(100000);
     const [message, setMessage] = useState('');
 
     useEffect(() => {
@@ -33,6 +37,10 @@ export default function EditProfilePage() {
             setName(profile.full_name || '');
             setBio(profile.bio || '');
             setAvatarUrl(profile.avatar_url || '');
+            setBudget(profile.investment_budget || '5-25L');
+            setRisk(profile.risk_tolerance || 'Medium');
+            setSectors(profile.preferred_sectors?.join(', ') || '');
+            setIncomeGoal(profile.income_goal || 100000);
         }
     }, [profile]);
 
@@ -50,6 +58,10 @@ export default function EditProfilePage() {
                     full_name: name,
                     bio,
                     avatar_url: avatarUrl,
+                    investment_budget: budget,
+                    risk_tolerance: risk,
+                    preferred_sectors: sectors.split(',').map(s => s.trim()).filter(s => s),
+                    income_goal: incomeGoal,
                     updated_at: new Date()
                 });
 
@@ -121,8 +133,65 @@ export default function EditProfilePage() {
 
                         <hr className="border-charcoal-50" />
 
+                        {/* Investor Identity Matrix */}
+                        <section className="space-y-6">
+                            <h2 className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] mb-4">Investor Identity Matrix</h2>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest block mb-2 pl-1">Investment Budget</label>
+                                    <select
+                                        value={budget}
+                                        onChange={(e) => setBudget(e.target.value)}
+                                        className="w-full px-4 py-3 bg-charcoal-50 border border-charcoal-100 rounded-xl outline-none text-sm font-black text-charcoal-900 cursor-pointer"
+                                    >
+                                        <option value="Under 5L">Under ₹5L</option>
+                                        <option value="5-25L">₹5L - ₹25L</option>
+                                        <option value="25-50L">₹25L - ₹50L</option>
+                                        <option value="50L+">₹50L+</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest block mb-2 pl-1">Risk Tolerance</label>
+                                    <select
+                                        value={risk}
+                                        onChange={(e) => setRisk(e.target.value)}
+                                        className="w-full px-4 py-3 bg-charcoal-50 border border-charcoal-100 rounded-xl outline-none text-sm font-black text-charcoal-900 cursor-pointer"
+                                    >
+                                        <option value="Low">Low - Safety First</option>
+                                        <option value="Medium">Medium - Balanced</option>
+                                        <option value="High">High - Aggressive Yield</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest block mb-2 pl-1">Monthly Passive Income Goal (₹)</label>
+                                <input
+                                    type="number"
+                                    value={incomeGoal}
+                                    onChange={(e) => setIncomeGoal(e.target.value)}
+                                    className="w-full px-6 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none text-sm font-bold text-charcoal-900"
+                                    placeholder="e.g. 100000"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest block mb-2 pl-1">Preferred Sectors (Comma separated)</label>
+                                <input
+                                    type="text"
+                                    value={sectors}
+                                    onChange={(e) => setSectors(e.target.value)}
+                                    className="w-full px-6 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none text-sm font-bold text-charcoal-900"
+                                    placeholder="e.g. EdTech, Real Estate, E-commerce"
+                                />
+                            </div>
+                        </section>
+
+                        <hr className="border-charcoal-50" />
+
                         {/* Personal Info */}
                         <section className="space-y-6">
+                            <h2 className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] mb-4">Operational Summary</h2>
                             <div>
                                 <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest block mb-2 pl-1">Full Name</label>
                                 <input

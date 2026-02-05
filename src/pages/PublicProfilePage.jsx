@@ -96,15 +96,33 @@ export default function PublicProfilePage() {
                         </div>
 
                         <div className="text-center md:text-left flex-1">
-                            <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
-                                <span className="bg-primary-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
-                                    Verified Commander
+                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-4">
+                                <span className={`bg-primary-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest`}>
+                                    Verified Member
                                 </span>
                                 {profile.is_premium && (
                                     <span className="bg-amber-400 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
                                         ⭐ Elite
                                     </span>
                                 )}
+                                {(authoredIdeas.length > 0 || authoredFranchises.length > 0) && (
+                                    <span className="bg-emerald-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
+                                        🚀 Asset Author
+                                    </span>
+                                )}
+                                {(() => {
+                                    const totalAuthored = (authoredIdeas?.length || 0) + (authoredFranchises?.length || 0);
+                                    let rank = { title: 'Market Explorer', color: 'bg-charcoal-100 text-charcoal-600', icon: '🛰️' };
+                                    if (totalAuthored >= 1) rank = { title: 'Wealth Contributor', color: 'bg-blue-100 text-blue-700', icon: '⚔️' };
+                                    if (totalAuthored >= 3) rank = { title: 'Master Strategist', color: 'bg-primary-100 text-primary-700', icon: '🎖️' };
+                                    if (totalAuthored >= 5) rank = { title: 'Elite Wealth Commander', color: 'bg-amber-100 text-amber-700', icon: '💎' };
+
+                                    return (
+                                        <span className={`${rank.color} px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-current opacity-80`}>
+                                            {rank.icon} {rank.title}
+                                        </span>
+                                    );
+                                })()}
                             </div>
 
                             <h1 className="text-4xl md:text-5xl font-black text-charcoal-950 tracking-tighter mb-4">
@@ -117,11 +135,11 @@ export default function PublicProfilePage() {
 
                             <div className="flex flex-wrap justify-center md:justify-start gap-6 pt-6 border-t border-charcoal-50">
                                 <div>
-                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Assets Deployed</div>
+                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Assets Published</div>
                                     <div className="text-2xl font-black text-charcoal-950">{authoredIdeas.length + authoredFranchises.length}</div>
                                 </div>
                                 <div>
-                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Joined Matrix</div>
+                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Member Since</div>
                                     <div className="text-2xl font-black text-charcoal-950">
                                         {new Date(profile.created_at).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}
                                     </div>

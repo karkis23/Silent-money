@@ -94,7 +94,7 @@ export default function GlobalSearch() {
                             initial={{ opacity: 0, scale: 0.95, y: -20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: -20 }}
-                            className="fixed top-24 left-1/2 -translate-x-1/2 w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-charcoal-100 z-[70] overflow-hidden"
+                            className="fixed top-24 left-1/2 -translate-x-1/2 w-[95%] md:w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-charcoal-100 z-[70] overflow-hidden"
                         >
                             <div className="p-6 border-b border-charcoal-50 flex items-center gap-4">
                                 <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

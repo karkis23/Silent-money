@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ImageUpload from './ImageUpload';
 
 export default function AdminActionModal({
     isOpen,
@@ -42,28 +43,28 @@ export default function AdminActionModal({
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="relative w-full max-w-xl bg-white rounded-[2.5rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden border border-charcoal-100"
+                        className="relative w-full max-w-lg bg-white rounded-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden border border-charcoal-100"
                     >
-                        <div className="p-10">
-                            <div className="flex items-center gap-4 mb-8">
-                                <div className="w-16 h-16 rounded-2xl bg-primary-50 flex items-center justify-center text-3xl shadow-inner border border-primary-100">
+                        <div className="p-8">
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className="w-14 h-14 rounded-xl bg-primary-50 flex items-center justify-center text-2xl shadow-inner border border-primary-100">
                                     {inputType === 'audit' ? '📊' : '📝'}
                                 </div>
                                 <div>
-                                    <h3 className="text-2xl font-black text-charcoal-950 tracking-tight leading-none mb-2">
+                                    <h3 className="text-xl font-black text-charcoal-950 tracking-tight leading-none mb-1.5">
                                         {title}
                                     </h3>
-                                    <p className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-0.5">
+                                    <p className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest">
                                         Institutional Moderation Command
                                     </p>
                                 </div>
                             </div>
 
-                            <p className="text-charcoal-500 font-medium leading-relaxed mb-8 text-sm">
+                            <p className="text-charcoal-500 font-medium leading-relaxed mb-6 text-sm">
                                 {message}
                             </p>
 
-                            <div className="space-y-6 mb-10">
+                            <div className="space-y-4 mb-8">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">
                                         Strategic Feedback
@@ -71,31 +72,28 @@ export default function AdminActionModal({
                                     <textarea
                                         value={feedback}
                                         onChange={(e) => setFeedback(e.target.value)}
-                                        className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none text-sm font-medium min-h-[120px] resize-none transition-all"
+                                        className="w-full px-4 py-3 bg-charcoal-50 border border-charcoal-100 rounded-xl focus:ring-2 focus:ring-primary-600 outline-none text-sm font-medium min-h-[100px] resize-none transition-all"
                                         placeholder="Enter your expert assessment..."
                                     />
                                 </div>
 
                                 {inputType === 'audit' && (
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">
-                                            Institutional Report URL
-                                        </label>
-                                        <input
-                                            type="url"
-                                            value={reportUrl}
-                                            onChange={(e) => setReportUrl(e.target.value)}
-                                            className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none text-sm font-medium transition-all"
-                                            placeholder="https://institutional-reports.vault/..."
+                                        <ImageUpload
+                                            label="Upload Institutional Report (PDF/IMG)"
+                                            bucket="proofs"
+                                            currentUrl={reportUrl}
+                                            onUpload={(url) => setReportUrl(url)}
+                                            acceptTypes="application/pdf,image/*"
                                         />
                                     </div>
                                 )}
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-3">
                                 <button
                                     onClick={onClose}
-                                    className="h-14 rounded-2xl font-black text-[10px] uppercase tracking-widest text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50 transition-all"
+                                    className="h-12 rounded-xl font-black text-[10px] uppercase tracking-widest text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50 transition-all"
                                 >
                                     Cancel Mission
                                 </button>
@@ -105,7 +103,7 @@ export default function AdminActionModal({
                                         onClose();
                                     }}
                                     disabled={!feedback.trim()}
-                                    className="h-14 rounded-2xl font-black text-[10px] uppercase tracking-widest text-white shadow-xl bg-charcoal-950 hover:bg-primary-600 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-charcoal-950 disabled:hover:scale-100"
+                                    className="h-12 rounded-xl font-black text-[10px] uppercase tracking-widest text-white shadow-xl bg-charcoal-950 hover:bg-primary-600 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-charcoal-950 disabled:hover:scale-100"
                                 >
                                     {confirmText}
                                 </button>

@@ -1,6 +1,6 @@
 # 🤫 Silent Money
 
-> **Earn quietly. Build steadily.**
+> **Earn quietly. Build steadily. Track your freedom.**
 >
 > 🌐 **Live Demo**: [https://silent-money.vercel.app/](https://silent-money.vercel.app/)
 
@@ -9,15 +9,18 @@ Silent Money is a curated platform for discovering **realistic, India-specific**
 ## 🗝️ Core Mission
 To cut through the noise of fake financial gurus and provide a vetted roadmap for financial freedom in the Indian context.
 
-## ✨ Key Features
-- **🔍 Vetted Directory**: Browse a list of passive income ideas categorized by investment and effort.
-- **📊 Reality Checks**: Every idea includes a dedicated section on what can go wrong and what the actual success rate is.
-- **🧮 ROI Calculator**: Built-in tool to estimate return on investment and break-even timelines based on Indian currency (INR).
-- **📝 Personal Dashboard**: Save ideas, add private notes, and track your progress as you start new ventures.
-- **🗳️ Community Driven**: Upvote the best strategies and post your own ideas to help the community grow.
-- **📱 Responsive Design**: A premium, "paper-like" aesthetic optimized for both desktop and mobile.
+## ✨ Key Features (2025 Edition)
+- **🔍 Vetted Directory**: Browse income ideas and franchises with **Goal Impact** indicators (+X% to your goal).
+- **🛡️ Commander Ranks**: Grow from a *Market Explorer* to an *Elite Wealth Commander* as you build your fleet.
+- **📊 Reality Checks**: Every idea includes a dedicated section on risks and actual success rates.
+- **🧮 ROI Calculator**: Estimate return on investment and break-even timelines based on Indian currency (INR).
+- **📝 Command Center**: Manage your saved assets, set income goals, and track your progress in real-time.
+- **📷 Asset Visualization**: Admin-managed image gallery and direct file uploads for high-fidelity discovery.
 
-## 🛠️ Getting Started
+## 🛠️ Project Documentation
+For a deep dive into the architecture, file structure, and database schema, see the [**SYSTEM_BLUEPRINT.md**](./SYSTEM_BLUEPRINT.md).
+
+## 🚀 Getting Started
 
 ### Prerequisites
 - Node.js installed
@@ -31,11 +34,10 @@ To cut through the noise of fake financial gurus and provide a vetted roadmap fo
    ```
 3. Set up environment variables in `.env`:
    ```env
-   VITE_SUPABASE_URL=https://kxkpfcepowplnciinsps.supabase.co
-   VITE_SUPABASE_ANON_KEY=sb_publishable_ANLHFeacDU53K9UvqQU_uw_QZs6kj9W
+   VITE_SUPABASE_URL=your_project_url
+   VITE_SUPABASE_ANON_KEY=your_anon_key
    ```
-4. Run the database setup scripts found in `/supabase` in your Supabase SQL Editor.
-5. Start the development server:
+4. Start the development server:
    ```bash
    npm run dev
    ```

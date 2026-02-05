@@ -108,9 +108,9 @@ export default function ExpertAuditModal({ isOpen, onClose, prefillBrand = '', p
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
-                        <h2 className="text-2xl font-black mb-2 tracking-tight">Expert ROI Audit</h2>
+                        <h2 className="text-2xl font-black mb-2 tracking-tight">Expert Audit</h2>
                         <p className="text-charcoal-400 text-xs font-bold uppercase tracking-widest">
-                            Feasibility intelligence • 48HR Turnaround
+                            Business Analysis • 48HR Turnaround
                         </p>
                     </div>
 
@@ -124,9 +124,9 @@ export default function ExpertAuditModal({ isOpen, onClose, prefillBrand = '', p
                                 <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-3xl mb-6">
                                     ✓
                                 </div>
-                                <h3 className="text-2xl font-black text-charcoal-950 mb-2">Request Transmitted</h3>
+                                <h3 className="text-2xl font-black text-charcoal-950 mb-2">Request Sent</h3>
                                 <p className="text-charcoal-500 font-medium max-w-xs">
-                                    Our analysts have received your brief. A detailed feasibility report will be available in your dashboard within 48 hours.
+                                    Our analysts have received your brief. A detailed report will be available in your dashboard within 48 hours.
                                 </p>
                             </motion.div>
                         ) : (
@@ -209,7 +209,7 @@ export default function ExpertAuditModal({ isOpen, onClose, prefillBrand = '', p
                                     type="submit"
                                     className="w-full py-5 bg-charcoal-950 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-primary-600 transition-all shadow-xl disabled:bg-charcoal-400"
                                 >
-                                    {loading ? 'Transmitting Intelligence...' : '🚀 Submit Audit Request'}
+                                    {loading ? 'Submitting Request...' : '🚀 Submit Audit Request'}
                                 </button>
                             </form>
                         )}

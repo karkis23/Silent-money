@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../services/supabase';
 import ReactMarkdown from 'react-markdown';
 import BackButton from '../components/BackButton';
@@ -10,6 +10,7 @@ import ReviewsSection from '../components/ReviewsSection';
 import ExpertAuditModal from '../components/ExpertAuditModal';
 import { useAuth } from '../context/AuthContext';
 import AssetAuditTrail from '../components/AssetAuditTrail';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 export default function FranchiseDetailPage() {
     const { user, profile } = useAuth();
@@ -19,6 +20,7 @@ export default function FranchiseDetailPage() {
     const [error, setError] = useState('');
     const [isSaved, setIsSaved] = useState(false);
     const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
+    const [activeInfoTab, setActiveInfoTab] = useState('requirements');
 
     useEffect(() => {
         const fetchFranchise = async () => {
@@ -136,11 +138,16 @@ export default function FranchiseDetailPage() {
                                     </span>
                                     <div className="flex items-center gap-2 bg-emerald-50 text-emerald-600 px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] border border-emerald-100/50">
                                         <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                                        Verified ROI Model
+                                        Verified Business
                                     </div>
                                     <span className="bg-primary-50 text-primary-600 border border-primary-100 px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em]">
                                         Unit Model: {franchise.unit_model || 'Standard'}
                                     </span>
+                                    {profile?.income_goal > 0 && franchise.expected_profit_min > 0 && (
+                                        <div className="bg-emerald-600/90 backdrop-blur-sm text-white px-5 py-2 rounded-2xl text-[10px] font-black tracking-widest uppercase shadow-xl border border-white/20">
+                                            🚀 +{Math.round((franchise.expected_profit_min / profile.income_goal) * 100)}% To Goal
+                                        </div>
+                                    )}
                                 </div>
 
                                 <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-charcoal-950 mb-8 leading-[1.1] tracking-tighter">
@@ -170,7 +177,7 @@ export default function FranchiseDetailPage() {
                                                         )}
                                                     </div>
                                                     <div>
-                                                        <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest leading-none mb-1">Brand Strategist</div>
+                                                        <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest leading-none mb-1">Listed By</div>
                                                         <div className="text-sm font-black text-charcoal-900 group-hover:text-primary-600 transition-colors uppercase leading-none">
                                                             {franchise.profiles.full_name}
                                                         </div>
@@ -182,8 +189,8 @@ export default function FranchiseDetailPage() {
 
                                             <div className="flex items-center gap-4">
                                                 <div className="text-right hidden sm:block">
-                                                    <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest leading-none mb-1">Asset Grade</div>
-                                                    <div className="text-sm font-black text-emerald-600 leading-none">{franchise.asset_grade || 'AAA+ PLATINUM'}</div>
+                                                    <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest leading-none mb-1">Rating</div>
+                                                    <div className="text-sm font-black text-emerald-600 leading-none">{franchise.asset_grade || 'A+ Grade'}</div>
                                                 </div>
                                                 <div className="flex -space-x-3">
                                                     {[1, 2, 3].map(i => (
@@ -221,7 +228,7 @@ export default function FranchiseDetailPage() {
                                             className="h-14 px-8 bg-charcoal-50/50 border border-charcoal-100/50 text-charcoal-900 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-charcoal-100 hover:border-charcoal-200 transition-all flex items-center justify-center gap-3 min-w-[160px] shrink-0 group"
                                         >
                                             <span className="text-base group-hover:rotate-12 transition-transform">🚀</span>
-                                            <span className="whitespace-nowrap">EXPERT AUDIT</span>
+                                            <span className="whitespace-nowrap">REQUEST AUDIT</span>
                                         </button>
                                     </div>
                                 </div>
@@ -250,14 +257,21 @@ export default function FranchiseDetailPage() {
                                             🏢
                                         </div>
                                         <div>
-                                            <div className="text-[10px] font-black text-white/50 uppercase tracking-[0.4em] mb-1">Brand Protocol</div>
-                                            <div className="text-lg font-black text-white uppercase tracking-wider">Strategic Expansion Shield Active</div>
+                                            <div className="text-[10px] font-black text-white/50 uppercase tracking-[0.4em] mb-1">Status</div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="text-lg font-black text-white uppercase tracking-wider">Open for Franchise</div>
+                                                {franchise.is_featured && (
+                                                    <span className="bg-amber-500 text-white px-2 py-0.5 rounded text-[8px] font-black tracking-widest uppercase shadow-lg shadow-amber-500/20 flex items-center gap-1">
+                                                        ⭐ Featured
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div className="flex gap-4">
                                         <div className="px-6 py-3 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/10">
-                                            <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-0.5">POI Density</div>
+                                            <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-0.5">Presence</div>
                                             <div className="text-sm font-black text-white">{franchise.network_density || '82'}% NATIONAL</div>
                                         </div>
                                         <div className="px-6 py-3 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/10">
@@ -276,18 +290,91 @@ export default function FranchiseDetailPage() {
                 <div className="grid lg:grid-cols-2 gap-16">
                     {/* Visuals */}
                     <div className="space-y-8">
-                        <div className="grid grid-cols-3 gap-4">
-                            {[1, 2, 3].map(i => (
-                                <div key={i} className="h-32 rounded-[2rem] bg-white border border-charcoal-100 flex items-center justify-center text-3xl opacity-30">
-                                    🖼️
+                        {/* Projected Earnings Section */}
+                        <div className="bg-white rounded-[3rem] p-8 border border-charcoal-100 shadow-xl shadow-charcoal-200/50 relative overflow-hidden group">
+                            <div className="flex justify-between items-start mb-8 relative z-10">
+                                <div>
+                                    <h3 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-2">Projected Earnings</h3>
+                                    <div className="text-2xl font-black text-charcoal-900 tracking-tight">3-Year Growth Model</div>
                                 </div>
-                            ))}
+                                <div className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-emerald-100">
+                                    Live Simulation
+                                </div>
+                            </div>
+
+                            {/* Chart Container */}
+                            <div className="relative h-64 w-full mt-4">
+                                {/* Grid Lines */}
+                                <div className="absolute inset-0 flex flex-col justify-between text-[9px] font-bold text-charcoal-300">
+                                    <div className="border-b border-charcoal-50 w-full h-0 relative"><span className="absolute -top-3 right-0">High Yield</span></div>
+                                    <div className="border-b border-charcoal-50 w-full h-0 relative"><span className="absolute -top-3 right-0">Profitable</span></div>
+                                    <div className="border-b border-charcoal-900/10 w-full h-0 relative"><span className="absolute -top-3 right-0 text-charcoal-900">Breakeven</span></div>
+                                    <div className="border-b border-charcoal-50 w-full h-0 relative"><span className="absolute -top-3 right-0">Investment</span></div>
+                                </div>
+
+                                {/* Graph Area */}
+                                <svg className="absolute inset-0 w-full h-full overflow-visible" viewBox="0 0 400 256" preserveAspectRatio="none">
+                                    <defs>
+                                        <linearGradient id="gradientYield" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#10B981" stopOpacity="0.2" />
+                                            <stop offset="100%" stopColor="#10B981" stopOpacity="0" />
+                                        </linearGradient>
+                                    </defs>
+                                    {/* Path: Starts low (investment), goes up, crosses middle, goes high */}
+                                    <motion.path
+                                        d="M0,256 C50,256 100,200 150,128 C200,56 250,20 400,10 L400,256 L0,256 Z"
+                                        fill="url(#gradientYield)"
+                                        initial={{ opacity: 0 }}
+                                        whileInView={{ opacity: 1 }}
+                                        transition={{ duration: 1.5 }}
+                                    />
+                                    <motion.path
+                                        d="M0,256 C50,256 100,200 150,128 C200,56 250,20 400,10"
+                                        fill="none"
+                                        stroke="#10B981"
+                                        strokeWidth="4"
+                                        strokeLinecap="round"
+                                        strokeDasharray="1000"
+                                        strokeDashoffset="1000"
+                                        initial={{ strokeDashoffset: 1000 }}
+                                        whileInView={{ strokeDashoffset: 0 }}
+                                        transition={{ duration: 2, ease: "easeOut" }}
+                                    />
+
+                                    {/* Data Points */}
+                                    <g>
+                                        <motion.circle cx="0" cy="256" r="6" fill="#374151" initial={{ scale: 0 }} whileInView={{ scale: 1 }} transition={{ delay: 0.2 }} />
+                                        <motion.circle cx="150" cy="128" r="6" fill="#10B981" initial={{ scale: 0 }} whileInView={{ scale: 1 }} transition={{ delay: 1 }} />
+                                        <motion.circle cx="400" cy="10" r="6" fill="#10B981" initial={{ scale: 0 }} whileInView={{ scale: 1 }} transition={{ delay: 2 }} />
+                                    </g>
+                                </svg>
+
+                                {/* Annotations */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+                                    className="absolute bottom-4 left-4 bg-charcoal-900 text-white px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest shadow-xl"
+                                >
+                                    Total Investment
+                                </motion.div>
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }}
+                                    className="absolute top-1/2 left-[35%] -translate-y-1/2 bg-white border border-emerald-200 text-emerald-600 px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest shadow-xl"
+                                >
+                                    Breakeven Point
+                                </motion.div>
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 2.2 }}
+                                    className="absolute top-4 right-4 bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest shadow-xl shadow-emerald-500/20"
+                                >
+                                    Profit Zone
+                                </motion.div>
+                            </div>
                         </div>
 
-                        {/* Executive Dossier Section */}
+                        {/* Key Details Section */}
                         <div className="mt-12 bg-white rounded-[3rem] p-10 border border-charcoal-100 shadow-2xl shadow-charcoal-200/50 relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-primary-50/50 blur-3xl rounded-full -mr-16 -mt-16" />
-                            <h3 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-10 border-b border-charcoal-50 pb-6">Executive Dossier</h3>
+                            <h3 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-10 border-b border-charcoal-50 pb-6">Key Business Details</h3>
 
                             <div className="grid gap-10">
                                 <div className="flex items-start gap-6 group">
@@ -311,9 +398,9 @@ export default function FranchiseDetailPage() {
                                 <div className="flex items-start gap-6 group">
                                     <div className="w-12 h-12 bg-charcoal-50 rounded-2xl flex items-center justify-center text-xl group-hover:bg-primary-50 group-hover:scale-110 transition-all">🛡️</div>
                                     <div>
-                                        <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Corporate Support</div>
-                                        <div className="text-lg font-black text-emerald-600 leading-tight">{franchise.corporate_support || 'Full Lifecycle Assistance'}</div>
-                                        <div className="text-[10px] text-charcoal-400 mt-1 font-medium">Marketing & Supply-Chain Logic</div>
+                                        <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Support</div>
+                                        <div className="text-lg font-black text-emerald-600 leading-tight">{franchise.corporate_support || 'Full Training Included'}</div>
+                                        <div className="text-[10px] text-charcoal-400 mt-1 font-medium">Marketing & Supply Chain</div>
                                     </div>
                                 </div>
                             </div>
@@ -329,10 +416,10 @@ export default function FranchiseDetailPage() {
                             </div>
                         </div>
 
-                        {/* Market Authority & Trust */}
+                        {/* Market Strength */}
                         <div className="mt-8 bg-charcoal-50 rounded-[3rem] p-10 border border-charcoal-100/50 shadow-sm transition-all hover:shadow-xl group">
                             <h3 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-8 flex items-center gap-3">
-                                <span>🛡️</span> Market Authority
+                                <span>🛡️</span> Market Strength
                             </h3>
 
                             <div className="space-y-8">
@@ -376,34 +463,164 @@ export default function FranchiseDetailPage() {
                                 </div>
                             </div>
                         </div>
+
+                        {/* More Details Tab */}
+                        <div className="bg-white rounded-[3rem] p-3 border border-charcoal-100 shadow-xl shadow-charcoal-200/40 transform transition-all hover:shadow-2xl">
+                            <div className="bg-charcoal-50 rounded-[2.5rem] p-2 flex gap-2 mb-8 select-none">
+                                {['requirements', 'support', 'terms'].map(tab => (
+                                    <button
+                                        key={tab}
+                                        onClick={() => setActiveInfoTab(tab)}
+                                        className={`flex-1 py-3.5 rounded-[2rem] text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${activeInfoTab === tab
+                                            ? 'bg-white text-charcoal-900 shadow-lg shadow-charcoal-200/50 scale-100'
+                                            : 'text-charcoal-400 hover:text-charcoal-600 hover:bg-charcoal-100/50 scale-95'
+                                            }`}
+                                    >
+                                        {tab}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="px-6 pb-6 min-h-[240px]">
+                                <AnimatePresence mode="wait">
+                                    {activeInfoTab === 'requirements' && (
+                                        <motion.div
+                                            key="requirements"
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: 10 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="space-y-6"
+                                        >
+                                            <div className="flex items-center justify-between p-4 bg-cream-50 rounded-2xl border border-cream-200/50">
+                                                <div className="flex items-center gap-4">
+                                                    <span className="text-xl">📐</span>
+                                                    <div>
+                                                        <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest">Floor Area</div>
+                                                        <div className="text-sm font-bold text-charcoal-900">{franchise.space_required_sqft} Sq. Ft.</div>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 px-2 py-1 rounded-lg">Mandatory</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center justify-between p-4 bg-cream-50 rounded-2xl border border-cream-200/50">
+                                                <div className="flex items-center gap-4">
+                                                    <span className="text-xl">👥</span>
+                                                    <div>
+                                                        <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest">Staffing</div>
+                                                        <div className="text-sm font-bold text-charcoal-900">4-6 Certified Personnel</div>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <span className="text-[9px] font-black text-primary-600 uppercase tracking-widest bg-primary-50 px-2 py-1 rounded-lg">Trained</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center justify-between p-4 bg-cream-50 rounded-2xl border border-cream-200/50">
+                                                <div className="flex items-center gap-4">
+                                                    <span className="text-xl">⚡</span>
+                                                    <div>
+                                                        <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest">Infrastructure</div>
+                                                        <div className="text-sm font-bold text-charcoal-900">3-Phase Power & Water</div>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <span className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest bg-charcoal-100 px-2 py-1 rounded-lg">Utility</span>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    )}
+
+                                    {activeInfoTab === 'support' && (
+                                        <motion.div
+                                            key="support"
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: 10 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="space-y-6"
+                                        >
+                                            {[
+                                                { icon: '🎓', label: 'Training Prgm', val: '14 Days On-Site + 7 Days HO' },
+                                                { icon: '📢', label: 'Marketing', val: 'National TV & Digital Ads' },
+                                                { icon: '🚚', label: 'Logistics', val: 'Centralized Supply Chain' },
+                                            ].map((item, i) => (
+                                                <div key={i} className="flex items-center gap-4 p-4 bg-white border border-charcoal-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                                                    <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center text-lg">{item.icon}</div>
+                                                    <div>
+                                                        <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest">{item.label}</div>
+                                                        <div className="text-sm font-black text-charcoal-900">{item.val}</div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </motion.div>
+                                    )}
+
+                                    {activeInfoTab === 'terms' && (
+                                        <motion.div
+                                            key="terms"
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: 10 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="space-y-5"
+                                        >
+                                            <div className="p-5 bg-charcoal-900 text-white rounded-3xl relative overflow-hidden">
+                                                <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -mr-10 -mt-10" />
+                                                <div className="relative z-10 text-center">
+                                                    <div className="text-[9px] font-bold opacity-60 uppercase tracking-widest mb-1">Contract Duration</div>
+                                                    <div className="text-3xl font-black tracking-tight mb-1">5 Years</div>
+                                                    <div className="text-[9px] font-medium text-emerald-400">Renewable based on Performance</div>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="p-4 bg-charcoal-50 rounded-2xl text-center">
+                                                    <div className="text-[8px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Royalty</div>
+                                                    <div className="text-xl font-black text-charcoal-900">6%</div>
+                                                    <div className="text-[8px] text-charcoal-500">of Net Monthly</div>
+                                                </div>
+                                                <div className="p-4 bg-charcoal-50 rounded-2xl text-center">
+                                                    <div className="text-[8px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Lock-in</div>
+                                                    <div className="text-xl font-black text-charcoal-900">3 Yrs</div>
+                                                    <div className="text-[8px] text-charcoal-500">Standard Clause</div>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Data & Actions */}
                     <div className="space-y-12">
                         <section>
-                            <h2 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-8">Asset Analysis</h2>
+                            <h2 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-8">Business Overview</h2>
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="card border-none shadow-xl shadow-charcoal-100/50 p-8 flex flex-col justify-between h-40">
-                                    <div className="text-[10px) font-black text-charcoal-400 uppercase tracking-widest">Initial Capital</div>
+                                    <div className="text-[10px) font-black text-charcoal-400 uppercase tracking-widest">Initial Cost</div>
                                     <div className="text-3xl font-black text-charcoal-950">{formatCurrency(franchise.investment_min)}</div>
                                 </div>
                                 <div className="card border-none shadow-xl shadow-charcoal-100/50 p-8 flex flex-col justify-between h-40">
-                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">ROI Matrix</div>
+                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Payback Period</div>
                                     <div className="text-3xl font-black text-emerald-600">{franchise.roi_months_min}-{franchise.roi_months_max}m</div>
                                 </div>
                                 <div className="card border-none shadow-xl shadow-charcoal-100/50 p-8 flex flex-col justify-between h-40">
-                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Space Deployment</div>
+                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Space Needed</div>
                                     <div className="text-3xl font-black text-charcoal-950">{franchise.space_required_sqft}<span className="text-lg text-charcoal-400 ml-1">sq.ft</span></div>
                                 </div>
                                 <div className="card border-none shadow-xl shadow-charcoal-100/50 p-8 flex flex-col justify-between h-40">
-                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Net Profit Target</div>
+                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Monthly Profit</div>
                                     <div className="text-3xl font-black text-primary-600">{formatCurrency(franchise.expected_profit_min)}<span className="text-lg text-charcoal-400">/mo</span></div>
                                 </div>
                             </div>
                         </section>
 
                         <section>
-                            <h2 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-6">Blueprint Strategy</h2>
+                            <h2 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-6">About Business</h2>
                             <div className="text-charcoal-600 leading-relaxed active-prose prose prose-charcoal max-w-none prose-headings:font-black prose-headings:text-charcoal-900 prose-p:text-lg prose-p:font-medium prose-li:text-charcoal-600 prose-strong:text-charcoal-900 prose-strong:font-black prose-a:text-primary-600 mb-10">
                                 <ReactMarkdown>{franchise.description}</ReactMarkdown>
                             </div>
@@ -447,15 +664,17 @@ export default function FranchiseDetailPage() {
                             </div>
 
                             <div className="mb-12">
-                                <ROICalculator
-                                    assetId={franchise.id}
-                                    assetType="franchise"
-                                    initialDefaults={{
-                                        investment: franchise.investment_min,
-                                        income: franchise.expected_profit_min,
-                                        expenses: Math.round(franchise.expected_profit_min * 0.4)
-                                    }}
-                                />
+                                <ErrorBoundary compact>
+                                    <ROICalculator
+                                        assetId={franchise.id}
+                                        assetType="franchise"
+                                        initialDefaults={{
+                                            investment: franchise.investment_min,
+                                            income: franchise.expected_profit_min,
+                                            expenses: Math.round(franchise.expected_profit_min * 0.4)
+                                        }}
+                                    />
+                                </ErrorBoundary>
                             </div>
                         </section>
 
@@ -508,12 +727,14 @@ export default function FranchiseDetailPage() {
                         )}
 
                         <div className="mt-16">
-                            <ReviewsSection
-                                assetId={franchise.id}
-                                assetType="franchise"
-                                authorId={franchise.author_id}
-                                user={user}
-                            />
+                            <ErrorBoundary compact>
+                                <ReviewsSection
+                                    assetId={franchise.id}
+                                    assetType="franchise"
+                                    authorId={franchise.author_id}
+                                    user={user}
+                                />
+                            </ErrorBoundary>
                         </div>
 
                         {/* Institutional Audit Trail - Visible only to author or admin */}

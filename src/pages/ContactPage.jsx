@@ -6,8 +6,8 @@ export default function ContactPage() {
     return (
         <div className="min-h-screen bg-cream-50 pt-32 pb-20 overflow-hidden relative">
             <SEO
-                title="Contact the Command Center"
-                description="Reach out to the Silent Money team for inquiries, support, or partnership opportunities."
+                title="Contact Us | Silent Money"
+                description="Reach out to the team for inquiries, support, or partnership opportunities."
             />
 
             {/* Background Decorations */}
@@ -25,10 +25,10 @@ export default function ContactPage() {
                 >
                     <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm border border-charcoal-100 mb-6">
                         <span className="w-2 h-2 rounded-full bg-primary-600 animate-pulse"></span>
-                        <span className="text-[10px] font-black text-charcoal-900 uppercase tracking-widest">Command Center Support</span>
+                        <span className="text-[10px] font-black text-charcoal-900 uppercase tracking-widest">Support Team</span>
                     </div>
                     <h1 className="text-4xl md:text-6xl font-black text-charcoal-950 mb-6 tracking-tighter">
-                        Establish <span className="text-primary-600">Contact.</span>
+                        Get in <span className="text-primary-600">Touch.</span>
                     </h1>
                     <p className="text-xl text-charcoal-500 font-medium max-w-2xl mx-auto">
                         Inquiries, feedback, or technical support. We respond as quietly and efficiently as your income grows.
@@ -44,7 +44,7 @@ export default function ContactPage() {
                         className="md:col-span-5 space-y-8"
                     >
                         <div className="card border-none shadow-xl p-8 bg-charcoal-950 text-white">
-                            <h2 className="text-lg font-black uppercase tracking-widest mb-6 text-primary-400">Response Matrix</h2>
+                            <h2 className="text-lg font-black uppercase tracking-widest mb-6 text-primary-400">Response Info</h2>
                             <div className="space-y-6">
                                 <div>
                                     <div className="text-[10px] font-black uppercase tracking-widest text-charcoal-500 mb-1">Response Time</div>
@@ -85,31 +85,31 @@ export default function ContactPage() {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <label htmlFor="name" className="text-[10px] font-black uppercase tracking-widest text-charcoal-400 ml-1">Identity</label>
+                                        <label htmlFor="name" className="text-[10px] font-black uppercase tracking-widest text-charcoal-400 ml-1">Your Name</label>
                                         <input
                                             type="text"
                                             name="name"
                                             id="name"
                                             required
-                                            placeholder="Your Name"
+                                            placeholder="John Doe"
                                             className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-500 focus:bg-white outline-none transition-all font-bold text-sm"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-charcoal-400 ml-1">Channel</label>
+                                        <label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-charcoal-400 ml-1">Your Email</label>
                                         <input
                                             type="email"
                                             name="email"
                                             id="email"
                                             required
-                                            placeholder="Your Email"
+                                            placeholder="john@example.com"
                                             className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-500 focus:bg-white outline-none transition-all font-bold text-sm"
                                         />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="subject" className="text-[10px] font-black uppercase tracking-widest text-charcoal-400 ml-1">Sector</label>
+                                    <label htmlFor="subject" className="text-[10px] font-black uppercase tracking-widest text-charcoal-400 ml-1">Subject</label>
                                     <select
                                         name="subject"
                                         id="subject"
@@ -123,20 +123,20 @@ export default function ContactPage() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="message" className="text-[10px] font-black uppercase tracking-widest text-charcoal-400 ml-1">Transmission</label>
+                                    <label htmlFor="message" className="text-[10px] font-black uppercase tracking-widest text-charcoal-400 ml-1">Your Message</label>
                                     <textarea
                                         name="message"
                                         id="message"
                                         required
                                         rows="4"
-                                        placeholder="Enter your message here..."
+                                        placeholder="How can we help you?"
                                         className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-500 focus:bg-white outline-none transition-all font-bold text-sm resize-none"
                                     ></textarea>
                                 </div>
 
                                 {new URLSearchParams(window.location.search).get('success') && (
                                     <div className="p-4 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-2xl text-xs font-bold animate-float">
-                                        ✓ Message transmitted successfully via the secure channel.
+                                        ✓ Message sent successfully. We will get back to you soon.
                                     </div>
                                 )}
 
@@ -144,7 +144,7 @@ export default function ContactPage() {
                                     type="submit"
                                     className="w-full btn-primary py-5 text-sm shadow-xl shadow-primary-200 hover:scale-[1.02] active:scale-[0.98]"
                                 >
-                                    Transmit Message
+                                    Send Message
                                 </button>
                             </form>
                         </div>

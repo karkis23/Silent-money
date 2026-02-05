@@ -16,26 +16,26 @@ export default function AboutPage() {
     const coreProtocols = [
         {
             stage: "01",
-            title: "Expert Intelligence Vetting",
-            desc: "Every asset submission undergoes a surgical review by our internal analysts to verify legality and market viability within the Indian regulatory framework.",
+            title: "Expert Review",
+            desc: "Every asset submission is reviewed by our team to verify legality and market viability within the Indian regulatory framework.",
             icon: "🔭"
         },
         {
             stage: "02",
-            title: "Risk-Reward Matrix Analysis",
-            desc: "We deployed advanced ROI calculators that factor in hidden operational costs, taxes, and inflation to provide a 'Reality Checked' success probability.",
+            title: "Risk Analysis",
+            desc: "We use detailed calculations that factor in operational costs, taxes, and inflation to provide a realistic success probability.",
             icon: "📊"
         },
         {
             stage: "03",
-            title: "Expert Panel Audit",
-            desc: "High-value opportunities are audited by third-party experts to provide institutional-grade due-diligence reports for our verified members.",
+            title: "Expert Audit",
+            desc: "High-value opportunities are audited by verified experts to provide detailed reports for our members.",
             icon: "🛡️"
         },
         {
             stage: "04",
-            title: "Platform Synchronization",
-            desc: "Once authorized, the blueprint is synchronized with our global database and made accessible to the fleet for active deployment.",
+            title: "Platform Access",
+            desc: "Once specialized, the idea is added to our database and made available for you to explore.",
             icon: "🔄"
         }
     ];
@@ -43,8 +43,8 @@ export default function AboutPage() {
     return (
         <div className="min-h-screen bg-cream-50 pt-32 pb-20 px-4">
             <SEO
-                title="The Silent Manifesto | Institutional Intelligence"
-                description="Silent Money is the institutional standard for vetted, data-backed passive income roadmaps in India. Explore our methodology and mission."
+                title="About Us | Silent Money"
+                description="Silent Money is the trusted platform for vetted, data-backed passive income roadmaps in India."
             />
 
             <div className="max-w-6xl mx-auto">
@@ -52,7 +52,7 @@ export default function AboutPage() {
                     <BackButton label="Home" to="/" />
                 </motion.div>
 
-                {/* Dossier Hero */}
+                {/* About Hero */}
                 <header className="mb-24 text-center">
                     <motion.div
                         initial={{ scale: 0.9, opacity: 0 }}
@@ -60,7 +60,7 @@ export default function AboutPage() {
                         className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-50 border border-primary-100 mb-8"
                     >
                         <span className="w-2 h-2 rounded-full bg-primary-600 animate-pulse" />
-                        <span className="text-[10px] font-black text-primary-600 uppercase tracking-[0.2em]">Institutional Standard v2.0</span>
+                        <span className="text-[10px] font-black text-primary-600 uppercase tracking-[0.2em]">Our Mission</span>
                     </motion.div>
 
                     <motion.h1
@@ -69,7 +69,7 @@ export default function AboutPage() {
                         transition={{ delay: 0.2 }}
                         className="text-6xl md:text-8xl font-black text-charcoal-950 tracking-tightest leading-tight mb-8"
                     >
-                        The <span className="text-primary-600">Silent</span> <br /> Manifesto.
+                        About <span className="text-primary-600">Silent Money.</span>
                     </motion.h1>
 
                     <motion.p
@@ -78,7 +78,7 @@ export default function AboutPage() {
                         transition={{ delay: 0.4 }}
                         className="text-xl text-charcoal-500 font-bold uppercase tracking-[0.3em] max-w-2xl mx-auto leading-relaxed"
                     >
-                        Democratizing honest wealth for 1.4 billion people through surgical data and zero hype.
+                        Helping 1.4 billion people build wealth through honest data and zero hype.
                     </motion.p>
                 </header>
 
@@ -129,11 +129,11 @@ export default function AboutPage() {
                     </motion.div>
                 </section>
 
-                {/* Verification Protocol Timeline */}
+                {/* Process Timeline */}
                 <section className="mb-32">
                     <div className="text-center mb-16">
-                        <div className="text-[10px] font-black text-primary-600 uppercase tracking-[0.4em] mb-4">Operational Lifecycle</div>
-                        <h2 className="text-4xl font-black text-charcoal-950 tracking-tighter">Verification Protocol</h2>
+                        <div className="text-[10px] font-black text-primary-600 uppercase tracking-[0.4em] mb-4">How It Works</div>
+                        <h2 className="text-4xl font-black text-charcoal-950 tracking-tighter">Verification Process</h2>
                     </div>
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -147,7 +147,7 @@ export default function AboutPage() {
                                 className="card bg-white border-charcoal-50 p-8 hover:border-primary-200 transition-all flex flex-col h-full"
                             >
                                 <div className="text-[40px] mb-6">{p.icon}</div>
-                                <div className="text-[10px] font-black text-charcoal-300 uppercase tracking-widest mb-2">Stage {p.stage}</div>
+                                <div className="text-[10px] font-black text-charcoal-300 uppercase tracking-widest mb-2">Step {p.stage}</div>
                                 <h3 className="text-lg font-black text-charcoal-900 mb-4 tracking-tight leading-tight">{p.title}</h3>
                                 <p className="text-sm text-charcoal-500 font-medium leading-relaxed mb-auto">
                                     {p.desc}
@@ -198,7 +198,7 @@ export default function AboutPage() {
                                 onClick={() => navigate(user ? '/dashboard' : '/signup')}
                                 className="btn-primary w-full sm:w-auto px-12 py-5 text-sm"
                             >
-                                Start Your Mission
+                                Get Started
                             </motion.button>
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
@@ -206,7 +206,7 @@ export default function AboutPage() {
                                 onClick={() => navigate('/ideas')}
                                 className="btn-secondary w-full sm:w-auto px-12 py-5 text-sm"
                             >
-                                View Intelligence Feed
+                                Browse Ideas
                             </motion.button>
                         </div>
                     </motion.div>

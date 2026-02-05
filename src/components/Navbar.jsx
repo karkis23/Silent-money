@@ -29,10 +29,10 @@ export default function Navbar() {
 
     const navLinks = [
         { name: 'Home', path: '/', protected: false },
-        { name: 'Income Ideas', path: '/ideas', protected: true },
-        { name: 'Franchise Business', path: '/franchise', protected: true },
+        { name: 'Browse Ideas', path: '/ideas', protected: true },
+        { name: 'Franchises', path: '/franchise', protected: true },
         { name: 'About', path: '/about', protected: false },
-        { name: 'Dashboard', path: '/dashboard', protected: true },
+        { name: 'My Dashboard', path: '/dashboard', protected: true },
     ];
 
     return (
@@ -89,7 +89,7 @@ export default function Navbar() {
                                 to="/admin"
                                 className={`text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-lg border-2 border-primary-600/20 text-primary-600 hover:bg-primary-600 hover:text-white transition-all`}
                             >
-                                MODERATION
+                                MODERATE
                             </Link>
                         )}
 
@@ -156,6 +156,9 @@ export default function Navbar() {
                             className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-charcoal-100 shadow-xl"
                         >
                             <div className="p-4 space-y-4">
+                                <div className="mb-4">
+                                    <GlobalSearch />
+                                </div>
                                 {navLinks.map((link) => (
                                     (!link.protected || user) && (
                                         <Link
