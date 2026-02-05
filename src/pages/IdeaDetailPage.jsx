@@ -33,7 +33,7 @@ export default function IdeaDetailPage() {
     // Upvote state
     const [hasUpvoted, setHasUpvoted] = useState(false);
     const [voteCount, setVoteCount] = useState(0);
-    const [voteCount, setVoteCount] = useState(0);
+
     const [voteLoading, setVoteLoading] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
 
