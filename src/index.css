@@ -193,6 +193,6 @@
     word-break: break-word !important;
     line-height: 1.6 !important;
     tab-size: 4 !important;
-    @apply bg-charcoal-50 text-charcoal-900 border-charcoal-200 !important;
+    @apply !bg-charcoal-50 !text-charcoal-900 !border-charcoal-200;
   }
 }
