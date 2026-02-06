@@ -199,7 +199,17 @@ export default function ComparisonPage() {
                                     <h3 className="text-[10px] md:text-xs font-black text-charcoal-900 uppercase tracking-[0.2em]">
                                         Saved Items
                                     </h3>
-                                    <span className="text-[9px] font-black text-primary-600 bg-primary-50 px-2 py-1 rounded-lg uppercase tracking-widest">{selectedIds.length}/5 Select</span>
+                                    <div className="flex flex-col items-end gap-1.5">
+                                        <span className="text-[9px] font-black text-primary-600 bg-primary-50 px-2 py-1 rounded-lg uppercase tracking-widest">{selectedIds.length}/5 Select</span>
+                                        {selectedIds.length > 0 && (
+                                            <button
+                                                onClick={() => setSelectedIds([])}
+                                                className="text-[7px] font-black text-red-500 uppercase tracking-[0.2em] hover:text-red-700 transition-colors"
+                                            >
+                                                [ Clear Selection ]
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <div className="flex overflow-x-auto md:flex-col gap-3 pb-2 md:pb-0 hide-scrollbar -mx-1 px-1">

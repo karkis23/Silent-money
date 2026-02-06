@@ -85,35 +85,19 @@ const router = createBrowserRouter([
             },
             {
                 path: 'ideas',
-                element: (
-                    <ProtectedRoute>
-                        <IdeasPage />
-                    </ProtectedRoute>
-                ),
+                element: <IdeasPage />,
             },
             {
                 path: 'ideas/:slug',
-                element: (
-                    <ProtectedRoute>
-                        <IdeaDetailPage />
-                    </ProtectedRoute>
-                ),
+                element: <IdeaDetailPage />,
             },
             {
                 path: 'franchise',
-                element: (
-                    <ProtectedRoute>
-                        <FranchisePage />
-                    </ProtectedRoute>
-                ),
+                element: <FranchisePage />,
             },
             {
                 path: 'franchise/:slug',
-                element: (
-                    <ProtectedRoute>
-                        <FranchiseDetailPage />
-                    </ProtectedRoute>
-                ),
+                element: <FranchiseDetailPage />,
             },
             {
                 path: 'dashboard',

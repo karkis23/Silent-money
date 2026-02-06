@@ -37,6 +37,7 @@ export default function FranchiseDetailPage() {
     const [isSaved, setIsSaved] = useState(false);
     const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
+    const [hasPendingAudit, setHasPendingAudit] = useState(false);
 
     useEffect(() => {
         const fetchFranchise = async () => {
@@ -75,6 +76,22 @@ export default function FranchiseDetailPage() {
             if (data) setIsSaved(true);
         };
         checkSaveStatus();
+    }, [user, franchise]);
+
+    useEffect(() => {
+        const checkAuditStatus = async () => {
+            if (!user || !franchise) return;
+            const { data } = await supabase
+                .from('expert_audit_requests')
+                .select('*')
+                .eq('user_id', user.id)
+                .eq('brand_name', franchise.name)
+                .eq('status', 'pending')
+                .maybeSingle();
+
+            if (data) setHasPendingAudit(true);
+        };
+        checkAuditStatus();
     }, [user, franchise]);
 
     const handleToggleSave = async () => {
@@ -170,13 +187,17 @@ export default function FranchiseDetailPage() {
             <div className="w-px h-8 bg-charcoal-100 shrink-0 hidden sm:block" />
 
             <button
-                onClick={() => setIsAuditModalOpen(true)}
-                className="h-14 px-8 bg-white border border-charcoal-100 text-charcoal-900 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-charcoal-50 hover:border-charcoal-300 transition-all flex items-center justify-center gap-3 w-full sm:w-auto min-w-[180px] shrink-0 group shadow-lg shadow-charcoal-900/5"
+                onClick={() => !hasPendingAudit && setIsAuditModalOpen(true)}
+                disabled={hasPendingAudit}
+                className={`h-14 px-8 border rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 w-full sm:w-auto min-w-[180px] shrink-0 group shadow-lg ${hasPendingAudit
+                    ? 'bg-charcoal-50 border-charcoal-200 text-charcoal-400 cursor-not-allowed'
+                    : 'bg-white border-charcoal-100 text-charcoal-900 hover:bg-charcoal-50 hover:border-charcoal-300 shadow-charcoal-900/5'
+                    }`}
             >
-                <svg className="w-4 h-4 text-primary-600 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <svg className={`w-4 h-4 transition-transform ${hasPendingAudit ? 'text-charcoal-300' : 'text-primary-600 group-hover:scale-110'}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span className="whitespace-nowrap font-black tracking-[0.25em]">REQUEST AUDIT</span>
+                <span className="whitespace-nowrap font-black tracking-[0.25em]">{hasPendingAudit ? 'VERIFICATION PENDING' : 'REQUEST VERIFICATION'}</span>
             </button>
         </>
     );
@@ -195,7 +216,7 @@ export default function FranchiseDetailPage() {
                 imageUrl={franchise.image_url}
                 profiles={franchise.profiles}
                 isVerified={franchise.is_verified}
-                backLabel="Back to Expansion Feed"
+                backLabel="Back to Discovery"
                 actions={heroActions}
                 stats={heroStats}
             />
@@ -211,10 +232,10 @@ export default function FranchiseDetailPage() {
                             <div className="absolute top-0 right-0 w-64 h-64 bg-primary-600/10 blur-[80px] rounded-full -mr-32 -mt-32 transition-transform duration-1000 group-hover:scale-110" />
                             <h3 className="text-[11px] font-black text-white/40 uppercase tracking-[0.3em] mb-8 flex items-center gap-3 relative z-10">
                                 <span className="w-1.5 h-1.5 bg-primary-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
-                                Intelligence Signal
+                                Market Outlook
                             </h3>
                             <p className="text-lg font-medium text-white/90 leading-relaxed mb-8 relative z-10 pr-4">
-                                Sector demand for <span className="text-primary-400 font-bold">{franchise.category}</span> is projected to grow by <span className="text-emerald-400">12% YoY</span>. Historical ROI in Tier-1 cities remains consistent with <span className="text-white font-bold">institutional growth models</span>.
+                                Sector demand for <span className="text-primary-400 font-bold">{franchise.category}</span> is projected to grow by <span className="text-emerald-400">12% YoY</span>. Historical ROI in Tier-1 cities remains consistent with <span className="text-white font-bold">standard growth models</span>.
                             </p>
                             <div className="grid grid-cols-2 gap-4 sm:gap-8 relative z-10 border-t border-white/5 pt-8">
                                 <div>
@@ -225,31 +246,11 @@ export default function FranchiseDetailPage() {
                                 </div>
                                 <div>
                                     <div className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Verification Status</div>
-                                    <div className="text-xl font-black text-emerald-500 tracking-tight">Official HQ</div>
+                                    <div className="text-xl font-black text-emerald-500 tracking-tight">Verified Brand</div>
                                 </div>
                             </div>
                         </div>
 
-                        <ErrorBoundary compact>
-                            <ROICalculator
-                                assetId={franchise.id}
-                                assetType="franchise"
-                                initialDefaults={{
-                                    investment: franchise.investment_min,
-                                    income: franchise.expected_profit_min,
-                                    expenses: 0
-                                }}
-                            />
-                        </ErrorBoundary>
-
-                        {/* Reviews */}
-                        <ErrorBoundary compact>
-                            <ReviewsSection assetId={franchise.id} assetType="franchise" authorId={franchise.author_id} user={user} />
-                        </ErrorBoundary>
-                    </div>
-
-                    {/* Content & Logistics */}
-                    <div className="space-y-8">
                         {/* Core Identity */}
                         <div className={`bg-white rounded-[3rem] p-6 md:p-12 border border-charcoal-100 shadow-xl relative transition-all duration-700 ${isExpanded ? '' : 'max-h-[600px] overflow-hidden'}`}>
                             <h3 className="text-[11px] font-black text-charcoal-300 uppercase tracking-[0.4em] mb-10 flex items-center gap-3">
@@ -314,6 +315,50 @@ export default function FranchiseDetailPage() {
                             </a>
                         </div>
 
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6 }}
+                        >
+                            <ErrorBoundary compact>
+                                <ROICalculator
+                                    assetId={franchise.id}
+                                    assetType="franchise"
+                                    initialDefaults={{
+                                        investment: franchise.investment_min,
+                                        income: franchise.expected_profit_min,
+                                        expenses: 0
+                                    }}
+                                />
+                            </ErrorBoundary>
+                        </motion.div>
+
+                        {/* Reviews */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6, delay: 0.2 }}
+                        >
+                            <ErrorBoundary compact>
+                                <ReviewsSection assetId={franchise.id} assetType="franchise" authorId={franchise.author_id} user={user} />
+                            </ErrorBoundary>
+                        </motion.div>
+                    </div>
+
+                    {/* Content & Logistics */}
+                    <div className="space-y-8">
+                        {!user && (
+                            <div className="bg-primary-600 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-3xl rounded-full" />
+                                <h3 className="text-lg font-black mb-2 uppercase tracking-tight">Login for Full Access</h3>
+                                <p className="text-xs font-medium text-white/80 leading-relaxed mb-6">Create an account to track this brand, save financial projections, and contribute to official reviews.</p>
+                                <Link to="/signup" className="inline-flex h-12 px-8 bg-white text-primary-600 rounded-xl text-[10px] font-black uppercase tracking-widest items-center hover:bg-cream-50 transition-all">
+                                    Secure Full Access
+                                </Link>
+                            </div>
+                        )}
                         <AssetAuditTrail assetId={franchise.id} assetType="franchise" />
                     </div>
                 </div>

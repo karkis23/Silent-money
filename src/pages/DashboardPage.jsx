@@ -290,9 +290,9 @@ export default function DashboardPage() {
             } else {
                 setSavedFranchises(prev => prev.map(item => item.id === id ? { ...item, status: newStatus } : item));
             }
-            toast.success(`Deployment status updated to: ${newStatus}`);
+            toast.success(`Tracked status updated to: ${newStatus}`);
         } else {
-            toast.error('Operational error. Could not update status.');
+            toast.error('Error. Could not update status.');
         }
     };
 
@@ -319,24 +319,24 @@ export default function DashboardPage() {
     const goal = profile?.income_goal || 100000;
     const progress = Math.min(100, Math.round((achieved / goal) * 100));
 
-    const getCommanderRank = () => {
+    const getPortfolioRank = () => {
         const totalAssets = (savedIdeas?.length || 0) + (savedFranchises?.length || 0);
         if (totalAssets === 0) return { title: 'Market Explorer', color: 'text-charcoal-400', icon: '🛰️' };
-        if (totalAssets < 3) return { title: 'Wealth Strategist', color: 'text-blue-500', icon: '⚔️' };
-        if (totalAssets < 5) return { title: 'Portfolio Commander', color: 'text-primary-600', icon: '🎖️' };
-        return { title: 'Elite Wealth Commander', color: 'text-amber-500', icon: '💎' };
+        if (totalAssets < 3) return { title: 'Portfolio Strategist', color: 'text-blue-500', icon: '⚔️' };
+        if (totalAssets < 5) return { title: 'Portfolio Manager', color: 'text-primary-600', icon: '🎖️' };
+        return { title: 'Elite Portfolio Director', color: 'text-amber-500', icon: '💎' };
     };
 
-    const rank = getCommanderRank();
+    const rank = getPortfolioRank();
 
     return (
         <div className="min-h-screen bg-cream-50 pb-32 pt-24 md:pt-32">
             <SEO
-                title="Command Center | Silent Money"
+                title="Dashboard | Silent Money"
                 description="Manage your saved ideas, track ROI progress, and monitor your passive income."
             />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Header HUD */}
+                {/* Header Section */}
                 <div className="mb-6 md:mb-12 bg-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 border border-charcoal-100 shadow-premium relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-12">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-primary-50 rounded-full blur-[100px] -mr-32 -mt-32 opacity-50" />
 
@@ -361,10 +361,10 @@ export default function DashboardPage() {
                             <div className="flex items-center justify-center md:justify-start gap-2 mb-3">
                                 <span className={`text-[10px] font-black uppercase tracking-[0.3em] ${rank.color}`}>{rank.title}</span>
                                 <span className="w-1 h-1 rounded-full bg-charcoal-200"></span>
-                                <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em]">System Status: Optimal</span>
+                                <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em]">Account Status: Active</span>
                             </div>
                             <h1 className="text-2xl md:text-5xl font-black text-charcoal-950 tracking-tighter mb-4">
-                                {profile?.full_name?.split(' ')[0] || 'Commander'}<span className="text-primary-600">.</span>
+                                {profile?.full_name?.split(' ')[0] || 'Investor'}<span className="text-primary-600">.</span>
                             </h1>
                             <div className="flex flex-wrap justify-center md:justify-start gap-4">
                                 <div className="bg-charcoal-50 px-4 py-2 rounded-xl text-[10px] font-black text-charcoal-600 uppercase tracking-widest border border-charcoal-100">
@@ -378,7 +378,7 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="relative z-10 flex flex-col sm:flex-row items-center gap-6 md:gap-8 md:pl-12 pt-6 md:pt-0 border-t md:border-t-0 md:border-l border-charcoal-100">
-                        {/* Freedom Tracker HUD */}
+                        {/* Freedom Tracker */}
                         <div className="flex items-center gap-6 min-w-[280px]">
                             <div className="relative w-16 h-16 flex-shrink-0">
                                 <svg className="w-full h-full transform -rotate-90">
@@ -413,7 +413,7 @@ export default function DashboardPage() {
                                 <div className="text-2xl font-black text-charcoal-900 tracking-tighter">
                                     ₹{(achieved / 1000).toFixed(1)}k <span className="text-charcoal-300 text-sm">/ {goal / 1000}k</span>
                                 </div>
-                                <div className="text-[8px] font-black text-emerald-600 uppercase tracking-widest mt-1 mr-4">Live Yield Achieved</div>
+                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mt-1 mr-4">Freedom Goal Progress</div>
                             </div>
                         </div>
 
@@ -562,7 +562,7 @@ export default function DashboardPage() {
                     {loading ? (
                         <div className="p-12 text-center">
                             <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-                            <p className="text-charcoal-500 font-bold">Syncing Vault...</p>
+                            <p className="text-charcoal-500 font-bold">Loading Data...</p>
                         </div>
                     ) : activeTab === 'ideas' ? (
                         <>
@@ -573,7 +573,7 @@ export default function DashboardPage() {
                             {savedIdeas.length === 0 ? (
                                 <div className="text-center py-16 px-4">
                                     <div className="text-4xl mb-6">🔖</div>
-                                    <h3 className="text-lg font-black text-charcoal-900 mb-2 uppercase tracking-tight">Vault Empty</h3>
+                                    <h3 className="text-lg font-black text-charcoal-900 mb-2 uppercase tracking-tight">List Empty</h3>
                                     <p className="text-charcoal-500 mb-10 text-sm font-medium">Browse Ideas</p>
 
                                     <div className="max-w-md mx-auto space-y-4">

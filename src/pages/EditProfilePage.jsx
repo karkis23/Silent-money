@@ -68,11 +68,11 @@ export default function EditProfilePage() {
             if (error) throw error;
 
             await refreshProfile();
-            setMessage('Commander credentials updated.');
+            setMessage('Profile updated successfully.');
             setTimeout(() => navigate('/dashboard'), 1500);
         } catch (err) {
             console.error('Error updating profile:', err);
-            setMessage('Encryption failed. Try again.');
+            setMessage('Update failed. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -80,16 +80,16 @@ export default function EditProfilePage() {
 
     return (
         <div className="min-h-screen bg-cream-50 pt-20 md:pt-32 pb-20 px-4">
-            <SEO title="Commander Configuration | Identity Matrix" />
+            <SEO title="Edit Profile | Silent Money" />
             <div className="max-w-xl mx-auto">
                 <div className="mb-10 flex flex-col items-start gap-4">
                     <BackButton label="Back" />
                     <div>
                         <div className="flex items-center gap-2 mb-1">
                             <span className="w-2 h-2 rounded-full bg-primary-600"></span>
-                            <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em]">Profile Center</span>
+                            <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em]">Profile Settings</span>
                         </div>
-                        <h1 className="text-4xl font-black text-charcoal-950 tracking-tighter">Command <span className="text-primary-600">Config.</span></h1>
+                        <h1 className="text-4xl font-black text-charcoal-950 tracking-tighter">Edit <span className="text-primary-600">Profile.</span></h1>
                     </div>
                 </div>
 
@@ -107,7 +107,7 @@ export default function EditProfilePage() {
                     <div className="p-6 md:p-10 space-y-12">
                         {/* Avatar Picker */}
                         <section>
-                            <h2 className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] mb-6">Choose Identity</h2>
+                            <h2 className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] mb-6">Choose Avatar</h2>
                             <div className="grid grid-cols-3 gap-3 md:gap-4">
                                 {PRESET_AVATARS.map((url, i) => (
                                     <button
@@ -135,7 +135,7 @@ export default function EditProfilePage() {
 
                         {/* Investor Identity Matrix */}
                         <section className="space-y-6">
-                            <h2 className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] mb-4">Investor Identity Matrix</h2>
+                            <h2 className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] mb-4">Investment Strategy</h2>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest block mb-2 pl-1">Investment Budget</label>
@@ -191,7 +191,7 @@ export default function EditProfilePage() {
 
                         {/* Personal Info */}
                         <section className="space-y-6">
-                            <h2 className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] mb-4">Operational Summary</h2>
+                            <h2 className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] mb-4">Personal Information</h2>
                             <div>
                                 <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest block mb-2 pl-1">Full Name</label>
                                 <input
@@ -205,7 +205,7 @@ export default function EditProfilePage() {
                             </div>
 
                             <div>
-                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest block mb-2 pl-1">Operational Bio</label>
+                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest block mb-2 pl-1">Bio</label>
                                 <textarea
                                     rows={3}
                                     value={bio}
@@ -221,7 +221,7 @@ export default function EditProfilePage() {
                             disabled={loading}
                             className="w-full btn-primary h-16 text-sm tracking-[0.2em]"
                         >
-                            {loading ? 'SYNCING...' : 'SAVE COMMANDER CONFIG'}
+                            {loading ? 'SAVING...' : 'SAVE CHANGES'}
                         </button>
                     </div>
                 </form>

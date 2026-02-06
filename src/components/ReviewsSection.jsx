@@ -75,9 +75,9 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
 
         if (error) {
             if (error.code === '23505') {
-                setError('You have already logged intel for this asset.');
+                setError('You have already reviewed this asset.');
             } else {
-                setError(`Transmission failed: ${error.message}`);
+                setError(`Post failed: ${error.message}`);
             }
         } else {
             setContent('');
@@ -103,13 +103,13 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
             .eq('id', reviewId);
 
         if (!error) {
-            toast.success('Strategy response transmitted.');
+            toast.success('Response posted.');
             setReplyContent(prev => ({ ...prev, [reviewId]: '' }));
             setReplyingTo(null);
             fetchReviews();
         } else {
             console.error('Reply error:', error);
-            toast.error('Transmission failed: ' + error.message);
+            toast.error('Post failed: ' + error.message);
         }
         setSubmitting(false);
     };
@@ -117,8 +117,8 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
     const handleDeleteResponse = (reviewId) => {
         setConfirmConfig({
             isOpen: true,
-            title: 'Retract Strategy Response?',
-            message: 'Are you sure you want to permanently remove your owner response from this intel record? This action cannot be undone.',
+            title: 'Delete Response?',
+            message: 'Are you sure you want to permanently remove your owner response from this review? This action cannot be undone.',
             onConfirm: async () => {
                 setSubmitting(true);
                 const { error } = await supabase
@@ -130,10 +130,10 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
                     .eq('id', reviewId);
 
                 if (!error) {
-                    toast.success('Strategy response retracted.');
+                    toast.success('Response removed.');
                     fetchReviews();
                 } else {
-                    toast.error('Retraction failed: ' + error.message);
+                    toast.error('Removal failed: ' + error.message);
                 }
                 setSubmitting(false);
             },
@@ -156,7 +156,7 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
             .eq('id', reviewId);
 
         if (!error) {
-            toast.success('Intelligence updated.');
+            toast.success('Review updated.');
             setEditingReview(null);
             fetchReviews();
         } else {
@@ -168,7 +168,7 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
     const handleDelete = (reviewId) => {
         setConfirmConfig({
             isOpen: true,
-            title: 'Retract Intel?',
+            title: 'Delete Review?',
             message: 'Are you sure you want to permanently remove your feedback from this asset? This action cannot be undone.',
             onConfirm: async () => {
                 const { error } = await supabase
@@ -187,14 +187,14 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
     return (
         <div className="card space-y-8 bg-white/50 backdrop-blur-sm border-charcoal-100">
             <h3 className="text-xl font-black text-charcoal-900 flex items-center gap-3">
-                <span>💬</span> {assetType === 'franchise' ? 'Brand Intel' : 'Community Intel'}
+                <span>💬</span> {assetType === 'franchise' ? 'Brand Reviews' : 'Community Reviews'}
             </h3>
 
             {user ? (
                 !userHasReviewed ? (
                     <form onSubmit={handleSubmit} className="space-y-6 pb-8 border-b border-charcoal-50">
                         <div className="space-y-4">
-                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Operational Rating</label>
+                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Overall Rating</label>
                             <div className="flex gap-2">
                                 {[1, 2, 3, 4, 5].map((s) => (
                                     <button
@@ -210,7 +210,7 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Strategic Feedback</label>
+                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Your Review</label>
                             <textarea
                                 required
                                 value={content}
@@ -227,19 +227,19 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
                             disabled={submitting}
                             className="btn-primary w-full py-4 text-xs tracking-widest uppercase font-black"
                         >
-                            {submitting ? 'Transmitting...' : 'Post Intel'}
+                            {submitting ? 'Posting...' : 'Post Review'}
                         </button>
                     </form>
                 ) : (
                     <div className="bg-primary-50 p-6 rounded-3xl border border-primary-100 text-center mb-8">
-                        <p className="text-primary-700 text-sm font-bold uppercase tracking-widest mb-1">Intel Logged</p>
+                        <p className="text-primary-700 text-sm font-bold uppercase tracking-widest mb-1">Review Posted</p>
                         <p className="text-primary-600 text-xs font-medium opacity-80">You&apos;ve successfully shared your feedback on this asset.</p>
                     </div>
                 )
             ) : (
                 <div className="bg-charcoal-50 p-8 rounded-3xl text-center border border-charcoal-100 mb-8">
-                    <p className="text-charcoal-600 font-bold text-sm mb-4">Login to contribute operational feedback.</p>
-                    <Link to="/login" className="btn-secondary py-2 px-6 text-[10px]">Secure Access</Link>
+                    <p className="text-charcoal-600 font-bold text-sm mb-4">Login to contribute feedback.</p>
+                    <Link to="/login" className="btn-secondary py-2 px-6 text-[10px]">Login to Post</Link>
                 </div>
             )}
 
@@ -256,7 +256,7 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
                     </div>
                 ) : reviews.length === 0 ? (
                     <div className="py-12 text-center text-charcoal-400 italic text-sm font-medium">
-                        No community intel available for this asset yet.
+                        No community reviews available for this asset yet.
                     </div>
                 ) : (
                     reviews.map((review) => (
@@ -300,7 +300,7 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
                                             <button
                                                 onClick={() => handleEdit(review)}
                                                 className="text-charcoal-300 hover:text-primary-600 transition-colors"
-                                                title="Edit Intel"
+                                                title="Edit Review"
                                             >
                                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -309,7 +309,7 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
                                             <button
                                                 onClick={() => handleDelete(review.id)}
                                                 className="text-charcoal-300 hover:text-red-500 transition-colors"
-                                                title="Retract Intel"
+                                                title="Delete Review"
                                             >
                                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
@@ -373,7 +373,7 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
                                                 <button
                                                     onClick={() => handleDeleteResponse(review.id)}
                                                     className="text-charcoal-300 hover:text-red-500 transition-colors"
-                                                    title="Retract Response"
+                                                    title="Delete Response"
                                                 >
                                                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -410,7 +410,7 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
                                             value={replyContent[review.id] || ''}
                                             onChange={(e) => setReplyContent(prev => ({ ...prev, [review.id]: e.target.value }))}
                                             className="w-full px-4 py-3 bg-charcoal-50 border border-charcoal-100 rounded-xl focus:ring-2 focus:ring-primary-600 outline-none text-xs font-medium min-h-[80px] resize-none"
-                                            placeholder="Write your response to the commander..."
+                                            placeholder="Write your response..."
                                         />
                                         <div className="flex gap-2 mt-2 justify-end">
                                             <button

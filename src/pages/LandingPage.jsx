@@ -512,12 +512,12 @@ export default function LandingPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="text-center mb-16 md:mb-20">
                         <h2 className="text-3xl md:text-5xl font-extrabold mb-6">The Journey to <span className="text-accent">Silent Wealth</span></h2>
-                        <p className="text-charcoal-400 text-lg md:text-xl font-medium">Four simple steps to start your secondary income engine.</p>
+                        <p className="text-charcoal-400 text-lg md:text-xl font-medium">Four simple steps to start your secondary income stream.</p>
                     </div>
 
                     <div className="grid md:grid-cols-4 gap-12">
                         {[
-                            { step: "01", title: "Join Community", desc: "Create your free account to access the motherboard of ideas." },
+                            { step: "01", title: "Join Community", desc: "Create your free account to access the directory of assets." },
                             { step: "02", title: "Select Strategy", desc: "Filter by investment size, risk, and category." },
                             { step: "03", title: "Analyze Math", desc: "Use our tools to verify the profit potential." },
                             { step: "04", title: "Start Building", desc: "Get actionable next steps to launch your income stream." }

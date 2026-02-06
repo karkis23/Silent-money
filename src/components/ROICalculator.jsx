@@ -20,6 +20,35 @@ export default function ROICalculator({ initialDefaults = {}, assetId = null, as
 
     // Calculate on change
     useEffect(() => {
+        const fetchLatestStrategy = async () => {
+            if (!user || !assetId) return;
+
+            const query = supabase
+                .from('roi_calculations')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false })
+                .limit(1);
+
+            if (assetType === 'idea') query.eq('idea_id', assetId);
+            else if (assetType === 'franchise') query.eq('franchise_id', assetId);
+
+            const { data, error } = await query.maybeSingle();
+
+            if (data && !error) {
+                setInvestment(data.initial_investment);
+                setMonthlyIncome(data.monthly_income_expected);
+                setMonthlyExpenses(data.monthly_expenses);
+                setYears(data.time_horizon_months / 12);
+                // Note: sensitivity isn't stored in DB yet, but we hydrate the core metrics
+            }
+        };
+
+        fetchLatestStrategy();
+    }, [user, assetId, assetType]);
+
+    // Calculate on change
+    useEffect(() => {
         const calculateROI = () => {
             const months = years * 12;
             const totalRevenue = monthlyIncome * months;
@@ -86,14 +115,14 @@ export default function ROICalculator({ initialDefaults = {}, assetId = null, as
         setIsSaving(false);
         if (!error) {
             setSaveSuccess(true);
-            toast.success('Strategy Saved to Intelligence Vault', {
+            toast.success('Strategy Saved to Your List', {
                 icon: '💾',
                 style: { background: '#111827', color: '#fff' }
             });
             setTimeout(() => setSaveSuccess(false), 3000);
         } else {
             console.error('Save failed:', error);
-            toast.error(`Encryption Error: ${error.message || 'Check database connectivity'}`);
+            toast.error(`Error: ${error.message || 'Check database connectivity'}`);
         }
     };
 
@@ -258,19 +287,19 @@ export default function ROICalculator({ initialDefaults = {}, assetId = null, as
 
                         {saveSuccess ? (
                             <motion.span initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}>
-                                Intelligence Secured
+                                Strategy Saved
                             </motion.span>
                         ) : isSaving ? (
                             <span className="flex items-center gap-2">
                                 <div className="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                                Securing Strategy...
+                                Saving...
                             </span>
                         ) : (
                             <span>Save this Projection</span>
                         )}
                     </button>
                     {!user && (
-                        <p className="text-[9px] text-white/30 text-center mt-3 font-medium uppercase tracking-widest">Login to save intelligence</p>
+                        <p className="text-[9px] text-white/30 text-center mt-3 font-medium uppercase tracking-widest">Login to save projections</p>
                     )}
                 </div>
             </div>

@@ -13,7 +13,7 @@ export default function AboutPage() {
         transition: { duration: 0.6 }
     };
 
-    const coreProtocols = [
+    const coreProcesses = [
         {
             stage: "01",
             title: "Expert Review",
@@ -115,10 +115,10 @@ export default function AboutPage() {
                         <h2 className="text-3xl font-black mb-6 tracking-tight">The Silent Standard</h2>
                         <ul className="space-y-6">
                             {[
-                                "Surgical ROI calculations with 98% data accuracy.",
+                                "Detailed ROI calculations with 98% data accuracy.",
                                 "India-specific blueprints (GST, local demand, logistics).",
                                 "Transparent operational tracking for every saved asset.",
-                                "Zero-gatekeeping policy: Professional intel for the masses."
+                                "Zero-gatekeeping policy: Professional insights for the masses."
                             ].map((item, i) => (
                                 <li key={i} className="flex gap-4 text-primary-400 font-medium">
                                     <span className="text-primary-500 mt-1">✓</span>
@@ -137,7 +137,7 @@ export default function AboutPage() {
                     </div>
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {coreProtocols.map((p, i) => (
+                        {coreProcesses.map((p, i) => (
                             <motion.div
                                 key={i}
                                 initial={{ opacity: 0, y: 20 }}
@@ -189,7 +189,7 @@ export default function AboutPage() {
                             Ready to join the <span className="text-primary-600">silent revolution?</span>
                         </h2>
                         <p className="text-lg text-charcoal-500 font-medium leading-relaxed">
-                            Stop chasing flashy screenshots. Start deploying proven assets. Silent Money is more than a directory; it&apos;s your operational command center for financial freedom.
+                            Stop chasing flashy screenshots. Start exploring proven assets. Silent Money is more than a directory; it&apos;s your partner for financial freedom.
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                             <motion.button

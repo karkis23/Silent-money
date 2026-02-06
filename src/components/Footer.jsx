@@ -59,7 +59,7 @@ export default function Footer() {
                 <div className="border-t border-charcoal-900 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-xs font-bold text-charcoal-600">© {currentYear} SILENT MONEY. ALL RIGHTS RESERVED.</p>
                     <div className="flex items-center gap-6">
-                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest border border-emerald-500/20 px-3 py-1 rounded-full">All Systems Operational</span>
+                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest border border-emerald-500/20 px-3 py-1 rounded-full">Platform Status: Active</span>
                     </div>
                 </div>
             </div>

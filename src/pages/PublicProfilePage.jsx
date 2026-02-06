@@ -45,7 +45,7 @@ export default function PublicProfilePage() {
                 setAuthoredFranchises(franchisesData || []);
             } catch (err) {
                 console.error('Error fetching profile:', err);
-                setError('Commander not found in the matrix.');
+                setError('Profile not found.');
             } finally {
                 setLoading(false);
             }
@@ -76,10 +76,10 @@ export default function PublicProfilePage() {
 
     return (
         <div className="min-h-screen bg-cream-50 pt-32 pb-20">
-            <SEO title={`${profile.full_name || 'Commander'} | Silent Money Profile`} />
+            <SEO title={`${profile.full_name || 'Member'} | Silent Money Profile`} />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <BackButton label="Return to Intelligence Feed" className="mb-10" />
+                <BackButton label="Back to Discovery" className="mb-10" />
                 {/* Profile Header */}
                 <div className="bg-white rounded-[3rem] shadow-premium border border-charcoal-100 p-8 md:p-12 mb-12 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-primary-50 rounded-full blur-[100px] -mr-32 -mt-32 opacity-50" />
@@ -115,7 +115,7 @@ export default function PublicProfilePage() {
                                     let rank = { title: 'Market Explorer', color: 'bg-charcoal-100 text-charcoal-600', icon: '🛰️' };
                                     if (totalAuthored >= 1) rank = { title: 'Wealth Contributor', color: 'bg-blue-100 text-blue-700', icon: '⚔️' };
                                     if (totalAuthored >= 3) rank = { title: 'Master Strategist', color: 'bg-primary-100 text-primary-700', icon: '🎖️' };
-                                    if (totalAuthored >= 5) rank = { title: 'Elite Wealth Commander', color: 'bg-amber-100 text-amber-700', icon: '💎' };
+                                    if (totalAuthored >= 5) rank = { title: 'Elite Portfolio Manager', color: 'bg-amber-100 text-amber-700', icon: '💎' };
 
                                     return (
                                         <span className={`${rank.color} px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-current opacity-80`}>
@@ -126,11 +126,11 @@ export default function PublicProfilePage() {
                             </div>
 
                             <h1 className="text-4xl md:text-5xl font-black text-charcoal-950 tracking-tighter mb-4">
-                                {profile.full_name || 'Anonymous Commander'}
+                                {profile.full_name || 'Anonymous Member'}
                             </h1>
 
                             <p className="text-lg text-charcoal-600 font-medium leading-relaxed max-w-2xl mb-8">
-                                {profile.bio || 'This commander is building their financial dynasty quietly. No operational bio provided yet.'}
+                                {profile.bio || 'This member is building their portfolio quietly. No bio provided yet.'}
                             </p>
 
                             <div className="flex flex-wrap justify-center md:justify-start gap-6 pt-6 border-t border-charcoal-50">

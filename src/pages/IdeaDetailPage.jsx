@@ -40,6 +40,7 @@ export default function IdeaDetailPage() {
     const [updateMessage, setUpdateMessage] = useState('');
     const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
+    const [hasPendingAudit, setHasPendingAudit] = useState(false);
 
     useEffect(() => {
         const fetchIdea = async () => {
@@ -83,6 +84,22 @@ export default function IdeaDetailPage() {
             }
         };
         checkSaveStatus();
+    }, [user, idea]);
+
+    useEffect(() => {
+        const checkAuditStatus = async () => {
+            if (!user || !idea) return;
+            const { data } = await supabase
+                .from('expert_audit_requests')
+                .select('*')
+                .eq('user_id', user.id)
+                .eq('brand_name', idea.title)
+                .eq('status', 'pending')
+                .maybeSingle();
+
+            if (data) setHasPendingAudit(true);
+        };
+        checkAuditStatus();
     }, [user, idea]);
 
     const handleToggleSave = async () => {
@@ -157,26 +174,44 @@ export default function IdeaDetailPage() {
     ];
 
     const heroActions = (
-        <button
-            onClick={handleToggleSave}
-            className={`h-14 px-8 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 w-full sm:w-auto min-w-[190px] shrink-0 group border shadow-2xl relative overflow-hidden ${isSaved
-                ? 'bg-emerald-600 text-white border-emerald-500 shadow-emerald-500/20'
-                : 'bg-charcoal-950 text-white border-charcoal-800 hover:bg-primary-600 shadow-charcoal-900/40'
-                }`}
-        >
-            <div className="relative z-10 flex items-center gap-3">
-                {isSaved ? (
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1 14.5l-3.5-3.5 1.41-1.41L11 13.67l4.59-4.59L17 10.5 11 16.5z" />
-                    </svg>
-                ) : (
-                    <svg className="w-4 h-4 fill-none stroke-current" strokeWidth="2.5" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
-                    </svg>
-                )}
-                <span className="whitespace-nowrap font-black tracking-[0.25em]">{isSaved ? 'VAULT SECURED' : 'SAVE BLUEPRINT'}</span>
-            </div>
-        </button>
+        <>
+            <button
+                onClick={handleToggleSave}
+                className={`h-14 px-8 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 w-full sm:w-auto min-w-[190px] shrink-0 group border shadow-2xl relative overflow-hidden ${isSaved
+                    ? 'bg-emerald-600 text-white border-emerald-500 shadow-emerald-500/20'
+                    : 'bg-charcoal-950 text-white border-charcoal-800 hover:bg-primary-600 shadow-charcoal-900/40'
+                    }`}
+            >
+                <div className="relative z-10 flex items-center gap-3">
+                    {isSaved ? (
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1 14.5l-3.5-3.5 1.41-1.41L11 13.67l4.59-4.59L17 10.5 11 16.5z" />
+                        </svg>
+                    ) : (
+                        <svg className="w-4 h-4 fill-none stroke-current" strokeWidth="2.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
+                        </svg>
+                    )}
+                    <span className="whitespace-nowrap font-black tracking-[0.25em]">{isSaved ? 'VAULT SECURED' : 'SAVE BLUEPRINT'}</span>
+                </div>
+            </button>
+
+            <div className="w-px h-8 bg-charcoal-100 shrink-0 hidden sm:block" />
+
+            <button
+                onClick={() => !hasPendingAudit && setIsAuditModalOpen(true)}
+                disabled={hasPendingAudit}
+                className={`h-14 px-8 border rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 w-full sm:w-auto min-w-[180px] shrink-0 group shadow-lg ${hasPendingAudit
+                    ? 'bg-charcoal-50 border-charcoal-200 text-charcoal-400 cursor-not-allowed'
+                    : 'bg-white border-charcoal-100 text-charcoal-900 hover:bg-charcoal-50 hover:border-charcoal-300 shadow-charcoal-900/5'
+                    }`}
+            >
+                <svg className={`w-4 h-4 transition-transform ${hasPendingAudit ? 'text-charcoal-300' : 'text-primary-600 group-hover:scale-110'}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span className="whitespace-nowrap font-black tracking-[0.25em]">{hasPendingAudit ? 'VERIFICATION PENDING' : 'REQUEST VERIFICATION'}</span>
+            </button>
+        </>
     );
 
     return (
@@ -196,7 +231,7 @@ export default function IdeaDetailPage() {
                 isPremium={idea.is_premium}
                 isFeatured={idea.is_featured}
                 assetGrade="AAA+ Grade"
-                backLabel="Back to Discovery Feed"
+                backLabel="Back to Discovery"
                 actions={heroActions}
                 stats={heroStats}
             />
@@ -217,31 +252,10 @@ export default function IdeaDetailPage() {
                             </div>
                         </div>
 
-                        {/* Calculator */}
-                        <ErrorBoundary compact>
-                            <ROICalculator
-                                assetId={idea.id}
-                                assetType="idea"
-                                initialDefaults={{
-                                    investment: idea.initial_investment_min,
-                                    income: idea.monthly_income_min,
-                                    expenses: 0
-                                }}
-                            />
-                        </ErrorBoundary>
-
-                        {/* Reviews */}
-                        <ErrorBoundary compact>
-                            <ReviewsSection assetId={idea.id} assetType="idea" authorId={idea.author_id} user={user} />
-                        </ErrorBoundary>
-                    </div>
-
-                    {/* Content & Progress */}
-                    <div className="space-y-8">
                         {/* How it Works */}
                         <div className={`bg-white rounded-[3rem] p-6 md:p-10 border border-charcoal-100 shadow-xl relative transition-all duration-700 ${isExpanded ? '' : 'max-h-[600px] overflow-hidden'}`}>
                             <h3 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-8 flex items-center gap-3">
-                                <span>💎</span> Operational Blueprint
+                                <span>💎</span> How it Works
                             </h3>
                             <div className="prose prose-charcoal max-w-none prose-headings:font-black prose-headings:text-charcoal-900 prose-p:text-charcoal-600 prose-strong:text-charcoal-900 whitespace-pre-wrap text-lg">
                                 <ReactMarkdown>{idea.full_description}</ReactMarkdown>
@@ -257,18 +271,62 @@ export default function IdeaDetailPage() {
                                 onClick={() => setIsExpanded(!isExpanded)}
                                 className="bg-charcoal-950 text-white px-8 py-4 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl hover:bg-primary-600 transition-all flex items-center gap-3 group"
                             >
-                                {isExpanded ? 'Collapse Architecture' : 'Read Full Blueprint'}
+                                {isExpanded ? 'Show Less' : 'Read Full Description'}
                                 <span className={`text-lg transition-transform duration-500 ${isExpanded ? 'rotate-180' : 'group-hover:translate-y-1'}`}>↓</span>
                             </button>
                         </div>
 
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6 }}
+                        >
+                            <ErrorBoundary compact>
+                                <ROICalculator
+                                    assetId={idea.id}
+                                    assetType="idea"
+                                    initialDefaults={{
+                                        investment: idea.initial_investment_min,
+                                        income: idea.monthly_income_min,
+                                        expenses: 0
+                                    }}
+                                />
+                            </ErrorBoundary>
+                        </motion.div>
+
+                        {/* Reviews */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6, delay: 0.2 }}
+                        >
+                            <ErrorBoundary compact>
+                                <ReviewsSection assetId={idea.id} assetType="idea" authorId={idea.author_id} user={user} />
+                            </ErrorBoundary>
+                        </motion.div>
+                    </div>
+
+                    {/* Content & Progress */}
+                    <div className="space-y-8">
+                        {!user && (
+                            <div className="bg-primary-600 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-3xl rounded-full" />
+                                <h3 className="text-lg font-black mb-2 uppercase tracking-tight">Login for Full Access</h3>
+                                <p className="text-xs font-medium text-white/80 leading-relaxed mb-6">Create an account to track this asset, save financial projections, and contribute to community reviews.</p>
+                                <Link to="/signup" className="inline-flex h-12 px-8 bg-white text-primary-600 rounded-xl text-[10px] font-black uppercase tracking-widest items-center hover:bg-cream-50 transition-all">
+                                    Get Started
+                                </Link>
+                            </div>
+                        )}
                         {/* Progress Section */}
                         {isSaved && (
                             <div className="bg-white rounded-[3rem] p-6 md:p-10 border border-charcoal-100 shadow-xl">
-                                <h3 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-8">Deployment Log</h3>
+                                <h3 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-8">Personal Tracker</h3>
                                 <div className="space-y-6">
                                     <div>
-                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest block mb-2">Build Status</label>
+                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest block mb-2">My Status</label>
                                         <select
                                             value={userStatus}
                                             onChange={(e) => setUserStatus(e.target.value)}
