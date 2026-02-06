@@ -142,7 +142,7 @@ export default function IdeasPage() {
                                 <span className="w-2 h-2 rounded-full bg-primary-600 animate-pulse"></span>
                                 <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em]">Verified Business Ideas</span>
                             </div>
-                            <h1 className="text-4xl md:text-5xl font-black text-charcoal-950 tracking-tightest leading-none">
+                            <h1 className="text-3xl md:text-5xl font-black text-charcoal-950 tracking-tightest leading-none">
                                 Browse <span className="text-primary-600">Ideas.</span>
                             </h1>
                         </div>
@@ -157,21 +157,21 @@ export default function IdeasPage() {
                 </header>
 
                 {/* 2. COMPACT INTELLIGENCE BAR (Unified Filter) */}
-                <section className="bg-white border border-charcoal-100 rounded-[1.5rem] shadow-premium mb-8 relative overflow-hidden">
+                <section className="bg-white md:border md:border-charcoal-100 md:rounded-[1.5rem] md:shadow-premium mb-8 relative overflow-hidden rounded-2xl shadow-sm border border-charcoal-100">
                     {/* Top Row: Search & Sort */}
-                    <div className="flex flex-col md:flex-row border-b border-charcoal-50">
-                        <div className="flex-1 relative border-r border-charcoal-50">
-                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-charcoal-400">🔍</span>
+                    <div className="flex flex-col md:flex-row md:border-b md:border-charcoal-50">
+                        <div className="flex-1 relative border-b md:border-b-0 md:border-r border-charcoal-50">
+                            <span className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 text-charcoal-400 text-lg">🔍</span>
                             <input
                                 type="text"
                                 placeholder="Search blueprints..."
                                 value={searchQuery}
                                 aria-label="Search income ideas"
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-12 pr-6 py-3 bg-transparent outline-none font-bold text-charcoal-900 placeholder:text-charcoal-300 text-sm"
+                                className="w-full pl-12 pr-6 py-4 md:py-3 bg-transparent outline-none font-bold text-charcoal-900 placeholder:text-charcoal-300 text-sm"
                             />
                         </div>
-                        <div className="flex">
+                        <div className="flex overflow-x-auto hide-scrollbar border-b md:border-b-0 border-charcoal-50 divide-x divide-charcoal-50">
                             <div className="px-6 py-3.5 border-r border-charcoal-50 hidden lg:block">
                                 <div className="flex items-center gap-4">
                                     <span className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest">Min Monthly Income</span>
@@ -189,10 +189,10 @@ export default function IdeasPage() {
                             </div>
 
                             {/* CUSTOM DROPDOWN */}
-                            <div className="relative sort-dropdown-container">
+                            <div className="relative sort-dropdown-container flex-1 md:flex-none">
                                 <button
                                     onClick={() => setShowSortDropdown(!showSortDropdown)}
-                                    className={`h-full px-6 py-3.5 flex items-center gap-3 cursor-pointer transition-all border-r border-charcoal-50 ${showSortDropdown ? 'bg-charcoal-50' : 'hover:bg-charcoal-50/50'}`}
+                                    className={`w-full h-full px-4 md:px-6 py-3.5 flex items-center justify-center md:justify-start gap-3 cursor-pointer transition-all ${showSortDropdown ? 'bg-charcoal-50' : 'hover:bg-charcoal-50/50'}`}
                                 >
                                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-charcoal-900 whitespace-nowrap">
                                         {sortBy === 'created_at' ? 'Newest First' :
@@ -215,7 +215,7 @@ export default function IdeasPage() {
                                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                             animate={{ opacity: 1, y: 0, scale: 1 }}
                                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                            className="absolute top-full right-0 w-64 pt-2 z-[100]"
+                                            className="absolute top-full right-0 left-0 md:left-auto w-full md:w-64 pt-2 z-[100]"
                                         >
                                             <div className="bg-white border border-charcoal-100 rounded-[1.5rem] shadow-2xl overflow-hidden shadow-charcoal-900/10 backdrop-blur-xl">
                                                 {[
@@ -243,13 +243,13 @@ export default function IdeasPage() {
 
                             {/* SMART MATCH TOGGLE */}
                             {profile && (
-                                <div className="flex items-center px-6 py-3.5 bg-primary-50/10">
+                                <div className="flex items-center px-4 md:px-6 py-3.5 bg-primary-50/10 flex-none">
                                     <button
                                         onClick={() => setSmartMatch(!smartMatch)}
                                         className={`flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl transition-all ${smartMatch ? 'bg-primary-600 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
                                     >
                                         <span className="text-xs">{smartMatch ? '🎯' : '🎯'}</span>
-                                        <span className="text-[9px] font-black uppercase tracking-widest leading-none">Smart Match</span>
+                                        <span className="text-[9px] font-black uppercase tracking-widest leading-none hidden md:block">Smart Match</span>
                                     </button>
                                 </div>
                             )}
@@ -257,11 +257,11 @@ export default function IdeasPage() {
                     </div>
 
                     {/* Bottom Row: Classification Pills & Expanded Filters */}
-                    <div className="p-3 flex flex-col md:flex-row gap-4 bg-charcoal-50/30 rounded-b-[2rem] items-center">
-                        <div className="flex flex-wrap gap-1.5 flex-1">
+                    <div className="p-3 md:p-3 flex flex-col md:flex-row gap-4 bg-charcoal-50/30 md:rounded-b-[2rem] items-start md:items-center">
+                        <div className="flex overflow-x-auto pb-2 md:pb-0 gap-2 w-full md:w-auto hide-scrollbar -mx-3 px-3 md:mx-0 md:px-0">
                             <button
                                 onClick={() => setSelectedCategory('all')}
-                                className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${selectedCategory === 'all' ? 'bg-charcoal-900 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
+                                className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex-shrink-0 ${selectedCategory === 'all' ? 'bg-charcoal-900 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
                             >
                                 All Sectors
                             </button>
@@ -269,7 +269,7 @@ export default function IdeasPage() {
                                 <button
                                     key={category.id}
                                     onClick={() => setSelectedCategory(category.id)}
-                                    className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${selectedCategory === category.id ? 'bg-primary-600 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
+                                    className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${selectedCategory === category.id ? 'bg-primary-600 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
                                 >
                                     <span>{category.icon}</span>
                                     {category.name}
@@ -277,11 +277,11 @@ export default function IdeasPage() {
                             ))}
                         </div>
 
-                        <div className="flex gap-2 border-l border-charcoal-100 pl-4 h-full py-1">
+                        <div className="flex gap-2 md:border-l border-charcoal-100 md:pl-4 w-full md:w-auto overflow-x-auto pb-1 md:pb-0 hide-scrollbar">
                             <select
                                 value={selectedRisk}
                                 onChange={(e) => setSelectedRisk(e.target.value)}
-                                className="bg-white border border-charcoal-100 rounded-xl px-4 py-2 text-[9px] font-black uppercase tracking-widest outline-none cursor-pointer"
+                                className="bg-white border border-charcoal-100 rounded-xl px-4 py-2 text-[9px] font-black uppercase tracking-widest outline-none cursor-pointer flex-1 md:flex-none min-w-[100px]"
                             >
                                 <option value="all">Any Risk</option>
                                 <option value="low">Low Risk</option>
@@ -292,7 +292,7 @@ export default function IdeasPage() {
                             <select
                                 value={selectedEffort}
                                 onChange={(e) => setSelectedEffort(e.target.value)}
-                                className="bg-white border border-charcoal-100 rounded-xl px-4 py-2 text-[9px] font-black uppercase tracking-widest outline-none cursor-pointer"
+                                className="bg-white border border-charcoal-100 rounded-xl px-4 py-2 text-[9px] font-black uppercase tracking-widest outline-none cursor-pointer flex-1 md:flex-none min-w-[100px]"
                             >
                                 <option value="all">All Effort</option>
                                 <option value="passive">Passive</option>
@@ -373,7 +373,7 @@ export default function IdeasPage() {
                                                 </div>
                                             </div>
 
-                                            <div className="p-8 flex flex-col flex-1">
+                                            <div className="p-5 md:p-8 flex flex-col flex-1">
 
                                                 {/* Impact Metric */}
                                                 <div className="flex justify-between items-center mb-4">

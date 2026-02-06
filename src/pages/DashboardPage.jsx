@@ -330,20 +330,20 @@ export default function DashboardPage() {
     const rank = getCommanderRank();
 
     return (
-        <div className="min-h-screen bg-cream-50 pb-20 pt-32">
+        <div className="min-h-screen bg-cream-50 pb-32 pt-24 md:pt-32">
             <SEO
                 title="Command Center | Silent Money"
                 description="Manage your saved ideas, track ROI progress, and monitor your passive income."
             />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header HUD */}
-                <div className="mb-12 bg-white rounded-[3rem] p-8 md:p-12 border border-charcoal-100 shadow-premium relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-12">
+                <div className="mb-6 md:mb-12 bg-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 border border-charcoal-100 shadow-premium relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-12">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-primary-50 rounded-full blur-[100px] -mr-32 -mt-32 opacity-50" />
 
                     <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-10">
                         {/* Profile Image with Rank Ring */}
                         <div className="relative group">
-                            <div className={`w-32 h-32 rounded-[2.5rem] overflow-hidden border-4 shadow-2xl relative z-10 bg-charcoal-50 ${rank.title.includes('Elite') ? 'border-amber-400' : 'border-white'}`}>
+                            <div className={`w-20 h-20 md:w-32 md:h-32 rounded-[2.5rem] overflow-hidden border-2 md:border-4 shadow-2xl relative z-10 bg-charcoal-50 ${rank.title.includes('Elite') ? 'border-amber-400' : 'border-white'}`}>
                                 {profile?.avatar_url ? (
                                     <img src={profile.avatar_url} className="w-full h-full object-cover transition-transform group-hover:scale-110" alt={profile.full_name} />
                                 ) : (
@@ -352,7 +352,7 @@ export default function DashboardPage() {
                                     </div>
                                 )}
                             </div>
-                            <div className="absolute -bottom-3 -right-3 bg-charcoal-900 text-white w-10 h-10 rounded-2xl flex items-center justify-center text-lg shadow-xl z-20 border-2 border-white">
+                            <div className="absolute -bottom-2 -right-2 md:-bottom-3 md:-right-3 bg-charcoal-900 text-white w-8 h-8 md:w-10 md:h-10 rounded-2xl flex items-center justify-center text-sm md:text-lg shadow-xl z-20 border-2 border-white">
                                 {rank.icon}
                             </div>
                         </div>
@@ -363,7 +363,7 @@ export default function DashboardPage() {
                                 <span className="w-1 h-1 rounded-full bg-charcoal-200"></span>
                                 <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em]">System Status: Optimal</span>
                             </div>
-                            <h1 className="text-4xl md:text-5xl font-black text-charcoal-950 tracking-tighter mb-4">
+                            <h1 className="text-2xl md:text-5xl font-black text-charcoal-950 tracking-tighter mb-4">
                                 {profile?.full_name?.split(' ')[0] || 'Commander'}<span className="text-primary-600">.</span>
                             </h1>
                             <div className="flex flex-wrap justify-center md:justify-start gap-4">
@@ -377,7 +377,7 @@ export default function DashboardPage() {
                         </div>
                     </div>
 
-                    <div className="relative z-10 flex flex-col sm:flex-row items-center gap-8 md:pl-12 pt-8 md:pt-0 border-t md:border-t-0 md:border-l border-charcoal-100">
+                    <div className="relative z-10 flex flex-col sm:flex-row items-center gap-6 md:gap-8 md:pl-12 pt-6 md:pt-0 border-t md:border-t-0 md:border-l border-charcoal-100">
                         {/* Freedom Tracker HUD */}
                         <div className="flex items-center gap-6 min-w-[280px]">
                             <div className="relative w-16 h-16 flex-shrink-0">
@@ -417,17 +417,17 @@ export default function DashboardPage() {
                             </div>
                         </div>
 
-                        <Link to="/edit-profile" className="flex items-center gap-3 bg-charcoal-900 text-white px-8 py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest hover:bg-primary-600 transition-all shadow-xl self-center md:self-auto">
+                        <Link to="/edit-profile" className="flex items-center gap-3 bg-charcoal-900 text-white px-6 py-3 md:px-8 md:py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest hover:bg-primary-600 transition-all shadow-xl self-center md:self-auto">
                             <span>⚙️</span> Edit Profile & Goals
                         </Link>
                     </div>
                 </div>
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-12">
                     <div
                         onClick={() => setActiveTab('ideas')}
-                        className="card !p-6 group hover-lift cursor-pointer transition-colors hover:bg-charcoal-50/50"
+                        className="card !p-4 md:!p-6 group hover-lift cursor-pointer transition-colors hover:bg-charcoal-50/50"
                     >
                         {loading ? (
                             <>
@@ -444,7 +444,7 @@ export default function DashboardPage() {
                         )}
                     </div>
 
-                    <div className="card !p-6 group hover-lift">
+                    <div className="card !p-4 md:!p-6 group hover-lift">
                         {loading ? (
                             <>
                                 <div className="skeleton h-4 w-28 mb-2 rounded"></div>
@@ -463,7 +463,7 @@ export default function DashboardPage() {
 
                     <div
                         onClick={() => setActiveTab('projections')}
-                        className="card !p-6 bg-gradient-to-br from-emerald-500 to-emerald-700 border-none group shadow-2xl shadow-emerald-500/20 hover-lift relative overflow-hidden cursor-pointer"
+                        className="card !p-4 md:!p-6 bg-gradient-to-br from-emerald-500 to-emerald-700 border-none group shadow-2xl shadow-emerald-500/20 hover-lift relative overflow-hidden cursor-pointer"
                     >
                         <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-12 -mt-12"></div>
                         {loading ? (
@@ -493,7 +493,7 @@ export default function DashboardPage() {
                         )}
                     </div>
 
-                    <div className="bg-primary-600 !p-5 rounded-[2.5rem] shadow-2xl shadow-primary-600/20 flex flex-col justify-between hover-lift">
+                    <div className="bg-primary-600 !p-4 md:!p-5 rounded-[2.5rem] shadow-2xl shadow-primary-600/20 flex flex-col justify-between hover-lift">
                         <div className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-3">Quick Actions</div>
                         <div className="flex flex-col gap-2">
                             <Link
@@ -519,7 +519,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Content Tabs */}
-                <div className="flex gap-8 border-b border-charcoal-100 mb-8">
+                <div className="flex gap-4 md:gap-8 border-b border-charcoal-100 mb-6 md:mb-8 overflow-x-auto pb-2 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
                     <button
                         onClick={() => setActiveTab('ideas')}
                         className={`pb-4 text-[12px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'ideas' ? 'text-primary-600' : 'text-charcoal-400 hover:text-charcoal-600'}`}
@@ -558,7 +558,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Section Content */}
-                <div className="bg-white rounded-xl shadow-premium border border-charcoal-100 overflow-hidden">
+                <div className="bg-white rounded-[2rem] md:rounded-xl shadow-premium border border-charcoal-100 overflow-hidden">
                     {loading ? (
                         <div className="p-12 text-center">
                             <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>

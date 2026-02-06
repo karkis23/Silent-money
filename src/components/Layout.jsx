@@ -3,13 +3,14 @@ import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import ErrorBoundary from './ErrorBoundary';
+import MobileBottomNav from './MobileBottomNav';
 import { Toaster } from 'react-hot-toast';
 
 export default function Layout() {
     const location = useLocation();
 
     return (
-        <div className="min-h-screen flex flex-col bg-cream-50 transition-colors duration-300">
+        <div className="min-h-screen flex flex-col bg-cream-50 transition-colors duration-300 pb-24 md:pb-0">
             <ErrorBoundary compact>
                 <Navbar />
             </ErrorBoundary>
@@ -33,6 +34,7 @@ export default function Layout() {
             <ErrorBoundary compact>
                 <Footer />
             </ErrorBoundary>
+            <MobileBottomNav />
         </div>
     );
 }
