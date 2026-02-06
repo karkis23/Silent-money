@@ -186,7 +186,7 @@ export default function AddIdeaPage() {
     };
 
     return (
-        <div className="min-h-screen bg-cream-50 pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-cream-50 pt-20 md:pt-32 pb-20 px-4 sm:px-6 lg:px-8">
             <SEO title="Forge New Income Blueprint" />
             <div className="max-w-4xl mx-auto">
                 <div className="mb-12">
@@ -208,7 +208,7 @@ export default function AddIdeaPage() {
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="card border-none shadow-2xl p-10 bg-white relative overflow-hidden transition-all duration-500">
+                <form onSubmit={handleSubmit} className="card border-none shadow-2xl p-6 md:p-10 bg-white relative overflow-hidden transition-all duration-500">
                     <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary-600 to-indigo-600" />
 
                     {error && (

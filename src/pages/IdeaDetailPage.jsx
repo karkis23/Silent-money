@@ -159,7 +159,7 @@ export default function IdeaDetailPage() {
     const heroActions = (
         <button
             onClick={handleToggleSave}
-            className={`h-14 px-8 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 min-w-[190px] shrink-0 group border shadow-2xl relative overflow-hidden ${isSaved
+            className={`h-14 px-8 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 w-full sm:w-auto min-w-[190px] shrink-0 group border shadow-2xl relative overflow-hidden ${isSaved
                 ? 'bg-emerald-600 text-white border-emerald-500 shadow-emerald-500/20'
                 : 'bg-charcoal-950 text-white border-charcoal-800 hover:bg-primary-600 shadow-charcoal-900/40'
                 }`}
@@ -180,7 +180,7 @@ export default function IdeaDetailPage() {
     );
 
     return (
-        <div className="min-h-screen bg-cream-50 pb-20 pt-20 transition-all duration-300">
+        <div className="min-h-screen bg-cream-50 pb-6 md:pb-20 pt-20 transition-all duration-300">
             <SEO
                 title={idea.meta_title || `${idea.title} | Silent Money Blueprints`}
                 description={idea.meta_description || idea.short_description}
@@ -208,7 +208,7 @@ export default function IdeaDetailPage() {
                         <DetailMetrics metrics={ideaMetrics} />
 
                         {/* Reality Check */}
-                        <div className="bg-amber-50 rounded-[3rem] p-10 border border-amber-100/50 shadow-sm">
+                        <div className="bg-amber-50 rounded-[3rem] p-6 md:p-10 border border-amber-100/50 shadow-sm">
                             <h3 className="text-[11px] font-black text-amber-700 uppercase tracking-[0.3em] mb-8 flex items-center gap-3">
                                 <span>⚠️</span> Reality Check
                             </h3>
@@ -239,7 +239,7 @@ export default function IdeaDetailPage() {
                     {/* Content & Progress */}
                     <div className="space-y-8">
                         {/* How it Works */}
-                        <div className={`bg-white rounded-[3rem] p-10 border border-charcoal-100 shadow-xl relative transition-all duration-700 ${isExpanded ? '' : 'max-h-[600px] overflow-hidden'}`}>
+                        <div className={`bg-white rounded-[3rem] p-6 md:p-10 border border-charcoal-100 shadow-xl relative transition-all duration-700 ${isExpanded ? '' : 'max-h-[600px] overflow-hidden'}`}>
                             <h3 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-8 flex items-center gap-3">
                                 <span>💎</span> Operational Blueprint
                             </h3>
@@ -264,7 +264,7 @@ export default function IdeaDetailPage() {
 
                         {/* Progress Section */}
                         {isSaved && (
-                            <div className="bg-white rounded-[3rem] p-10 border border-charcoal-100 shadow-xl">
+                            <div className="bg-white rounded-[3rem] p-6 md:p-10 border border-charcoal-100 shadow-xl">
                                 <h3 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-8">Deployment Log</h3>
                                 <div className="space-y-6">
                                     <div>

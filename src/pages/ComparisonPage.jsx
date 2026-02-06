@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'react-hot-toast';
 import SEO from '../components/SEO';
 import BackButton from '../components/BackButton';
 
@@ -13,10 +14,19 @@ import BackButton from '../components/BackButton';
  * Transposes disparate wealth-generation assets (Income Ideas vs. Franchises) 
  * into a high-fidelity side-by-side analysis matrix. 
  */
+/**
+ * ComparisonPage: The high-fidelity financial contrast engine.
+ * 
+ * ARCHITECTURAL STACK:
+ * - Data Stitching: Normalizes disparate schemas from 'income_ideas' and 'franchises' into a unified asset model.
+ * - Selection Engine: Manages an institutional-grade selection state (1-5 slots) with real-time feedback.
+ * - Unified Scroll: Implements a single-container scroll wrapper for mobile to maintain row synchronization.
+ * - Intelligence Logic: Automatically identifies top-tier performers (e.g., 'Highest Yield') within the active set.
+ */
 export default function ComparisonPage() {
     const { user } = useAuth();
-    const [savedAssets, setSavedAssets] = useState([]);
-    const [selectedIds, setSelectedIds] = useState([]);
+    const [savedAssets, setSavedAssets] = useState([]); // All items in user vault
+    const [selectedIds, setSelectedIds] = useState([]); // Active comparison set (max 5)
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -71,30 +81,34 @@ export default function ComparisonPage() {
             const unifiedAssets = [
                 ...(ideasData || []).filter(item => item.income_ideas).map(item => ({
                     ...item.income_ideas,
+                    id: `idea-${item.income_ideas.id}`,
+                    realId: item.income_ideas.id,
                     type: 'blueprint',
                     displayTitle: item.income_ideas.title,
-                    icon: item.income_ideas.categories?.icon || '📄',
+                    icon: item.income_ideas.categories?.icon || '💡',
                     categoryName: item.income_ideas.categories?.name,
                     investMin: item.income_ideas.initial_investment_min,
                     investMax: item.income_ideas.initial_investment_max,
                     incomeMin: item.income_ideas.monthly_income_min,
                     incomeMax: item.income_ideas.monthly_income_max,
-                    payback: `${item.income_ideas.time_to_first_income_days} Days`,
-                    risk: item.income_ideas.risk_level,
-                    effort: item.income_ideas.effort_level,
+                    payback: item.income_ideas.time_to_first_income_days && item.income_ideas.time_to_first_income_days !== 'null' ? `${item.income_ideas.time_to_first_income_days} Days` : 'TBD',
+                    risk: item.income_ideas.risk_level || 'Low',
+                    effort: item.income_ideas.effort_level || 'Passive',
                     link: `/ideas/${item.income_ideas.slug}`
                 })),
                 ...(franchisesData || []).filter(item => item.franchises).map(item => ({
                     ...item.franchises,
+                    id: `franchise-${item.franchises.id}`,
+                    realId: item.franchises.id,
                     type: 'franchise',
                     displayTitle: item.franchises.name,
                     icon: '🏢',
                     categoryName: item.franchises.category,
                     investMin: item.franchises.investment_min,
-                    investMax: item.franchises.investment_min,
+                    investMax: item.franchises.investment_max || item.franchises.investment_min,
                     incomeMin: item.franchises.expected_profit_min,
-                    incomeMax: item.franchises.expected_profit_min,
-                    payback: `${item.franchises.roi_months_min} Months`,
+                    incomeMax: item.franchises.expected_profit_max || item.franchises.expected_profit_min,
+                    payback: item.franchises.roi_months_min && item.franchises.roi_months_min !== 'null' ? `${item.franchises.roi_months_min} Months` : 'TBD',
                     risk: 'Medium',
                     effort: 'Active',
                     link: `/franchise/${item.franchises.slug}`
@@ -108,17 +122,32 @@ export default function ComparisonPage() {
         if (user) fetchVault();
     }, [user]);
 
+    /**
+     * TOGGLE SELECTION:
+     * Manages the active comparison set with a strategic cap of 5 items.
+     * Triggers institutional toast alerts when the bandwidth limit is hit.
+     */
     const toggleSelection = (id) => {
         if (selectedIds.includes(id)) {
             setSelectedIds(prev => prev.filter(item => item !== id));
         } else {
-            if (selectedIds.length >= 3) return; // Silent cap for premium feel
+            if (selectedIds.length >= 5) {
+                toast.error('Strategic Limit Reached: Max 5 assets for high-fidelity comparison', {
+                    style: { background: '#111827', color: '#fff', fontSize: '10px', fontWeight: 'bold' }
+                });
+                return;
+            }
             setSelectedIds(prev => [...prev, id]);
         }
     };
 
+    // Filter unified assets into the active comparison set
     const comparedItems = savedAssets.filter(asset => selectedIds.includes(asset.id));
 
+    /**
+     * INSTITUTIONAL CURRENCY FORMATTER:
+     * Scales large figures into readable denominations (k, L, Cr) for rapid cognitive processing.
+     */
     const formatCurrency = (amount) => {
         if (amount === undefined || amount === null) return 'N/A';
         if (amount >= 10000000) return `₹${(amount / 10000000).toFixed(1)}Cr`;
@@ -128,7 +157,7 @@ export default function ComparisonPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#FBFBFD] pt-32 pb-20 px-4">
+        <div className="min-h-screen bg-[#FBFBFD] pt-20 md:pt-32 pb-20 px-4">
             <SEO
                 title="Compare Assets | Silent Money"
                 description="Side-by-side comparison of franchises and income ideas."
@@ -161,39 +190,41 @@ export default function ComparisonPage() {
                     </div>
                 </header>
 
-                <div className="grid lg:grid-cols-4 gap-8">
-                    {/* Left: Asset Selector */}
+                <div className="flex flex-col lg:grid lg:grid-cols-4 gap-8">
+                    {/* Top/Left: Asset Selector */}
                     <div className="lg:col-span-1">
-                        <div className="sticky top-32 space-y-6">
-                            <div className="bg-white rounded-[2.5rem] border border-charcoal-100 p-6 shadow-xl shadow-charcoal-200/20">
-                                <h3 className="text-xs font-black text-charcoal-900 uppercase tracking-[0.2em] mb-6 flex items-center justify-between">
-                                    Saved Items
-                                    <span className="text-[10px] text-primary-600">{selectedIds.length}/3 Selected</span>
-                                </h3>
+                        <div className="sticky top-20 md:top-32 space-y-6 z-30">
+                            <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-charcoal-100 p-4 md:p-6 shadow-xl shadow-charcoal-200/20">
+                                <div className="flex items-center justify-between mb-4 md:mb-6 px-1">
+                                    <h3 className="text-[10px] md:text-xs font-black text-charcoal-900 uppercase tracking-[0.2em]">
+                                        Saved Items
+                                    </h3>
+                                    <span className="text-[9px] font-black text-primary-600 bg-primary-50 px-2 py-1 rounded-lg uppercase tracking-widest">{selectedIds.length}/5 Select</span>
+                                </div>
 
-                                <div className="space-y-3">
+                                <div className="flex overflow-x-auto md:flex-col gap-3 pb-2 md:pb-0 hide-scrollbar -mx-1 px-1">
                                     {loading ? (
-                                        [1, 2, 3, 4].map(i => <div key={i} className="h-16 bg-charcoal-50 rounded-2xl animate-pulse" />)
+                                        [1, 2, 3].map(i => <div key={i} className="min-w-[140px] md:w-full h-12 md:h-16 bg-charcoal-50 rounded-xl md:rounded-2xl animate-pulse shrink-0" />)
                                     ) : savedAssets.length === 0 ? (
-                                        <div className="text-center py-10 px-4 border-2 border-dashed border-charcoal-100 rounded-3xl">
-                                            <p className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest leading-relaxed">No saved items found. Save some assets to compare.</p>
+                                        <div className="text-center py-6 md:py-10 px-4 border-2 border-dashed border-charcoal-100 rounded-2xl md:rounded-3xl w-full">
+                                            <p className="text-[8px] md:text-[10px] font-black text-charcoal-400 uppercase tracking-widest leading-relaxed">No saved items found.</p>
                                         </div>
                                     ) : (
                                         savedAssets.map(asset => (
                                             <button
                                                 key={asset.id}
                                                 onClick={() => toggleSelection(asset.id)}
-                                                className={`w-full p-4 rounded-2xl transition-all border flex items-center gap-3 text-left group ${selectedIds.includes(asset.id)
-                                                    ? 'bg-primary-600 border-primary-600 text-white shadow-lg shadow-primary-200'
-                                                    : 'bg-white border-charcoal-100 text-charcoal-900 hover:border-primary-200 hover:shadow-md'
+                                                className={`min-w-[140px] md:w-full p-3 md:p-4 rounded-xl md:rounded-2xl transition-all border flex items-center gap-2 md:gap-3 text-left group shrink-0 ${selectedIds.includes(asset.id)
+                                                    ? 'bg-primary-600 border-primary-600 text-white shadow-lg'
+                                                    : 'bg-white border-charcoal-100 text-charcoal-900 hover:border-primary-200'
                                                     }`}
                                             >
-                                                <span className={`text-xl transition-transform group-hover:scale-110 ${selectedIds.includes(asset.id) ? 'opacity-100' : 'opacity-60'}`}>
+                                                <span className={`text-lg md:text-xl shrink-0 ${selectedIds.includes(asset.id) ? 'opacity-100' : 'opacity-60'}`}>
                                                     {asset.icon}
                                                 </span>
                                                 <div className="flex-1 min-w-0">
-                                                    <div className="text-[11px] font-black uppercase tracking-tight truncate">{asset.displayTitle}</div>
-                                                    <div className={`text-[8px] font-bold uppercase tracking-widest ${selectedIds.includes(asset.id) ? 'text-white/60' : 'text-charcoal-400'}`}>
+                                                    <div className="text-[9px] md:text-[11px] font-black uppercase tracking-tight truncate">{asset.displayTitle}</div>
+                                                    <div className={`text-[7px] md:text-[8px] font-bold uppercase tracking-widest ${selectedIds.includes(asset.id) ? 'text-white/60' : 'text-charcoal-400'}`}>
                                                         {asset.type}
                                                     </div>
                                                 </div>
@@ -216,7 +247,8 @@ export default function ComparisonPage() {
                                     exit={{ opacity: 0, scale: 0.95 }}
                                     className="bg-white rounded-[3rem] border border-charcoal-100 shadow-2xl overflow-hidden"
                                 >
-                                    <div className="overflow-x-auto print:overflow-visible custom-scrollbar">
+                                    {/* Desktop Matrix */}
+                                    <div className="hidden md:block overflow-x-auto print:overflow-visible custom-scrollbar">
                                         <div className="min-w-[800px] print:min-w-full">
                                             <table className="w-full border-collapse">
                                                 <thead>
@@ -265,14 +297,22 @@ export default function ComparisonPage() {
                                                             <div className="text-[11px] font-black text-primary-700 tracking-widest mb-1">Income</div>
                                                             <div className="text-[8px] font-bold text-primary-600/70">MONTHLY</div>
                                                         </td>
-                                                        {comparedItems.map(item => (
-                                                            <td key={item.id} className="p-10 text-center">
-                                                                <div className="text-3xl font-black text-emerald-600 tracking-tighter">
-                                                                    {formatCurrency(item.incomeMin)}
-                                                                </div>
-                                                                <div className="text-[9px] font-black text-emerald-600/60 uppercase tracking-widest mt-2">Annual: {formatCurrency(item.incomeMin * 12)}</div>
-                                                            </td>
-                                                        ))}
+                                                        {comparedItems.map(item => {
+                                                            const isHighestIncome = comparedItems.length > 1 && item.incomeMin === Math.max(...comparedItems.map(i => i.incomeMin));
+                                                            return (
+                                                                <td key={item.id} className={`p-10 text-center relative ${isHighestIncome ? 'bg-emerald-50/30' : ''}`}>
+                                                                    {isHighestIncome && (
+                                                                        <div className="absolute top-4 right-4 bg-emerald-600 text-white text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest animate-bounce">
+                                                                            Highest Yield
+                                                                        </div>
+                                                                    )}
+                                                                    <div className={`text-3xl font-black tracking-tighter ${isHighestIncome ? 'text-emerald-700' : 'text-emerald-600'}`}>
+                                                                        {formatCurrency(item.incomeMin)}
+                                                                    </div>
+                                                                    <div className="text-[9px] font-black text-emerald-600/60 uppercase tracking-widest mt-2">Annual: {formatCurrency(item.incomeMin * 12)}</div>
+                                                                </td>
+                                                            );
+                                                        })}
                                                     </tr>
 
                                                     {/* Performance Gauges */}
@@ -346,8 +386,111 @@ export default function ComparisonPage() {
                                                 </tbody>
                                             </table>
                                         </div>
-                                        <div className="p-4 bg-charcoal-50/50 border-t border-charcoal-50 text-center lg:hidden">
-                                            <span className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest italic">← Swipe to compare assets →</span>
+                                    </div>
+
+                                    {/* Mobile Comparison Hub: Unified Scroll Engine */}
+                                    <div className="md:hidden overflow-hidden">
+                                        <div className="overflow-x-auto hide-scrollbar scroll-smooth">
+                                            <table className="w-full border-collapse table-fixed min-w-max">
+                                                <thead>
+                                                    <tr className="sticky top-0 z-30 bg-white">
+                                                        <th className="sticky left-0 z-40 bg-charcoal-50/80 backdrop-blur-md p-3 w-20 border-b border-r border-charcoal-100 text-left">
+                                                            <div className="text-[7px] font-black text-charcoal-400 uppercase tracking-widest">V/S</div>
+                                                        </th>
+                                                        {comparedItems.map(item => (
+                                                            <th key={item.id} className="w-[140px] p-4 text-center border-b border-charcoal-50">
+                                                                <div className="text-2xl mb-1">{item.icon}</div>
+                                                                <div className="text-[9px] font-black text-charcoal-900 uppercase truncate px-1">{item.displayTitle}</div>
+                                                            </th>
+                                                        ))}
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-charcoal-50">
+                                                    {/* Investment Row */}
+                                                    <tr>
+                                                        <td className="sticky left-0 z-20 bg-charcoal-50/80 backdrop-blur-md p-4 w-20 border-r border-charcoal-100">
+                                                            <div className="text-[7px] font-black text-charcoal-500 uppercase tracking-widest leading-tight">Investment</div>
+                                                        </td>
+                                                        {comparedItems.map(item => (
+                                                            <td key={item.id} className="p-5 text-center">
+                                                                <div className="text-base font-black text-charcoal-950 leading-tight mb-0.5">{formatCurrency(item.investMin)}</div>
+                                                                <div className="text-[7px] font-bold text-charcoal-400 uppercase tracking-widest">Entry Cost</div>
+                                                            </td>
+                                                        ))}
+                                                    </tr>
+
+                                                    {/* Monthly Income Row */}
+                                                    <tr className="bg-primary-50/5">
+                                                        <td className="sticky left-0 z-20 bg-primary-50/80 backdrop-blur-md p-4 w-20 border-r border-primary-100">
+                                                            <div className="text-[7px] font-black text-primary-700 uppercase tracking-widest leading-tight">Mo. Income</div>
+                                                        </td>
+                                                        {comparedItems.map(item => (
+                                                            <td key={item.id} className="p-5 text-center relative">
+                                                                {comparedItems.length > 1 && item.incomeMin === Math.max(...comparedItems.map(i => i.incomeMin)) && (
+                                                                    <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                                                                )}
+                                                                <div className="text-base font-black text-emerald-600 leading-tight mb-0.5">{formatCurrency(item.incomeMin)}</div>
+                                                                <div className="text-[7px] font-bold text-emerald-600/50 uppercase tracking-widest">Revenue</div>
+                                                            </td>
+                                                        ))}
+                                                    </tr>
+
+                                                    {/* Payback Row */}
+                                                    <tr>
+                                                        <td className="sticky left-0 z-20 bg-charcoal-50/80 backdrop-blur-md p-4 w-20 border-r border-charcoal-100">
+                                                            <div className="text-[7px] font-black text-charcoal-500 uppercase tracking-widest leading-tight">Payback</div>
+                                                        </td>
+                                                        {comparedItems.map(item => (
+                                                            <td key={item.id} className="p-5 text-center">
+                                                                <div className="text-xs font-black text-charcoal-800 leading-tight mb-0.5">{item.payback}</div>
+                                                                <div className="text-[7px] font-bold text-charcoal-400 uppercase tracking-widest italic leading-none">Break-Even</div>
+                                                            </td>
+                                                        ))}
+                                                    </tr>
+
+                                                    {/* Risk/Load Row */}
+                                                    <tr>
+                                                        <td className="sticky left-0 z-20 bg-charcoal-50/80 backdrop-blur-md p-4 w-20 border-r border-charcoal-100">
+                                                            <div className="text-[7px] font-black text-charcoal-500 uppercase tracking-widest leading-tight">Risk & Load</div>
+                                                        </td>
+                                                        {comparedItems.map(item => (
+                                                            <td key={item.id} className="p-5">
+                                                                <div className="flex flex-col gap-2">
+                                                                    <div className="flex justify-between items-center text-[7px] font-black uppercase tracking-tight">
+                                                                        <span className="text-charcoal-400">Risk:</span>
+                                                                        <span className={item.risk?.toLowerCase() === 'high' ? 'text-red-500' : 'text-emerald-500'}>{item.risk}</span>
+                                                                    </div>
+                                                                    <div className="flex justify-between items-center text-[7px] font-black uppercase tracking-tight">
+                                                                        <span className="text-charcoal-400">Effort:</span>
+                                                                        <span className="text-primary-600">{item.effort}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                        ))}
+                                                    </tr>
+
+                                                    {/* Action Row */}
+                                                    <tr>
+                                                        <td className="sticky left-0 z-20 bg-white p-4 w-20 border-r border-charcoal-50"></td>
+                                                        {comparedItems.map(item => (
+                                                            <td key={item.id} className="p-4 text-center">
+                                                                <Link
+                                                                    to={item.link}
+                                                                    className="w-full inline-flex h-10 items-center justify-center bg-charcoal-950 text-white rounded-xl text-[8px] font-black uppercase tracking-widest"
+                                                                >
+                                                                    Dossier
+                                                                </Link>
+                                                                <button
+                                                                    onClick={() => toggleSelection(item.id)}
+                                                                    className="mt-3 w-full text-[7px] font-black text-red-500 uppercase tracking-widest leading-none outline-none"
+                                                                >
+                                                                    Dismiss
+                                                                </button>
+                                                            </td>
+                                                        ))}
+                                                    </tr>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </motion.div>
@@ -391,7 +534,9 @@ export default function ComparisonPage() {
                     h1 { font-size: 2.5rem !important; text-align: center !important; }
                     p { text-align: center !important; }
                 }
+                .hide-scrollbar::-webkit-scrollbar { display: none; }
+                .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
             `}} />
-        </div>
+        </div >
     );
 }

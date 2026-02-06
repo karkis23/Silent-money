@@ -135,7 +135,7 @@ export default function FranchiseDetailPage() {
     const franchiseMetrics = [
         { label: 'Minimum Investment', value: formatCurrency(franchise.investment_min) },
         { label: 'Estimated Payback', value: `${franchise.roi_months_min}-${franchise.roi_months_max} Months`, variant: 'success' },
-        { label: 'Space Required', value: `${franchise.space_required_sqft} sq.ft`, unit: 'MINIMUM' },
+        { label: 'Space Required', value: franchise.space_required_sqft ? `${franchise.space_required_sqft} sq.ft` : 'Flexible', unit: 'MINIMUM' },
         { label: 'Projected Profit', value: formatCurrency(franchise.expected_profit_min), unit: '/mo', variant: 'primary', highlight: true }
     ];
 
@@ -148,7 +148,7 @@ export default function FranchiseDetailPage() {
         <>
             <button
                 onClick={handleToggleSave}
-                className={`h-14 px-8 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 min-w-[190px] shrink-0 group border shadow-2xl relative overflow-hidden ${isSaved
+                className={`h-14 px-8 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 w-full sm:w-auto min-w-[190px] shrink-0 group border shadow-2xl relative overflow-hidden ${isSaved
                     ? 'bg-emerald-600 text-white border-emerald-500 shadow-emerald-500/20'
                     : 'bg-charcoal-950 text-white border-charcoal-800 hover:bg-primary-600 shadow-charcoal-900/40'
                     }`}
@@ -171,7 +171,7 @@ export default function FranchiseDetailPage() {
 
             <button
                 onClick={() => setIsAuditModalOpen(true)}
-                className="h-14 px-8 bg-white border border-charcoal-100 text-charcoal-900 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-charcoal-50 hover:border-charcoal-300 transition-all flex items-center justify-center gap-3 min-w-[180px] shrink-0 group shadow-lg shadow-charcoal-900/5"
+                className="h-14 px-8 bg-white border border-charcoal-100 text-charcoal-900 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-charcoal-50 hover:border-charcoal-300 transition-all flex items-center justify-center gap-3 w-full sm:w-auto min-w-[180px] shrink-0 group shadow-lg shadow-charcoal-900/5"
             >
                 <svg className="w-4 h-4 text-primary-600 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -182,7 +182,7 @@ export default function FranchiseDetailPage() {
     );
 
     return (
-        <div className="min-h-screen bg-cream-50 pb-20 pt-20 transition-all duration-300">
+        <div className="min-h-screen bg-cream-50 pb-6 md:pb-20 pt-20 transition-all duration-300">
             <SEO
                 title={franchise.meta_title || `${franchise.name} Franchise Opportunity`}
                 description={franchise.meta_description || franchise.description}
@@ -207,7 +207,7 @@ export default function FranchiseDetailPage() {
                         <DetailMetrics metrics={franchiseMetrics} />
 
                         {/* Intelligence Signal */}
-                        <div className="bg-charcoal-950 rounded-[3rem] p-10 shadow-2xl shadow-charcoal-900/20 relative overflow-hidden group">
+                        <div className="bg-charcoal-950 rounded-[3rem] p-6 md:p-10 shadow-2xl shadow-charcoal-900/20 relative overflow-hidden group">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-primary-600/10 blur-[80px] rounded-full -mr-32 -mt-32 transition-transform duration-1000 group-hover:scale-110" />
                             <h3 className="text-[11px] font-black text-white/40 uppercase tracking-[0.3em] mb-8 flex items-center gap-3 relative z-10">
                                 <span className="w-1.5 h-1.5 bg-primary-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
@@ -216,7 +216,7 @@ export default function FranchiseDetailPage() {
                             <p className="text-lg font-medium text-white/90 leading-relaxed mb-8 relative z-10 pr-4">
                                 Sector demand for <span className="text-primary-400 font-bold">{franchise.category}</span> is projected to grow by <span className="text-emerald-400">12% YoY</span>. Historical ROI in Tier-1 cities remains consistent with <span className="text-white font-bold">institutional growth models</span>.
                             </p>
-                            <div className="grid grid-cols-2 gap-8 relative z-10 border-t border-white/5 pt-8">
+                            <div className="grid grid-cols-2 gap-4 sm:gap-8 relative z-10 border-t border-white/5 pt-8">
                                 <div>
                                     <div className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Market Strength</div>
                                     <div className="text-xl font-black text-white tracking-tight flex items-center gap-2">
@@ -251,7 +251,7 @@ export default function FranchiseDetailPage() {
                     {/* Content & Logistics */}
                     <div className="space-y-8">
                         {/* Core Identity */}
-                        <div className={`bg-white rounded-[3rem] p-12 border border-charcoal-100 shadow-xl relative transition-all duration-700 ${isExpanded ? '' : 'max-h-[600px] overflow-hidden'}`}>
+                        <div className={`bg-white rounded-[3rem] p-6 md:p-12 border border-charcoal-100 shadow-xl relative transition-all duration-700 ${isExpanded ? '' : 'max-h-[600px] overflow-hidden'}`}>
                             <h3 className="text-[11px] font-black text-charcoal-300 uppercase tracking-[0.4em] mb-10 flex items-center gap-3">
                                 🛸 Core Identity
                             </h3>
@@ -302,13 +302,13 @@ export default function FranchiseDetailPage() {
                                 href={franchise.website_url || '#'}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="bg-charcoal-50 p-8 rounded-[2rem] text-center border border-charcoal-100 hover:bg-white hover:shadow-xl hover:border-primary-100 transition-all group"
+                                className="bg-charcoal-50 p-6 md:p-8 rounded-[2rem] text-center border border-charcoal-100 hover:bg-white hover:shadow-xl hover:border-primary-100 transition-all group"
                             >
                                 <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em] group-hover:text-primary-600 transition-colors">Website</div>
                             </a>
                             <a
                                 href={`mailto:${franchise.contact_email}`}
-                                className="bg-charcoal-50 p-8 rounded-[2rem] text-center border border-charcoal-100 hover:bg-white hover:shadow-xl hover:border-emerald-100 transition-all group"
+                                className="bg-charcoal-50 p-6 md:p-8 rounded-[2rem] text-center border border-charcoal-100 hover:bg-white hover:shadow-xl hover:border-emerald-100 transition-all group"
                             >
                                 <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em] group-hover:text-emerald-600 transition-colors">Contact</div>
                             </a>

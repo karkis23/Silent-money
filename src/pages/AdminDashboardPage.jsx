@@ -1144,8 +1144,16 @@ export default function AdminDashboardPage() {
                             placeholder="Search by ID, Name, or User..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 rounded-xl border border-charcoal-100 focus:ring-2 focus:ring-primary-600 outline-none font-medium text-sm transition-all"
+                            className="w-full pl-12 pr-12 py-3 rounded-xl border border-charcoal-100 focus:ring-2 focus:ring-primary-600 outline-none font-medium text-sm transition-all"
                         />
+                        {searchQuery && (
+                            <button
+                                onClick={() => setSearchQuery('')}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-charcoal-50 text-charcoal-400 rounded-lg hover:text-charcoal-900 transition-colors"
+                            >
+                                ✕
+                            </button>
+                        )}
                     </div>
 
                     {/* Premium Institutional Pagination Command Bar */}
@@ -1389,7 +1397,7 @@ export default function AdminDashboardPage() {
                                                     </p>
                                                 </div>
 
-                                                <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-charcoal-100/50 ml-8">
+                                                <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-charcoal-100/50">
                                                     {activeTab !== 'pending' && (
                                                         <button
                                                             onClick={() => handleToggleFeatured(idea.id, 'idea', idea.is_featured)}
@@ -1403,50 +1411,52 @@ export default function AdminDashboardPage() {
                                                         </button>
                                                     )}
                                                     {activeTab === 'pending' && (
-                                                        <>
+                                                        <div className="flex gap-1.5 w-full sm:w-auto">
                                                             <button
                                                                 onClick={() => handleApprove(idea.id, 'idea')}
-                                                                className="px-3.5 py-1.5 bg-emerald-600 text-white rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-emerald-700 transition-all"
+                                                                className="flex-1 sm:flex-none px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-emerald-700 transition-all"
                                                             >
                                                                 Approve
                                                             </button>
                                                             <button
                                                                 onClick={() => handleRequestRevision(idea.id, 'idea')}
-                                                                className="px-3.5 py-1.5 bg-white text-amber-600 border border-amber-200 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-amber-50 transition-all"
+                                                                className="flex-1 sm:flex-none px-3 py-1.5 bg-white text-amber-600 border border-amber-200 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-amber-50 transition-all"
                                                             >
-                                                                Request Changes
+                                                                Revision
                                                             </button>
-                                                        </>
+                                                        </div>
                                                     )}
-                                                    <Link
-                                                        to={`/ideas/${idea.slug}`}
-                                                        target="_blank"
-                                                        rel="noreferrer"
-                                                        className="px-3.5 py-1.5 bg-charcoal-100 text-charcoal-600 border border-charcoal-200 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-charcoal-900 hover:text-white transition-all"
-                                                    >
-                                                        Preview
-                                                    </Link>
-                                                    <Link
-                                                        to={`/edit-idea/${idea.id}`}
-                                                        className="px-3.5 py-1.5 bg-white text-primary-600 border border-primary-100 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-primary-600 hover:text-white transition-all"
-                                                    >
-                                                        Edit
-                                                    </Link>
-                                                    <button
-                                                        onClick={() => activeTab === 'archived' ? handleUnarchive(idea.id, 'idea') : handleDelete(idea.id, 'idea')}
-                                                        className={`ml-auto px-3.5 py-1.5 bg-white ${activeTab === 'archived' ? 'text-emerald-600 hover:bg-emerald-50' : 'text-red-400 hover:bg-red-50 hover:text-red-600'} border border-transparent rounded-lg text-[8px] font-black uppercase tracking-wider transition-all`}
-                                                    >
-                                                        {activeTab === 'archived' ? 'Unarchive' : 'Archive'}
-                                                    </button>
-                                                    {(activeTab === 'archived' || activeTab === 'all') && (
-                                                        <button
-                                                            onClick={() => handlePermanentDelete(idea.id, 'idea', idea.title)}
-                                                            className="px-3.5 py-1.5 bg-red-600 text-white border border-red-700 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-red-700 transition-all"
-                                                            title="Permanently delete from database"
+                                                    <div className="flex gap-1.5 items-center ml-auto">
+                                                        <Link
+                                                            to={`/ideas/${idea.slug}`}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="px-2.5 py-1.5 bg-charcoal-50 text-charcoal-600 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-charcoal-900 hover:text-white transition-all"
                                                         >
-                                                            🗑️ Delete
+                                                            Preview
+                                                        </Link>
+                                                        <Link
+                                                            to={`/edit-idea/${idea.id}`}
+                                                            className="px-2.5 py-1.5 bg-white text-primary-600 border border-primary-100 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-primary-600 hover:text-white transition-all"
+                                                        >
+                                                            Edit
+                                                        </Link>
+                                                        <button
+                                                            onClick={() => activeTab === 'archived' ? handleUnarchive(idea.id, 'idea') : handleDelete(idea.id, 'idea')}
+                                                            className={`px-2.5 py-1.5 bg-white ${activeTab === 'archived' ? 'text-emerald-600 hover:bg-emerald-50' : 'text-red-400 hover:bg-red-50 hover:text-red-600'} border border-transparent rounded-lg text-[8px] font-black uppercase tracking-wider transition-all`}
+                                                        >
+                                                            {activeTab === 'archived' ? 'Restore' : 'Archive'}
                                                         </button>
-                                                    )}
+                                                        {(activeTab === 'archived' || activeTab === 'all') && (
+                                                            <button
+                                                                onClick={() => handlePermanentDelete(idea.id, 'idea', idea.title)}
+                                                                className="px-2.5 py-1.5 bg-red-600 text-white rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-red-700 transition-all"
+                                                                title="Permanently delete from database"
+                                                            >
+                                                                🗑️ Delete
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </div>
                                                 {idea.proof_url && (
                                                     <div className="mt-3 text-right">

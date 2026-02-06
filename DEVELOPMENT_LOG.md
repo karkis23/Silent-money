@@ -67,9 +67,21 @@ This log captures the strategic multi-phase evolution of the Silent Money platfo
 - **Bottom Navigation Architecture**: 
     - Implemented `MobileBottomNav.jsx` with Heroicons, providing instant access to core modules (Home, Ideas, Franchise, Dashboard, Profile).
     - Fixed positioning with high-blur backdrop (`backdrop-blur-md`) for a premium iOS-like feel.
-- **Dashboard Optimization Strategy**:
-    - **Dense Grid Systems**: Switched from stacked cards to a dual-column grid (`grid-cols-2`) on mobile to improve data density.
-    - **Header HUD Compression**: Redesigned the "Command Center" header to be 50% more compact on small screens, optimizing vertical real estate.
-    - **Horizontal Touch Scroll**: Converted vertical tab lists into sleek, horizontally scrollable control strips.
-- **Global Layout Adjustments**:
-    - Adjusted `Navbar` padding and `Layout` bottom spacing to accommodate the new persistent navigation layer.
+- **Categorical Horizontal Scrolling**:
+    - Converted all primary filter bars (Ideas, Franchise & Dashboard Tabs) into horizontally scrollable touch-strips (`hide-scrollbar`), preserving vertical space and mimicking native mobile UX.
+### 8. Comparison Engine Re-engineering & Data Integrity (Feb 2026)
+**Objective**: Transform the comparison tool from a list view into a high-authority decision-making engine.
+- **Mobile Comparison HUD**:
+    - **Unified Scroll Engine**: Developed a custom `table-fixed` scroll wrapper on mobile that synchronizes swiping across all data rows (Investment, Income, Payback) while keeping metric labels pinned with `sticky left-0` frosting.
+    - **Asset Picker Strip**: Replaced the bulky vertical "Saved Items" list with a sleek horizontal scroll strip on mobile, recovering 60% of vertical screen height for actual analysis.
+- **Yield Intelligence**:
+    - Integrated real-time comparison logic to automatically highlight the **"Highest Yield"** asset in the matrix using glowing emerald indicators and pulsars.
+- **Institutional Scaling**:
+    - Expanded the platform's comparison bandwidth from 3 assets to **5 simultaneous slots**.
+    - Integrated `react-hot-toast` for high-fidelity communication of strategic limits (e.g., "Max 5 Assets Reach").
+- **Data Hardening**:
+    - Fixed the "NULL DAYS" bug in payback metrics by implementing "TBD/Flexible" fallbacks across unified asset models.
+- **Mobile UI Polish (Precision Fitting)**:
+    - **Detail Page Optimization**: Redesigned the `DetailHero` and `DetailMetrics` components to be 100% compliant with 400px viewports. 
+    - **Full-Width Action Protocols**: Ensured critical CTAs like "SAVE BLUEPRINT" occupy the full width on mobile for maximum touch-target engagement.
+    - **Responsive Spacing**: Tightened grid gaps and padding across the "Intelligence Signal" sectors to maintain information density on small screens.

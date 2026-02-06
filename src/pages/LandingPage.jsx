@@ -121,7 +121,7 @@ export default function LandingPage() {
 
     if (isAdmin) {
         return (
-            <div className="min-h-screen bg-[#FBFBFD] pt-32 pb-20 px-4">
+            <div className="min-h-screen bg-[#FBFBFD] pt-24 md:pt-32 pb-20 px-4">
                 <SEO title="Admin Command HUD | Silent Money" />
 
                 <div className="max-w-7xl mx-auto">
@@ -135,16 +135,16 @@ export default function LandingPage() {
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                             <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Admin Access</span>
                         </motion.div>
-                        <h1 className="text-5xl md:text-7xl font-black text-charcoal-950 tracking-tightest leading-tight mb-4">
+                        <h1 className="text-4xl md:text-7xl font-black text-charcoal-950 tracking-tightest leading-tight mb-4">
                             Admin <span className="text-primary-600">Dashboard.</span>
                         </h1>
-                        <p className="text-xl text-charcoal-500 font-medium max-w-2xl">
+                        <p className="text-lg md:text-xl text-charcoal-500 font-medium max-w-2xl">
                             Welcome back. Manage your platform, approve new ideas, and moderate user content here.
                         </p>
                     </header>
 
                     {/* Operational Stats Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-16">
                         {[
                             { label: 'Total Ideas', value: adminStats.totalIdeas, sub: 'Live Ideas', icon: '🏛️', link: '/admin?tab=ideas' },
                             { label: 'Pending Audits', value: adminStats.pendingAudits, sub: 'Needs Review', icon: '🔍', link: '/admin?tab=audits', alert: adminStats.pendingAudits > 0 },
@@ -162,13 +162,13 @@ export default function LandingPage() {
                                     to={stat.link}
                                     className="block bg-white border border-charcoal-100 p-8 rounded-[2.5rem] shadow-xl shadow-charcoal-200/20 relative group hover:border-primary-300 hover:shadow-primary-100/30 transition-all h-full"
                                 >
-                                    <div className="text-4xl mb-4 grayscale group-hover:grayscale-0 transition-all group-hover:scale-110 duration-500">{stat.icon}</div>
-                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">{stat.label}</div>
-                                    <div className="flex items-end gap-3">
-                                        <div className="text-4xl font-black text-charcoal-900 tracking-tighter">
+                                    <div className="text-3xl md:text-4xl mb-4 grayscale group-hover:grayscale-0 transition-all group-hover:scale-110 duration-500">{stat.icon}</div>
+                                    <div className="text-[9px] md:text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">{stat.label}</div>
+                                    <div className="flex items-end gap-2 md:gap-3">
+                                        <div className="text-2xl md:text-4xl font-black text-charcoal-900 tracking-tighter">
                                             {statsLoading ? '...' : stat.value}
                                         </div>
-                                        <div className={`text-[10px] font-bold mb-1.5 ${stat.alert ? 'text-red-500' : 'text-emerald-500'}`}>
+                                        <div className={`text-[8px] md:text-[10px] font-bold mb-1.5 ${stat.alert ? 'text-red-500' : 'text-emerald-500'}`}>
                                             {stat.sub}
                                         </div>
                                     </div>
@@ -252,7 +252,7 @@ export default function LandingPage() {
         <div className="bg-cream-50 overflow-hidden">
             <SEO />
             {/* Hero Section */}
-            <section className="relative min-h-screen flex items-center pt-20">
+            <section className="relative min-h-screen flex items-center pt-24 md:pt-20">
                 {/* Background Decorations */}
                 <div className="absolute top-0 left-0 w-full h-full -z-10 overflow-hidden">
                     <motion.div
@@ -286,13 +286,13 @@ export default function LandingPage() {
                                 <span className="text-sm font-bold text-charcoal-900 tracking-tight">🇮🇳 Trusted by 10,000+ Indians</span>
                             </motion.div>
 
-                            <motion.h1 variants={fadeInUp} className="text-5xl md:text-7xl font-extrabold text-charcoal-950 mb-6 leading-[1.1]">
+                            <motion.h1 variants={fadeInUp} className="text-4xl md:text-7xl font-extrabold text-charcoal-950 mb-6 leading-[1.1] tracking-tight">
                                 Build Your <br />
                                 <span className="text-gradient">Income Portfolio</span> <br />
                                 <span className="text-primary-600">Quietly.</span>
                             </motion.h1>
 
-                            <motion.p variants={fadeInUp} className="text-xl text-charcoal-600 mb-10 max-w-xl leading-relaxed">
+                            <motion.p variants={fadeInUp} className="text-lg md:text-xl text-charcoal-600 mb-10 max-w-xl leading-relaxed">
                                 Beyond the noise of &apos;get-rich-quick&apos; schemes, discover vetted,
                                 <span className="font-bold text-charcoal-900"> data-backed passive income streams</span> tailored for the Indian landscape.
                             </motion.p>
@@ -390,9 +390,9 @@ export default function LandingPage() {
             </section>
 
             {/* Institutional Favorites (Leaderboard) */}
-            <section className="py-24 relative overflow-hidden">
+            <section className="py-16 md:py-24 relative overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-8 mb-12 md:mb-16">
                         <div>
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="w-2 h-2 rounded-full bg-primary-600"></span>
@@ -402,7 +402,7 @@ export default function LandingPage() {
                                 Institutional <span className="text-primary-600">Favorites</span>
                             </h2>
                         </div>
-                        <Link to="/ideas" className="btn-secondary py-3 text-[10px] uppercase font-black tracking-widest">View All Blueprints →</Link>
+                        <Link to="/ideas" className="btn-secondary py-3 text-[10px] uppercase font-black tracking-widest w-full md:w-auto text-center font-mono">View All Blueprints →</Link>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-8">
@@ -474,11 +474,11 @@ export default function LandingPage() {
             {!user && (
                 <section className="py-24 bg-white relative">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="text-center mb-16">
-                            <h2 className="text-3xl md:text-5xl font-bold text-charcoal-950 mb-6">
+                        <div className="text-center mb-12 md:mb-16">
+                            <h2 className="text-3xl md:text-5xl font-bold text-charcoal-950 mb-6 px-2">
                                 Exclusive Insights <span className="text-primary-600">Unlocked</span> After Sign Up
                             </h2>
-                            <p className="text-lg text-charcoal-600 max-w-2xl mx-auto">
+                            <p className="text-base md:text-lg text-charcoal-600 max-w-2xl mx-auto px-4">
                                 To protect the quality of our community and the integrity of our data,
                                 detailed income ideas and market analysis are reserved for registered members.
                             </p>
@@ -510,9 +510,9 @@ export default function LandingPage() {
                 <div className="absolute top-0 right-0 w-full h-full opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary-600 via-transparent to-transparent" />
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                    <div className="text-center mb-20">
-                        <h2 className="text-4xl md:text-5xl font-extrabold mb-6">The Journey to <span className="text-accent">Silent Wealth</span></h2>
-                        <p className="text-charcoal-400 text-xl font-medium">Four simple steps to start your secondary income engine.</p>
+                    <div className="text-center mb-16 md:mb-20">
+                        <h2 className="text-3xl md:text-5xl font-extrabold mb-6">The Journey to <span className="text-accent">Silent Wealth</span></h2>
+                        <p className="text-charcoal-400 text-lg md:text-xl font-medium">Four simple steps to start your secondary income engine.</p>
                     </div>
 
                     <div className="grid md:grid-cols-4 gap-12">
@@ -547,7 +547,7 @@ export default function LandingPage() {
                             <div className="absolute top-0 left-0 w-64 h-64 bg-accent rounded-full blur-[100px]" />
                         </div>
 
-                        <h2 className="text-4xl md:text-6xl font-bold mb-8 relative z-10">
+                        <h2 className="text-3xl md:text-6xl font-bold mb-8 relative z-10 leading-tight">
                             Stop Trading Time <br />For Money.
                         </h2>
                         <p className="text-xl mb-12 text-primary-100 max-w-2xl mx-auto font-medium">

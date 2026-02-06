@@ -127,7 +127,7 @@ export default function IdeasPage() {
     }, [showSortDropdown]);
 
     return (
-        <div className="min-h-screen bg-cream-50 pb-20 pt-32 transition-all duration-300">
+        <div className="min-h-screen bg-cream-50 pb-20 pt-20 md:pt-32 transition-all duration-300">
             <SEO
                 title="60+ Vetted Passive Income Ideas"
                 description="Explore a curated list of high-yield passive income blueprints for India. Filter by investment, risk, and category."
@@ -135,7 +135,7 @@ export default function IdeasPage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 {/* 1. ULTRA-MINIMALIST HEADER */}
-                <header className="mb-8 border-b border-charcoal-100 pb-6">
+                <header className="mb-6 md:mb-8 border-b border-charcoal-100 pb-6">
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                         <div>
                             <div className="flex items-center gap-2 mb-2">
@@ -157,21 +157,30 @@ export default function IdeasPage() {
                 </header>
 
                 {/* 2. COMPACT INTELLIGENCE BAR (Unified Filter) */}
-                <section className="bg-white md:border md:border-charcoal-100 md:rounded-[1.5rem] md:shadow-premium mb-8 relative overflow-hidden rounded-2xl shadow-sm border border-charcoal-100">
+                <section className="bg-white border border-charcoal-100 rounded-[2rem] md:rounded-[1.5rem] shadow-premium mb-6 md:mb-8 relative overflow-hidden">
                     {/* Top Row: Search & Sort */}
-                    <div className="flex flex-col md:flex-row md:border-b md:border-charcoal-50">
-                        <div className="flex-1 relative border-b md:border-b-0 md:border-r border-charcoal-50">
-                            <span className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 text-charcoal-400 text-lg">🔍</span>
+                    <div className="flex flex-col md:flex-row border-b border-charcoal-50">
+                        <div className="flex-1 relative border-r border-charcoal-50">
+                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-charcoal-400">🔍</span>
                             <input
                                 type="text"
                                 placeholder="Search blueprints..."
                                 value={searchQuery}
                                 aria-label="Search income ideas"
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-12 pr-6 py-4 md:py-3 bg-transparent outline-none font-bold text-charcoal-900 placeholder:text-charcoal-300 text-sm"
+                                className="w-full pl-12 pr-12 py-3 bg-transparent outline-none font-bold text-charcoal-900 placeholder:text-charcoal-300 text-sm"
                             />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => setSearchQuery('')}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-charcoal-50 text-charcoal-400 rounded-lg hover:text-charcoal-900 transition-colors"
+                                    title="Clear search"
+                                >
+                                    ✕
+                                </button>
+                            )}
                         </div>
-                        <div className="flex overflow-x-auto hide-scrollbar border-b md:border-b-0 border-charcoal-50 divide-x divide-charcoal-50">
+                        <div className="flex">
                             <div className="px-6 py-3.5 border-r border-charcoal-50 hidden lg:block">
                                 <div className="flex items-center gap-4">
                                     <span className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest">Min Monthly Income</span>
@@ -189,10 +198,10 @@ export default function IdeasPage() {
                             </div>
 
                             {/* CUSTOM DROPDOWN */}
-                            <div className="relative sort-dropdown-container flex-1 md:flex-none">
+                            <div className="relative sort-dropdown-container">
                                 <button
                                     onClick={() => setShowSortDropdown(!showSortDropdown)}
-                                    className={`w-full h-full px-4 md:px-6 py-3.5 flex items-center justify-center md:justify-start gap-3 cursor-pointer transition-all ${showSortDropdown ? 'bg-charcoal-50' : 'hover:bg-charcoal-50/50'}`}
+                                    className={`h-full px-6 py-3.5 flex items-center gap-3 cursor-pointer transition-all border-r border-charcoal-50 ${showSortDropdown ? 'bg-charcoal-50' : 'hover:bg-charcoal-50/50'}`}
                                 >
                                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-charcoal-900 whitespace-nowrap">
                                         {sortBy === 'created_at' ? 'Newest First' :
@@ -215,7 +224,7 @@ export default function IdeasPage() {
                                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                             animate={{ opacity: 1, y: 0, scale: 1 }}
                                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                            className="absolute top-full right-0 left-0 md:left-auto w-full md:w-64 pt-2 z-[100]"
+                                            className="absolute top-full right-0 w-64 pt-2 z-[100]"
                                         >
                                             <div className="bg-white border border-charcoal-100 rounded-[1.5rem] shadow-2xl overflow-hidden shadow-charcoal-900/10 backdrop-blur-xl">
                                                 {[
@@ -243,13 +252,13 @@ export default function IdeasPage() {
 
                             {/* SMART MATCH TOGGLE */}
                             {profile && (
-                                <div className="flex items-center px-4 md:px-6 py-3.5 bg-primary-50/10 flex-none">
+                                <div className="flex items-center px-4 md:px-6 py-3 md:py-3.5 bg-primary-50/10 shrink-0">
                                     <button
                                         onClick={() => setSmartMatch(!smartMatch)}
                                         className={`flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl transition-all ${smartMatch ? 'bg-primary-600 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
                                     >
-                                        <span className="text-xs">{smartMatch ? '🎯' : '🎯'}</span>
-                                        <span className="text-[9px] font-black uppercase tracking-widest leading-none hidden md:block">Smart Match</span>
+                                        <span className="text-xs">🎯</span>
+                                        <span className="text-[9px] font-black uppercase tracking-widest leading-none whitespace-nowrap">Smart Match</span>
                                     </button>
                                 </div>
                             )}
@@ -257,11 +266,11 @@ export default function IdeasPage() {
                     </div>
 
                     {/* Bottom Row: Classification Pills & Expanded Filters */}
-                    <div className="p-3 md:p-3 flex flex-col md:flex-row gap-4 bg-charcoal-50/30 md:rounded-b-[2rem] items-start md:items-center">
-                        <div className="flex overflow-x-auto pb-2 md:pb-0 gap-2 w-full md:w-auto hide-scrollbar -mx-3 px-3 md:mx-0 md:px-0">
+                    <div className="p-2 md:p-3 flex flex-col md:flex-row gap-3 md:gap-4 bg-charcoal-50/30 rounded-b-[2rem] items-start md:items-center">
+                        <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 -mx-2 px-2 md:mx-0 md:px-0 hide-scrollbar w-full md:w-auto flex-1">
                             <button
                                 onClick={() => setSelectedCategory('all')}
-                                className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex-shrink-0 ${selectedCategory === 'all' ? 'bg-charcoal-900 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
+                                className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap shrink-0 ${selectedCategory === 'all' ? 'bg-charcoal-900 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
                             >
                                 All Sectors
                             </button>
@@ -269,7 +278,7 @@ export default function IdeasPage() {
                                 <button
                                     key={category.id}
                                     onClick={() => setSelectedCategory(category.id)}
-                                    className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${selectedCategory === category.id ? 'bg-primary-600 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
+                                    className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap shrink-0 ${selectedCategory === category.id ? 'bg-primary-600 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
                                 >
                                     <span>{category.icon}</span>
                                     {category.name}
@@ -277,11 +286,11 @@ export default function IdeasPage() {
                             ))}
                         </div>
 
-                        <div className="flex gap-2 md:border-l border-charcoal-100 md:pl-4 w-full md:w-auto overflow-x-auto pb-1 md:pb-0 hide-scrollbar">
+                        <div className="flex gap-2 w-full md:w-auto border-t md:border-t-0 md:border-l border-charcoal-100 pt-3 md:pt-0 md:pl-4 h-full py-1">
                             <select
                                 value={selectedRisk}
                                 onChange={(e) => setSelectedRisk(e.target.value)}
-                                className="bg-white border border-charcoal-100 rounded-xl px-4 py-2 text-[9px] font-black uppercase tracking-widest outline-none cursor-pointer flex-1 md:flex-none min-w-[100px]"
+                                className="flex-1 md:w-auto bg-white border border-charcoal-100 rounded-xl px-4 py-2.5 text-[9px] font-black uppercase tracking-widest outline-none cursor-pointer"
                             >
                                 <option value="all">Any Risk</option>
                                 <option value="low">Low Risk</option>
@@ -292,7 +301,7 @@ export default function IdeasPage() {
                             <select
                                 value={selectedEffort}
                                 onChange={(e) => setSelectedEffort(e.target.value)}
-                                className="bg-white border border-charcoal-100 rounded-xl px-4 py-2 text-[9px] font-black uppercase tracking-widest outline-none cursor-pointer flex-1 md:flex-none min-w-[100px]"
+                                className="flex-1 md:w-auto bg-white border border-charcoal-100 rounded-xl px-4 py-2.5 text-[9px] font-black uppercase tracking-widest outline-none cursor-pointer"
                             >
                                 <option value="all">All Effort</option>
                                 <option value="passive">Passive</option>
@@ -306,7 +315,7 @@ export default function IdeasPage() {
                 {/* 3. Grid Section */}
                 <div className="flex flex-col gap-12">
                     {loading ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
                             {[1, 2, 3, 4, 5, 6].map(i => <CardShimmer key={i} />)}
                         </div>
                     ) : ideas.length === 0 ? (
@@ -317,7 +326,7 @@ export default function IdeasPage() {
                             onAction={() => { setSearchQuery(''); setSelectedCategory('all'); setMinIncome(0); }}
                         />
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
                             <AnimatePresence mode="popLayout">
                                 {ideas.map((idea, index) => (
                                     <motion.div
@@ -330,7 +339,7 @@ export default function IdeasPage() {
                                     >
                                         <Link to={`/ideas/${idea.slug}`} className="group relative block bg-white border border-gray-200 rounded-[2rem] hover:border-blue-300 hover:shadow-[0_40px_80px_-15px_rgba(25,70,180,0.1)] transition-all h-full overflow-hidden p-0 flex flex-col">
                                             {/* Visual Header - Fixed Full Bleed */}
-                                            <div className="relative h-56 w-full overflow-hidden bg-gray-100 shrink-0">
+                                            <div className="relative h-48 md:h-56 w-full overflow-hidden bg-gray-100 shrink-0">
                                                 <img
                                                     src={idea.image_url || (
                                                         idea.categories?.name?.toLowerCase().includes('content') ? `https://images.unsplash.com/photo-1492724441997-5dc865305da7?q=80&w=1000&auto=format&fit=crop&sig=${idea.id}` :

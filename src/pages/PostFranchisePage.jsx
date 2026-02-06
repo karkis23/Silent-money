@@ -174,7 +174,7 @@ export default function PostFranchisePage() {
     };
 
     return (
-        <div className="min-h-screen bg-cream-50 pt-32 pb-20 px-4">
+        <div className="min-h-screen bg-cream-50 pt-20 md:pt-32 pb-20 px-4">
             <SEO title="Deploy Franchise Opportunity" />
             <div className="max-w-4xl mx-auto">
                 <header className="mb-12">
@@ -198,7 +198,7 @@ export default function PostFranchisePage() {
                     </div>
                 </header>
 
-                <form onSubmit={handleSubmit} className="card border-none shadow-2xl p-10 bg-white relative overflow-hidden transition-all duration-500">
+                <form onSubmit={handleSubmit} className="card border-none shadow-2xl p-6 md:p-10 bg-white relative overflow-hidden transition-all duration-500">
                     <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary-600 to-emerald-600" />
 
                     {error && (

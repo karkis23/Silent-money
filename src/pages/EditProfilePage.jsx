@@ -79,7 +79,7 @@ export default function EditProfilePage() {
     };
 
     return (
-        <div className="min-h-screen bg-cream-50 pt-32 pb-20 px-4">
+        <div className="min-h-screen bg-cream-50 pt-20 md:pt-32 pb-20 px-4">
             <SEO title="Commander Configuration | Identity Matrix" />
             <div className="max-w-xl mx-auto">
                 <div className="mb-10 flex flex-col items-start gap-4">
@@ -104,23 +104,23 @@ export default function EditProfilePage() {
                         </motion.div>
                     )}
 
-                    <div className="card border-none shadow-2xl p-10 space-y-10">
+                    <div className="p-6 md:p-10 space-y-12">
                         {/* Avatar Picker */}
                         <section>
                             <h2 className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] mb-6">Choose Identity</h2>
-                            <div className="grid grid-cols-3 gap-4">
+                            <div className="grid grid-cols-3 gap-3 md:gap-4">
                                 {PRESET_AVATARS.map((url, i) => (
                                     <button
                                         key={i}
                                         type="button"
                                         onClick={() => setAvatarUrl(url)}
-                                        className={`relative aspect-square rounded-2xl overflow-hidden border-4 transition-all bg-charcoal-50 ${avatarUrl === url ? 'border-primary-600 scale-105 shadow-xl' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                                        className={`relative aspect-square rounded-2xl md:rounded-3xl overflow-hidden border-4 transition-all bg-charcoal-50 active:scale-90 ${avatarUrl === url ? 'border-primary-600 scale-105 shadow-xl shadow-primary-500/10' : 'border-transparent opacity-50 hover:opacity-100'}`}
                                     >
                                         <img src={url} className="w-full h-full object-cover" alt={`Avatar ${i}`} />
                                         {avatarUrl === url && (
                                             <div className="absolute inset-0 bg-primary-600/10 flex items-center justify-center">
-                                                <div className="bg-primary-600 text-white rounded-full p-1 shadow-lg">
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <div className="bg-primary-600 text-white rounded-full p-1.5 md:p-2 shadow-lg">
+                                                    <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                                     </svg>
                                                 </div>
