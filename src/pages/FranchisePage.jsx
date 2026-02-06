@@ -8,6 +8,18 @@ import SEO from '../components/SEO';
 import EmptyState from '../components/EmptyState';
 import ExpertAuditModal from '../components/ExpertAuditModal';
 
+/**
+ * FranchisePage: The institutional marketplace for verified franchise brands in India.
+ * 
+ * CORE FEATURES:
+ * - Vetted ROI Analytics: Filters and displays brands based on proven investment windows.
+ * - Multi-Channel Search: Optimized for brand name, utility, and sector-based discovery.
+ * - Institutional Favorites: A curated ticker of top-performing high-density brands.
+ * - Strategic Auditing: Direct integration with the expert audit request pipeline.
+ * - Personalized Discovery: Smart Match filters that align brand requirements with user capital profiles.
+ * 
+ * @component
+ */
 export default function FranchisePage() {
     const [franchises, setFranchises] = useState([]);
     const [loading, setLoading] = useState(true);

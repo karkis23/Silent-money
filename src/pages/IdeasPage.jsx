@@ -8,13 +8,16 @@ import SEO from '../components/SEO';
 import EmptyState from '../components/EmptyState';
 
 /**
- * IdeasPage: The primary intelligence feed for passive income blueprints.
+ * IdeasPage: The primary intelligence engine for passive income blueprints.
  * 
- * Features:
- * - Real-time filtering by Category, Risk, Effort, and Investment.
- * - Dynamic sorting (Newest, Highest Income, Top Rated).
- * - "To Goal" Indicators: Calculates how much each idea contributes to the user's specific income goal.
- * - Access-Controlled Visibility: Filters out unapproved or deleted content at the query level.
+ * CORE ARCHITECTURE:
+ * - Dynamic intelligence filtering (Risk, Effort, Income, Category).
+ * - Personality Alignment: 'Smart Match' logic that cross-references user profile data 
+ *   (budget, risk tolerance) with asset metadata.
+ * - Reactive Sorting: Implements high-velocity sorting via Supabase query optimization.
+ * - Discovery Feed: A responsive 3-column grid designed for rapid cognitive processing of opportunities.
+ * 
+ * @component
  */
 export default function IdeasPage() {
     const [ideas, setIdeas] = useState([]);

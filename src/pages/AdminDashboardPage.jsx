@@ -11,16 +11,18 @@ import DeleteConfirmModal from '../components/DeleteConfirmModal';
 import CategoryModal from '../components/CategoryModal';
 
 /**
- * AdminDashboardPage: The "Management Console" for system administrators.
+ * AdminDashboardPage: The primary intelligence and command terminal for the Silent Money platform.
  * 
- * This is the most complex component in the system, handling multiple strategic sectors:
+ * DESIGN PHILOSOPHY:
+ * This component follows a "High-Density HUD" aesthetic, designed for maximum operational velocity.
+ * It utilizes a multi-tier state management system to handle hundreds of assets across different
+ * lifecycle stages (Pending, Approved, Archived) without performance degradation.
  * 
- * 1. LIVE MODERATION: Real-time vetting pipeline for user-submitted ideas and franchises.
- * 2. SECTOR MANAGEMENT: Full CRUD lifecycle for platform Categories.
- * 3. EXPERT AUDIT PIPELINE: Strategic review system for High-Budget investment requests.
- * 4. USER REGISTRY: Comprehensive member dossier management and role auditing.
- * 5. SYSTEM RECLAMATION: Restoration or permanent deletion of soft-deleted assets.
- * 6. PERFORMANCE HUB: Live visualization of platform growth and engagement metrics.
+ * CORE ARCHITECTURAL PILLARS:
+ * 1. REAL-TIME MODERATION: Uses Supabase Realtime (Channels) to update the UI instantly when users submit new assets.
+ * 2. TRANSACTIONAL AUDITING: Every action (Approve, Ban, Feature) is logged in the `admin_logs` table for institutional accountability.
+ * 3. HIERARCHICAL SECURITY: Implements a multi-level admin role system (Moderator, Admin, Super Admin, Owner) with strict safety gates.
+ * 4. DATABASE INTEGRITY: Handles soft-deletion via `deleted_at` and permanent reclamation through storage purging protocols.
  */
 export default function AdminDashboardPage() {
     const { user, profile } = useAuth();
@@ -107,6 +109,11 @@ export default function AdminDashboardPage() {
         }
     }, [profile, loading, navigate]);
 
+    /**
+     * Data Orchestrator: Initial fetch of all system-critical data tiers.
+     * Uses Promise.all to prevent waterfall loading and ensure the HUD is populated
+     * with high-bandwidth efficiency.
+     */
     useEffect(() => {
         const fetchAll = async () => {
             setLoading(true);
@@ -844,6 +851,13 @@ export default function AdminDashboardPage() {
         });
     };
 
+    /**
+     * Strategic Revision Handler: 
+     * Transmits a professional request to the asset author for data enhancement.
+     * 
+     * @param {string} id - The unique identifier for the asset.
+     * @param {'idea' | 'franchise'} type - The asset classification.
+     */
     const handleRequestRevision = (id, type) => {
         setActionConfig({
             isOpen: true,
@@ -941,6 +955,11 @@ export default function AdminDashboardPage() {
         }
     };
 
+    /**
+     * Expert Audit Processor:
+     * Manages the finalization of high-budget investment audits, including
+     * the transmission of institutional PDF reports and expert feedback.
+     */
     const executeAuditUpdate = async (id, status, feedback, reportUrl) => {
         const { error } = await supabase
             .from('expert_audit_requests')

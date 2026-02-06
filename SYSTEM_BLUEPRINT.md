@@ -47,6 +47,9 @@ Silent Money is a high-authority platform for discovering and tracking realistic
 | `GlobalSearch.jsx` | Universal intelligence search across the entire asset database. |
 | `ReviewsSection.jsx` | Social proof module for community voting and detailed feedback. |
 | `ExpertAuditModal.jsx` | Conduit for users to request institutional validation on their businesses. |
+| `SEO.jsx` | The **Intelligence-Led Meta Engine**. Automatically generates OpenGraph and Twitter cards based on asset context. |
+| `DetailHero.jsx` | High-fidelity visual header used across all asset detail pages (Blueprints & Franchises). |
+| `DetailMetrics.jsx` | Reusable data grid for visualizing high-impact KPIs like ROI and Yield. |
 | `BackButton.jsx` | Elegant navigation component for operational flow. |
 
 ---

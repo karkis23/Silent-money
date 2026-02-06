@@ -14,6 +14,18 @@ import DetailHero from '../components/details/DetailHero';
 import DetailMetrics from '../components/details/DetailMetrics';
 import { toast } from 'react-hot-toast';
 
+/**
+ * FranchiseDetailPage: The technical "Asset Dossier" for a specific franchise partnership.
+ * 
+ * CORE COMPONENTS:
+ * - Institutional Hero: Displays high-fidelity asset branding and validation states.
+ * - Intelligence Signal HUB: Visualizes key performance indicators (ROI, Profit, Investment).
+ * - ROI Forecasting: Integrated calculator for user-specific financial projections.
+ * - Expert Audit Trail: Detailed vetting history and validation metrics.
+ * - Institutional Trust: Community reviews and brand connectivity (website/contact).
+ * 
+ * @component
+ */
 export default function FranchiseDetailPage() {
     const { slug } = useParams();
     const navigate = useNavigate();

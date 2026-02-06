@@ -13,6 +13,18 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import DetailHero from '../components/details/DetailHero';
 import DetailMetrics from '../components/details/DetailMetrics';
 
+/**
+ * IdeaDetailPage: The technical "Opportunity Blueprint" for a specific income-generating asset.
+ * 
+ * CORE FEATURES:
+ * - Reality Check HUB: Honest, analyst-driven assessments of effort and risk.
+ * - Intelligence Signal HUB: Visualizes blueprint-specific KPIs (Yield, Risk, Setup Time).
+ * - ROI Simulation: Dynamic financial projecting tools for custom implementation.
+ * - Progress Tracking: Visual status management for 'Vaulted' opportunities.
+ * - Institutional Documentation: Comprehensive Markdown-driven implementation guides.
+ * 
+ * @component
+ */
 export default function IdeaDetailPage() {
     const { slug } = useParams();
     const navigate = useNavigate();

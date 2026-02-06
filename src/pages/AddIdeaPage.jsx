@@ -6,6 +6,17 @@ import SEO from '../components/SEO';
 import ImageUpload from '../components/ImageUpload';
 import { motion, AnimatePresence } from 'framer-motion';
 
+/**
+ * AddIdeaPage: The institutional gateway for deploying new passive income blueprints.
+ * 
+ * DESIGN SPECIFICATIONS:
+ * - Multi-Step Orchestration: Guides curators through Foundation, Strategy, Financials, and SEO phases.
+ * - Intelligence-Led SEO: Automatically generates optimized metadata by stripping UI formatting.
+ * - Real-Time Validation: Enforces data integrity for slugs, categories, and financial projections.
+ * - Media Deployment: Integrated handling for institutional asset imagery.
+ * 
+ * @component
+ */
 export default function AddIdeaPage() {
     const navigate = useNavigate();
     const [step, setStep] = useState(1);

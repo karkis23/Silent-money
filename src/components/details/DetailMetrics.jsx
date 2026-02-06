@@ -1,3 +1,12 @@
+/**
+ * DetailMetrics: A high-density grid for visualizing core financial and operational signals.
+ * 
+ * Supports dynamic highlighting for primary KPIs (e.g., Yield or ROI) and 
+ * provides a consistent visual interface for all asset dossiers.
+ * 
+ * @param {Object} props - Component properties.
+ * @param {Array} props.metrics - An array of metric objects {label, value, unit, highlight, variant}.
+ */
 export default function DetailMetrics({ metrics }) {
     return (
         <section>

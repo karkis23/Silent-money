@@ -7,6 +7,18 @@ import SEO from '../components/SEO';
 import ImageUpload from '../components/ImageUpload';
 import { motion, AnimatePresence } from 'framer-motion';
 
+/**
+ * PostFranchisePage: The institutional terminal for onboarding new franchise brands.
+ * 
+ * OPERATIONAL PHASES:
+ * 1. FOUNDATION: Core brand identity, category alignment, and asset imagery.
+ * 2. STRATEGY: Investment tiers, ROI windows, and space requirements.
+ * 3. OPERATIONS: Profit yields and high-fidelity brand descriptions.
+ * 4. CONNECTIVITY: Direct brand contact protocols and professional signals.
+ * 5. SEO: Intelligence-led metadata generation for discovery optimization.
+ * 
+ * @component
+ */
 export default function PostFranchisePage() {
     const { user } = useAuth();
     const navigate = useNavigate();

@@ -9,13 +9,14 @@ Silent Money is a curated platform for discovering **realistic, India-specific**
 ## 🗝️ Core Mission
 To cut through the noise of fake financial gurus and provide a vetted roadmap for financial freedom in the Indian context.
 
-## ✨ Key Features (2025 Edition)
-- **🔍 Vetted Directory**: Browse income ideas and franchises with **Goal Impact** indicators (+X% to your goal).
-- **🛡️ Commander Ranks**: Grow from a *Market Explorer* to an *Elite Wealth Commander* as you build your fleet.
-- **📊 Reality Checks**: Every idea includes a dedicated section on risks and actual success rates.
-- **🧮 ROI Calculator**: Estimate return on investment and break-even timelines based on Indian currency (INR).
-- **📝 Command Center**: Manage your saved assets, set income goals, and track your progress in real-time.
-- **📷 Asset Visualization**: Admin-managed image gallery and direct file uploads for high-fidelity discovery.
+## ✨ Key Features (Beta 2.1)
+- **🔍 Vetted Directory**: Browse income blueprints and franchises with **Goal Impact** indicators (+X% to your goal).
+- **🚀 Intelligence-Led SEO**: Automated, clean-text metadata generation for elite search appearing.
+- **🛡️ Institutional HUD**: High-density admin console with real-time moderation and expert audit tracking.
+- **📊 Reality Checks**: Honest, data-backed assessments of risks and actual success rates in the Indian market.
+- **🧮 ROI Calculator**: Estimate return on investment and break-even timelines with monthly compounding analysis.
+- **📝 Command Center**: Manage your 'Vaulted' assets and set customized financial trajectory goals.
+- **🎨 High-Fidelity UI**: Premium glassmorphic interface with micro-animations and custom SVG interaction sets.
 
 ## 🛠️ Project Documentation
 For a deep dive into the architecture, file structure, and database schema, see the [**SYSTEM_BLUEPRINT.md**](./SYSTEM_BLUEPRINT.md).

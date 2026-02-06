@@ -117,3 +117,15 @@ Centralized member management sector within the Moderation Terminal.
 - **Collision-Resistant Slugs**: Automated random suffix generation for asset URLs.
 - **Intelligence Preview Protocol**: Secure, read-only visualization of pending assets in isolated operational tabs (`target="_blank"`) for administrative vetting.
 - **Consolidated Deployment Flow**: Multi-step submission forms (Ideas/Franchises) refactored from 3-step to high-velocity 2-step sequences ("Foundation" & "Full Intelligence").
+
+### 7. Intelligence-Led SEO Engine
+Automated metadata generation suite and synchronization.
+- **Markdown Sanitization**: A background pipeline that strips formatting from descriptions to create professional Meta Descriptions.
+- **Structural Meta Tagging**: Injects high-fidelity `Helmet` signals for social graph and search indexing.
+- **Discovery Synchronization**: Automatically updates the `signals` summary in Supabase whenever a blueprint or franchise is modified.
+
+### 8. High-Density Navigation Model
+Institutional design tokens for maximum information velocity.
+- **Spatially-Aware Tabs**: Replaced ad-hoc separators with refined spatial intervals for a cleaner HUD aesthetic.
+- **Compact Signal Bar**: Reduced discovery feed bulk by 40% to prioritize core financial metrics.
+- **Vectorized Action Suites**: High-fidelity custom SVGs for "Vaulted" and "Tracked" states with micro-feedback loops.

@@ -2,6 +2,22 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import BackButton from '../BackButton';
 
+/**
+ * DetailHero: The high-fidelity visual header for asset-specific dossiers.
+ * 
+ * DESIGN FEATURES:
+ * - Dynamic Status Indicators: Displays 'Verified', 'Premium', and 'Featured' states via institutional badges.
+ * - Multi-Channel Actions: Supports flexible CTA slots for 'Track', 'Vault', and external connectivity.
+ * - Institutional Imagery: Uses a full-width background layout with high-density scrims for readability.
+ * - Author Connectivity: Links to creator dossiers and verification sources.
+ * 
+ * @param {Object} props - Component properties.
+ * @param {string} props.title - The primary asset title.
+ * @param {string} props.category - Asset classification name.
+ * @param {string} props.shortDescription - A brief, high-impact overview.
+ * @param {string} props.imageUrl - Primary visual asset URL.
+ * @param {Object} props.profiles - Author profile information.
+ */
 export default function DetailHero({
     title,
     category,

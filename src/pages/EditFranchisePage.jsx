@@ -6,6 +6,17 @@ import BackButton from '../components/BackButton';
 import SEO from '../components/SEO';
 import ImageUpload from '../components/ImageUpload';
 
+/**
+ * EditFranchisePage: The authoritative terminal for managing institutional franchise profiles.
+ * 
+ * DESIGN SPECIFICATIONS:
+ * - Secure Lifecycle Management: Prevents unauthorized modification via strict profile and ownership gates.
+ * - Enhanced Data Fidelity: Manages secondary operational metrics (Network Density, Asset Grade, Risk Profile).
+ * - Multi-Channel SEO: Integrated system for updating brand Connectivity and Intelligence Signals.
+ * - Media Synchronization: Handles real-time updates to brand imagery and institutional logos.
+ * 
+ * @component
+ */
 export default function EditFranchisePage() {
     const { id } = useParams();
     const { user, profile } = useAuth();

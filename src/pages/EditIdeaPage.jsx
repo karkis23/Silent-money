@@ -6,6 +6,17 @@ import BackButton from '../components/BackButton';
 import SEO from '../components/SEO';
 import ImageUpload from '../components/ImageUpload';
 
+/**
+ * EditIdeaPage: The authoritative terminal for modifying existing income blueprints.
+ * 
+ * CORE OPERATIONS:
+ * - Authorized Modification: Enforces ownership or administrative role gates for asset updates.
+ * - Intelligence Synchronization: Real-time validation of cross-linked categories and slugs.
+ * - High-Fidelity Data Entry: Comprehensive forms for financial, strategic, and operational metrics.
+ * - Meta-Generation: Integrated 'Signal Summary' generation for platform SEO.
+ * 
+ * @component
+ */
 export default function EditIdeaPage() {
     const { id } = useParams();
     const navigate = useNavigate();

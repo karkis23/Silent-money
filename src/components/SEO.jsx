@@ -1,5 +1,21 @@
 import { Helmet } from 'react-helmet-async';
 
+/**
+ * SEO Component: The authoritative engine for injecting high-fidelity metadata into the document head.
+ * 
+ * CORE OPERATIONS:
+ * - Title Normalization: Dynamically appends the 'Silent Money' brand suffix to page titles.
+ * - Open Graph Orchestration: Injects social-ready signals for Facebook, LinkedIn, and dynamic link previews.
+ * - Twitter Card Management: Handles institutional previews for high-velocity information sharing.
+ * - Discovery Optimization: Manages robots, language, and canonical URL normalization for search indexing.
+ * 
+ * @param {Object} props - Component properties.
+ * @param {string} props.title - The primary page title.
+ * @param {string} props.description - High-impact SEO summary of the page content.
+ * @param {string} props.keywords - Targeted discovery tags for search indexing.
+ * @param {string} props.ogImage - Path to the social sharing visual asset.
+ * @param {string} props.ogType - Open Graph classification (e.g., 'website', 'article').
+ */
 export default function SEO({
     title = 'Silent Money - Build Your Financial Dynasty Quietly',
     description = 'Discover 60+ vetted passive income ideas and franchise opportunities tailored for India. Data-backed blueprints with realistic ROI projections.',
