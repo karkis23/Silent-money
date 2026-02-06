@@ -14,6 +14,7 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
     const [submitting, setSubmitting] = useState(false);
     const [replyingTo, setReplyingTo] = useState(null);
     const [error, setError] = useState('');
+    const [fetchError, setFetchError] = useState('');
     const [userHasReviewed, setUserHasReviewed] = useState(false);
     const [editingReview, setEditingReview] = useState(null); // Stores ID of review being edited
     const [editContent, setEditContent] = useState('');
@@ -39,7 +40,11 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
             .eq(foreignKey, assetId)
             .order('created_at', { ascending: false });
 
-        if (!error && data) {
+        if (error) {
+            console.error('Error fetching reviews:', error);
+            setFetchError(error.message);
+            setReviews([]); // Ensure empty state on error
+        } else if (data) {
             setReviews(data);
             const reviewed = data.find(r => r.user_id === user?.id);
             setUserHasReviewed(!!reviewed);
@@ -239,6 +244,12 @@ export default function ReviewsSection({ assetId, assetType = 'idea', authorId, 
             )}
 
             <div className="space-y-6">
+                {fetchError && (
+                    <div className="p-4 bg-red-50 text-red-600 rounded-xl text-xs font-bold border border-red-100 flex items-center gap-2">
+                        <span>⚠️</span>
+                        <span>Sync Error: {fetchError}</span>
+                    </div>
+                )}
                 {loading ? (
                     <div className="py-12 flex justify-center">
                         <div className="w-6 h-6 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
