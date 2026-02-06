@@ -55,7 +55,7 @@ export default function AdminActionModal({
                                         {title}
                                     </h3>
                                     <p className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest">
-                                        Institutional Moderation Command
+                                        Institutional Management Command
                                     </p>
                                 </div>
                             </div>
@@ -80,7 +80,7 @@ export default function AdminActionModal({
                                 {inputType === 'audit' && (
                                     <div className="space-y-2">
                                         <ImageUpload
-                                            label="Upload Institutional Report (PDF/IMG)"
+                                            label="Upload Official Report (PDF/IMG)"
                                             bucket="proofs"
                                             currentUrl={reportUrl}
                                             onUpload={(url) => setReportUrl(url)}
@@ -95,7 +95,7 @@ export default function AdminActionModal({
                                     onClick={onClose}
                                     className="h-12 rounded-xl font-black text-[10px] uppercase tracking-widest text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50 transition-all"
                                 >
-                                    Cancel Mission
+                                    Cancel Changes
                                 </button>
                                 <button
                                     onClick={() => {

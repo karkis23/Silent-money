@@ -241,7 +241,7 @@ export default function AdminDashboardPage() {
             const auditSub = supabase
                 .channel('admin-audits')
                 .on('postgres_changes', { event: 'INSERT', table: 'expert_audit_requests', schema: 'public' }, (payload) => {
-                    toast.success(`🚀 NEW AUDIT: ${payload.new.brand_name}`, {
+                    toast.success(`🚀 NEW VERIFICATION: ${payload.new.brand_name}`, {
                         icon: '📋',
                         style: { background: '#2563eb', color: '#fff' }
                     });
@@ -861,10 +861,10 @@ export default function AdminDashboardPage() {
     const handleRequestRevision = (id, type) => {
         setActionConfig({
             isOpen: true,
-            title: 'Request Strategic Revision',
-            message: `Enter the specific operational details required to bring this ${type === 'idea' ? 'blueprint' : 'brand'} up to institutional standards.`,
+            title: 'Request Asset Revision',
+            message: `Enter the specific information required to bring this ${type === 'idea' ? 'blueprint' : 'brand'} up to standard.`,
             inputType: 'text',
-            confirmText: 'Transmit Revision Request',
+            confirmText: 'Send Update Request',
             onConfirm: async (feedback) => {
                 const table = type === 'idea' ? 'income_ideas' : 'franchises';
                 const { error } = await supabase
@@ -941,16 +941,16 @@ export default function AdminDashboardPage() {
         if (status === 'completed') {
             setActionConfig({
                 isOpen: true,
-                title: 'Finalize Expert Audit',
-                message: 'Provide a comprehensive expert assessment and link to the institutional due-diligence report.',
+                title: 'Finalize Expert Verification',
+                message: 'Provide a comprehensive assessment and link to the official verification report.',
                 inputType: 'audit',
-                confirmText: 'Authorize & Send Report',
+                confirmText: 'Approve & Send Report',
                 onConfirm: async (feedback, reportUrl) => {
                     executeAuditUpdate(id, status, feedback, reportUrl);
                 }
             });
         } else {
-            const feedback = status === 'in-review' ? 'Your audit request is currently being analyzed by our expert panel.' : '';
+            const feedback = status === 'in-review' ? 'Your verification request is currently being analyzed by our expert panel.' : '';
             executeAuditUpdate(id, status, feedback, '');
         }
     };
@@ -977,16 +977,16 @@ export default function AdminDashboardPage() {
             if (audit && audit.user_id) {
                 await supabase.from('notifications').insert([{
                     user_id: audit.user_id,
-                    title: status === 'completed' ? 'Expert Audit Complete 🚀' : 'Audit In-Review 🔍',
+                    title: status === 'completed' ? 'Expert Verification Complete 🚀' : 'Verification In-Review 🔍',
                     message: status === 'completed'
                         ? `Expert analysis for "${audit.brand_name}" is ready: ${feedback.slice(0, 50)}...`
-                        : `Your audit for "${audit.brand_name}" has moved to In-Review status.`,
+                        : `Your verification for "${audit.brand_name}" has moved to In-Review status.`,
                     type: 'system',
                     link: '/dashboard'
                 }]);
             }
 
-            toast.success(`Audit status updated to ${status.toUpperCase()}`);
+            toast.success(`Verification status updated to ${status.toUpperCase()}`);
             setAuditRequests(prev => prev.map(a => a.id === id ? { ...a, status, admin_feedback: feedback, report_url: reportUrl } : a));
             setStats(prev => ({
                 ...prev,
@@ -1036,7 +1036,7 @@ export default function AdminDashboardPage() {
                 <header className="mb-12">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10">
                         <div>
-                            <div className="text-[10px] font-black text-primary-600 uppercase tracking-[0.3em] mb-2">Institutional Moderation Terminal</div>
+                            <div className="text-[10px] font-black text-primary-600 uppercase tracking-[0.3em] mb-2">Institutional Platform Terminal</div>
                             <h1 className="text-4xl font-black text-charcoal-900 tracking-tighter">Admin <span className="text-charcoal-400">Dashboard</span></h1>
                         </div>
                         <div className="hidden lg:flex items-center gap-3 px-4 py-2 bg-white rounded-2xl border border-charcoal-100 shadow-sm text-[10px] font-black text-charcoal-600 uppercase tracking-widest">
@@ -1090,7 +1090,7 @@ export default function AdminDashboardPage() {
                                     onClick={() => setActiveTab('audits')}
                                     className={`px-4 py-3 rounded-[1.15rem] text-[10px] font-black uppercase tracking-[0.1em] transition-all flex items-center gap-3 whitespace-nowrap flex-1 justify-center ${activeTab === 'audits' ? 'bg-primary-600 text-white shadow-xl shadow-primary-600/20 translate-y-[-1px]' : 'text-charcoal-400 hover:text-primary-600 hover:bg-primary-50'}`}
                                 >
-                                    <span>Audits</span>
+                                    <span>Verifications</span>
                                     <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black ${activeTab === 'audits' ? 'bg-white/20 text-white' : 'bg-primary-50 text-primary-600'}`}>{auditRequests.length}</span>
                                 </button>
 
@@ -1178,7 +1178,7 @@ export default function AdminDashboardPage() {
                                     </div>
                                 ) : (
                                     <span className="text-[10px] font-black text-charcoal-900 uppercase tracking-widest">
-                                        Mission <span className="text-primary-600">Page {page + 1}</span>
+                                        Data <span className="text-primary-600">Page {page + 1}</span>
                                     </span>
                                 )}
                             </div>
@@ -1248,7 +1248,7 @@ export default function AdminDashboardPage() {
                         <section className="card bg-white border-none shadow-xl p-8">
                             <div className="flex justify-between items-center mb-8 border-b border-charcoal-50 pb-4">
                                 <h2 className="text-base font-black text-charcoal-900 uppercase tracking-widest flex items-center gap-3">
-                                    <span>🔍</span> Audit Requests
+                                    <span>🔍</span> Verification Requests
                                 </h2>
                                 <span className="text-[10px] font-black text-primary-600 bg-primary-50 px-3 py-1.5 rounded-full uppercase tracking-widest">
                                     {auditRequests.length} Total Requests
@@ -1258,7 +1258,7 @@ export default function AdminDashboardPage() {
                             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {auditRequests.length === 0 ? (
                                     <div className="col-span-full py-20 text-center text-charcoal-400 font-medium italic">
-                                        No expert audit requests received yet.
+                                        No verification requests received yet.
                                     </div>
                                 ) : (
                                     auditRequests.map(audit => (
@@ -1616,7 +1616,7 @@ export default function AdminDashboardPage() {
                                                     onClick={() => setSearchQuery('')}
                                                     className="mt-6 px-6 py-2 bg-charcoal-100 text-charcoal-600 rounded-xl text-[9px] font-black uppercase tracking-widest"
                                                 >
-                                                    Abort Search
+                                                    Clear Search
                                                 </button>
                                             )}
                                         </div>
@@ -1651,7 +1651,7 @@ export default function AdminDashboardPage() {
                                             </div>
                                         ) : (
                                             <span className="text-[10px] font-black text-charcoal-900 uppercase tracking-widest">
-                                                Sector <span className="text-primary-600">Page {page + 1}</span>
+                                                Registry <span className="text-primary-600">Page {page + 1}</span>
                                             </span>
                                         )}
                                     </div>
@@ -1666,7 +1666,7 @@ export default function AdminDashboardPage() {
                                         }}
                                         className="h-full px-6 bg-charcoal-950 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 group transition-all hover:bg-black disabled:opacity-30"
                                     >
-                                        Next Phase <span className="group-hover:translate-x-1 transition-transform">→</span>
+                                        Next Page <span className="group-hover:translate-x-1 transition-transform">→</span>
                                     </button>
                                 </div>
                             </div>
@@ -1875,7 +1875,7 @@ export default function AdminDashboardPage() {
                             </div>
 
                             <div className="bg-white p-8 rounded-[2rem] border border-charcoal-50 shadow-xl shadow-charcoal-900/5">
-                                <h3 className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] mb-4">Audit Conversion</h3>
+                                <h3 className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] mb-4">Verification Rate</h3>
                                 <div className="text-4xl font-black text-charcoal-950 mb-2">
                                     {auditRequests.length > 0 ? ((auditRequests.filter(a => a.status === 'completed').length / auditRequests.length) * 100).toFixed(0) : 0}%
                                 </div>
@@ -1955,7 +1955,7 @@ export default function AdminDashboardPage() {
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="p-5 bg-white/5 rounded-2xl border border-white/5">
-                                            <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-2">Avg Time to Approve</div>
+                                            <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-2">Avg Verification Time</div>
                                             <div className="text-2xl font-black">4.2h</div>
                                         </div>
                                         <div className="p-5 bg-white/5 rounded-2xl border border-white/5">
