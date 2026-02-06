@@ -12,6 +12,7 @@ import AssetAuditTrail from '../components/AssetAuditTrail';
 import ErrorBoundary from '../components/ErrorBoundary';
 import DetailHero from '../components/details/DetailHero';
 import DetailMetrics from '../components/details/DetailMetrics';
+import { motion } from 'framer-motion';
 
 /**
  * IdeaDetailPage: The technical "Opportunity Blueprint" for a specific income-generating asset.

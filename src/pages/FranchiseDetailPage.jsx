@@ -13,6 +13,7 @@ import ExpertAuditModal from '../components/ExpertAuditModal';
 import DetailHero from '../components/details/DetailHero';
 import DetailMetrics from '../components/details/DetailMetrics';
 import { toast } from 'react-hot-toast';
+import { motion } from 'framer-motion';
 
 /**
  * FranchiseDetailPage: The technical "Asset Dossier" for a specific franchise partnership.
