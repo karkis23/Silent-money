@@ -41,6 +41,8 @@ export default function EditFranchisePage() {
         staffing_model: '',
         tech_stack: '',
         marketing_support: '',
+        meta_title: '',
+        meta_description: '',
         slug: '',
     });
 
@@ -93,6 +95,8 @@ export default function EditFranchisePage() {
                     staffing_model: data.staffing_model || '',
                     tech_stack: data.tech_stack || '',
                     marketing_support: data.marketing_support || '',
+                    meta_title: data.meta_title || '',
+                    meta_description: data.meta_description || '',
                     slug: data.slug,
                 });
                 setLoading(false);
@@ -105,6 +109,38 @@ export default function EditFranchisePage() {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleNameChange = (e) => {
+        const name = e.target.value;
+        setFormData(prev => {
+            const updates = { name };
+            // Auto-generate meta title
+            if (!prev.meta_title || prev.meta_title === `${prev.name} | Silent Money`) {
+                updates.meta_title = `${name} | Silent Money`;
+            }
+            return { ...prev, ...updates };
+        });
+    };
+
+    const handleDescriptionChange = (e) => {
+        const { value } = e.target;
+        setFormData(prev => {
+            const updates = { description: value };
+
+            // Intelligence-Led SEO Generation: Strip Markdown & Formatting
+            const cleanText = value
+                .replace(/[#*`~_]/g, '')              // Strip headers, bold, italics
+                .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Strip link syntax but keep text
+                .replace(/\n+/g, ' ')                 // Replace multiple newlines with single space
+                .trim();
+
+            // Auto-generate meta description if currently empty or matches truncated description
+            if (!prev.meta_description || prev.meta_description.length < 5 || prev.meta_description === prev.description.substring(0, 160)) {
+                updates.meta_description = cleanText.substring(0, 160);
+            }
+            return { ...prev, ...updates };
+        });
     };
 
     const handleSubmit = async (e) => {
@@ -180,7 +216,7 @@ export default function EditFranchisePage() {
                                     required
                                     name="name"
                                     value={formData.name}
-                                    onChange={handleChange}
+                                    onChange={handleNameChange}
                                     className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none transition-all font-bold"
                                 />
                             </div>
@@ -353,11 +389,43 @@ export default function EditFranchisePage() {
                                 required
                                 name="description"
                                 value={formData.description}
-                                onChange={handleChange}
+                                onChange={handleDescriptionChange}
                                 rows={10}
                                 className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none transition-all research-editor resize-y"
                                 placeholder="Paste your research here..."
                             />
+                        </div>
+
+                        {/* SEO Section */}
+                        <div className="space-y-6 pt-8 border-t border-charcoal-100">
+                            <div className="flex items-center gap-3">
+                                <span className="w-8 h-8 rounded-lg bg-primary-50 text-primary-600 flex items-center justify-center text-sm">🔍</span>
+                                <h2 className="text-[10px] font-black uppercase tracking-widest text-charcoal-950">Signal Presence (SEO)</h2>
+                            </div>
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Meta Title (Signal Header)</label>
+                                    <input
+                                        type="text"
+                                        name="meta_title"
+                                        value={formData.meta_title}
+                                        onChange={handleChange}
+                                        className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-bold text-charcoal-900 transition-all"
+                                        placeholder="Strategic title for search engines..."
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Meta Description (Signal Summary)</label>
+                                    <textarea
+                                        name="meta_description"
+                                        rows={2}
+                                        value={formData.meta_description}
+                                        onChange={handleChange}
+                                        className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-medium text-charcoal-700 transition-all"
+                                        placeholder="Executive summary for search engine snippet..."
+                                    />
+                                </div>
+                            </div>
                         </div>
 
                         <div className="space-y-6">

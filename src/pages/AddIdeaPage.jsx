@@ -24,11 +24,17 @@ export default function AddIdeaPage() {
         initial_investment_max: '',
         monthly_income_min: '',
         monthly_income_max: '',
-        time_to_first_income_days: 30,
+        time_to_first_income_days: 0,
         effort_level: 'semi-passive',
         risk_level: 'medium',
-        success_rate_percentage: 50,
+        success_rate_percentage: 0,
         skills_required: '',
+        time_commitment_hours_per_week: 0,
+        is_premium: false,
+        is_featured: false,
+        is_india_specific: true,
+        meta_title: '',
+        meta_description: '',
         image_url: '',
         proof_url: '',
     });
@@ -49,12 +55,43 @@ export default function AddIdeaPage() {
     const handleTitleChange = (e) => {
         const title = e.target.value;
         const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-        setFormData(prev => ({ ...prev, title, slug }));
+
+        setFormData(prev => {
+            const updates = { title, slug };
+            // Auto-generate meta title
+            if (!prev.meta_title || prev.meta_title === `${prev.title} | Silent Money`) {
+                updates.meta_title = `${title} | Silent Money`;
+            }
+            return { ...prev, ...updates };
+        });
+    };
+
+    const handleShortDescChange = (e) => {
+        const { value } = e.target;
+        setFormData(prev => {
+            const updates = { short_description: value };
+
+            // Intelligence-Led SEO Generation: Strip Markdown & consolidate formatting
+            const cleanText = value
+                .replace(/[#*`~_]/g, '')
+                .replace(/\n+/g, ' ')
+                .trim();
+
+            // Auto-generate meta description if currently empty or matches truncated short_desc
+            if (!prev.meta_description || prev.meta_description.length < 5 || prev.meta_description === prev.short_description.substring(0, 160)) {
+                updates.meta_description = cleanText.substring(0, 160);
+            }
+            return { ...prev, ...updates };
+        });
     };
 
     const nextStep = () => {
         if (step === 1 && (!formData.title || !formData.category_id || !formData.short_description)) {
             setError('Foundational intelligence required (Title, Category, Summary).');
+            return;
+        }
+        if (step === 2 && (!formData.full_description || !formData.initial_investment_min || !formData.monthly_income_min)) {
+            setError('Full Intelligence required (Guide, Investment, Income).');
             return;
         }
         setError('');
@@ -71,7 +108,7 @@ export default function AddIdeaPage() {
         e.preventDefault();
 
         // Strategic Safeguard: Prevent submission if not on the final Intelligence step
-        if (step < 2) {
+        if (step < 3) {
             nextStep();
             return;
         }
@@ -102,9 +139,15 @@ export default function AddIdeaPage() {
                 monthly_income_max: Number(formData.monthly_income_max),
                 time_to_first_income_days: Number(formData.time_to_first_income_days),
                 success_rate_percentage: Number(formData.success_rate_percentage),
+                effort_level: formData.effort_level,
+                risk_level: formData.risk_level,
+                time_commitment_hours_per_week: Number(formData.time_commitment_hours_per_week),
                 skills_required: skillsArray,
-                is_premium: false,
-                is_india_specific: true
+                is_premium: formData.is_premium,
+                is_featured: formData.is_featured,
+                is_india_specific: formData.is_india_specific,
+                meta_title: formData.meta_title,
+                meta_description: formData.meta_description,
             };
 
             const { error: insertError } = await supabase
@@ -143,11 +186,11 @@ export default function AddIdeaPage() {
                                 Deploy <span className="text-primary-600">Blueprint</span>
                             </h1>
                             <p className="text-charcoal-500 font-bold uppercase text-[10px] tracking-[0.3em]">
-                                Step {step} of 2 • {step === 1 ? 'Foundation' : 'Full Intelligence'}
+                                Step {step} of 3 • {step === 1 ? 'Foundation' : step === 2 ? 'Full Intelligence' : 'SEO & Controls'}
                             </p>
                         </div>
                         <div className="flex gap-1 mb-2">
-                            {[1, 2].map(i => (
+                            {[1, 2, 3].map(i => (
                                 <div key={i} className={`h-1.5 w-12 rounded-full transition-all duration-500 ${step >= i ? 'bg-primary-600' : 'bg-charcoal-100'}`} />
                             ))}
                         </div>
@@ -184,7 +227,7 @@ export default function AddIdeaPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Intelligence Summary</label>
-                                    <textarea name="short_description" rows={2} value={formData.short_description} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-medium text-charcoal-700 transition-all" placeholder="2-line executive summary..." />
+                                    <textarea name="short_description" rows={2} value={formData.short_description} onChange={handleShortDescChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-medium text-charcoal-700 transition-all" placeholder="2-line executive summary..." />
                                 </div>
                             </motion.div>
                         )}
@@ -263,9 +306,93 @@ export default function AddIdeaPage() {
                                         </div>
                                         <ImageUpload label="Verification Proof (Confidential)" bucket="proofs" onUpload={(url) => setFormData(prev => ({ ...prev, proof_url: url }))} currentUrl={formData.proof_url} />
                                     </div>
+                                    <div className="grid md:grid-cols-3 gap-8">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Days to First Income</label>
+                                            <input type="number" name="time_to_first_income_days" value={formData.time_to_first_income_days} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-bold text-charcoal-900" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Commitment (Hrs/Wk)</label>
+                                            <input type="number" name="time_commitment_hours_per_week" value={formData.time_commitment_hours_per_week} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-bold text-charcoal-900" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Success Rate (%)</label>
+                                            <input type="number" name="success_rate_percentage" value={formData.success_rate_percentage} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-bold text-charcoal-900" min="0" max="100" />
+                                        </div>
+                                    </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Required Expertise (Comma Separated)</label>
                                         <input type="text" name="skills_required" value={formData.skills_required} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-bold text-charcoal-900 transition-all" placeholder="e.g. Digital Marketing, Basic Spreadsheet Skills" />
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {step === 3 && (
+                            <motion.div key="step3" variants={stepVariants} initial="hidden" animate="visible" exit="exit" className="space-y-12">
+                                {/* Deployment Controls */}
+                                <div className="space-y-8">
+                                    <div className="flex items-center gap-3">
+                                        <span className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm">🌐</span>
+                                        <h2 className="text-[10px] font-black uppercase tracking-widest text-charcoal-950">Deployment Controls</h2>
+                                    </div>
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                                        <label className="flex items-center gap-3 p-4 bg-charcoal-50 rounded-2xl border border-charcoal-100 cursor-pointer hover:bg-white hover:shadow-lg transition-all">
+                                            <input
+                                                type="checkbox"
+                                                name="is_india_specific"
+                                                checked={formData.is_india_specific}
+                                                onChange={(e) => setFormData(prev => ({ ...prev, is_india_specific: e.target.checked }))}
+                                                className="w-5 h-5 rounded border-charcoal-200 text-primary-600 focus:ring-primary-600 bg-white"
+                                            />
+                                            <span className="text-[10px] font-black text-charcoal-700 uppercase tracking-widest">India Specific</span>
+                                        </label>
+
+                                        {/* Premium/Featured only for admins or based on platform rules, here showing for all in add? 
+                                            Actually, AddIdeaPage is for everyone. We should probably only show these if is_admin.
+                                        */}
+                                        <label className="flex items-center gap-3 p-4 bg-amber-50 rounded-2xl border border-amber-100 cursor-pointer hover:bg-white hover:shadow-lg transition-all">
+                                            <input
+                                                type="checkbox"
+                                                name="is_premium"
+                                                checked={formData.is_premium}
+                                                onChange={(e) => setFormData(prev => ({ ...prev, is_premium: e.target.checked }))}
+                                                className="w-5 h-5 rounded border-amber-200 text-amber-600 focus:ring-amber-500 bg-white"
+                                            />
+                                            <span className="text-[10px] font-black text-amber-700 uppercase tracking-widest">Premium Content</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {/* SEO Section */}
+                                <div className="space-y-8">
+                                    <div className="flex items-center gap-3">
+                                        <span className="w-8 h-8 rounded-lg bg-primary-50 text-primary-600 flex items-center justify-center text-sm">🔍</span>
+                                        <h2 className="text-[10px] font-black uppercase tracking-widest text-charcoal-950">Signal Presence (SEO)</h2>
+                                    </div>
+                                    <div className="space-y-6">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Meta Title (Signal Header)</label>
+                                            <input
+                                                type="text"
+                                                name="meta_title"
+                                                value={formData.meta_title}
+                                                onChange={handleChange}
+                                                className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-bold text-charcoal-900 transition-all"
+                                                placeholder="Strategic title for search engines..."
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Meta Description (Signal Summary)</label>
+                                            <textarea
+                                                name="meta_description"
+                                                rows={2}
+                                                value={formData.meta_description}
+                                                onChange={handleChange}
+                                                className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-medium text-charcoal-700 transition-all"
+                                                placeholder="Executive summary for search engine snippet..."
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </motion.div>
@@ -278,9 +405,9 @@ export default function AddIdeaPage() {
                                 Previous
                             </button>
                         )}
-                        {step < 2 ? (
+                        {step < 3 ? (
                             <button type="button" onClick={nextStep} className="flex-1 py-5 bg-charcoal-900 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-primary-600 transition-all shadow-xl shadow-charcoal-100">
-                                Proceed to Full Intelligence
+                                Proceed to {step === 1 ? 'Full Intelligence' : 'SEO & Controls'}
                             </button>
                         ) : (
                             <button type="submit" disabled={loading} className="flex-1 py-5 bg-primary-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-emerald-600 transition-all shadow-xl shadow-primary-200">
@@ -290,6 +417,6 @@ export default function AddIdeaPage() {
                     </div>
                 </form>
             </div>
-        </div>
+        </div >
     );
 }

@@ -135,7 +135,7 @@ export default function FranchisePage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 {/* 1. PROFESSIONAL HEADER */}
-                <header className="mb-12 border-b border-charcoal-100 pb-8">
+                <header className="mb-8 border-b border-charcoal-100 pb-6">
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
                         <div>
                             <div className="flex items-center gap-2 mb-2">
@@ -156,33 +156,33 @@ export default function FranchisePage() {
                 </header>
 
                 {/* 2. COMPACT INTELLIGENCE BAR */}
-                <section className="bg-white border border-charcoal-100 rounded-[2rem] shadow-premium mb-12 overflow-hidden">
+                <section className="bg-white border border-charcoal-100 rounded-[1.5rem] shadow-premium mb-8 overflow-hidden">
                     <div className="flex flex-col md:flex-row border-b border-charcoal-50">
                         <div className="flex-1 relative border-r border-charcoal-50">
                             <span className="absolute left-6 top-1/2 -translate-y-1/2 text-charcoal-400">🔍</span>
                             <input
                                 type="text"
-                                placeholder="Search by brand name or category..."
+                                placeholder="Search blueprints..."
                                 value={searchQuery}
                                 aria-label="Search franchises"
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-14 pr-6 py-5 bg-transparent outline-none font-bold text-charcoal-900 placeholder:text-charcoal-300"
+                                className="w-full pl-12 pr-6 py-3 bg-transparent outline-none font-bold text-charcoal-900 placeholder:text-charcoal-300 text-sm"
                             />
                         </div>
-                        <div className="px-8 py-5 bg-charcoal-50/30 flex items-center justify-center">
-                            <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">
-                                Global Brands
+                        <div className="px-6 py-3.5 bg-charcoal-50/10 flex items-center justify-center">
+                            <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest whitespace-nowrap">
+                                {filteredFranchises.length} Brands Verified
                             </div>
                         </div>
                     </div>
 
-                    <div className="p-3 flex flex-wrap gap-2 bg-charcoal-50/30 items-center">
-                        <div className="flex flex-wrap gap-2 flex-1">
+                    <div className="p-2 flex flex-wrap gap-1.5 bg-charcoal-50/30 items-center">
+                        <div className="flex flex-wrap gap-1.5 flex-1">
                             {categories.map((cat) => (
                                 <button
                                     key={cat}
                                     onClick={() => setSelectedCategory(cat)}
-                                    className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${selectedCategory === cat ? 'bg-charcoal-900 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
+                                    className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${selectedCategory === cat ? 'bg-charcoal-900 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
                                 >
                                     {cat === 'all' ? 'All Sectors' : cat}
                                 </button>
@@ -216,9 +216,10 @@ export default function FranchisePage() {
                             {profile && (
                                 <button
                                     onClick={() => setSmartMatch(!smartMatch)}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${smartMatch ? 'bg-primary-600 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
+                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${smartMatch ? 'bg-primary-600 text-white shadow-lg border-primary-600' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
                                 >
-                                    <span className="text-[10px] font-black uppercase tracking-widest leading-none">{smartMatch ? '🎯 MATCH ON' : '⭕ SMART MATCH'}</span>
+                                    <span className="text-xs">{smartMatch ? '🎯' : '🎯'}</span>
+                                    <span className="text-[9px] font-black uppercase tracking-widest leading-none">{smartMatch ? 'Match On' : 'Smart Match'}</span>
                                 </button>
                             )}
                         </div>
@@ -226,7 +227,7 @@ export default function FranchisePage() {
                 </section>
 
                 {/* 3. TRENDING TICKER (Redesigned) */}
-                <div className="mb-12">
+                <div className="mb-8">
                     <h3 className="text-[8px] font-black text-charcoal-400 uppercase tracking-[0.4em] mb-4 pl-1">Institutional Favorites</h3>
                     <div className="flex flex-wrap gap-3">
                         {['Amul', 'Tata EV', 'Lenskart', 'Zudio', 'FirstCry'].map(brand => (

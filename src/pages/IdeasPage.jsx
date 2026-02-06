@@ -132,7 +132,7 @@ export default function IdeasPage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 {/* 1. ULTRA-MINIMALIST HEADER */}
-                <header className="mb-12 border-b border-charcoal-100 pb-8">
+                <header className="mb-8 border-b border-charcoal-100 pb-6">
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                         <div>
                             <div className="flex items-center gap-2 mb-2">
@@ -154,24 +154,24 @@ export default function IdeasPage() {
                 </header>
 
                 {/* 2. COMPACT INTELLIGENCE BAR (Unified Filter) */}
-                <section className="bg-white border border-charcoal-100 rounded-[2rem] shadow-premium mb-12 relative">
+                <section className="bg-white border border-charcoal-100 rounded-[1.5rem] shadow-premium mb-8 relative overflow-hidden">
                     {/* Top Row: Search & Sort */}
                     <div className="flex flex-col md:flex-row border-b border-charcoal-50">
-                        <div className="flex-1 relative border-r border-charcoal-50 rounded-t-[2rem] md:rounded-tr-none md:rounded-tl-[2rem] overflow-hidden">
+                        <div className="flex-1 relative border-r border-charcoal-50">
                             <span className="absolute left-6 top-1/2 -translate-y-1/2 text-charcoal-400">🔍</span>
                             <input
                                 type="text"
-                                placeholder="Search ideas..."
+                                placeholder="Search blueprints..."
                                 value={searchQuery}
                                 aria-label="Search income ideas"
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-14 pr-6 py-5 bg-transparent outline-none font-bold text-charcoal-900 placeholder:text-charcoal-300"
+                                className="w-full pl-12 pr-6 py-3 bg-transparent outline-none font-bold text-charcoal-900 placeholder:text-charcoal-300 text-sm"
                             />
                         </div>
                         <div className="flex">
-                            <div className="px-6 py-5 border-r border-charcoal-50 hidden lg:block">
+                            <div className="px-6 py-3.5 border-r border-charcoal-50 hidden lg:block">
                                 <div className="flex items-center gap-4">
-                                    <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Min Monthly Income</span>
+                                    <span className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest">Min Monthly Income</span>
                                     <input
                                         type="range"
                                         min="0"
@@ -179,9 +179,9 @@ export default function IdeasPage() {
                                         step="5000"
                                         value={minIncome}
                                         onChange={(e) => setMinIncome(parseInt(e.target.value))}
-                                        className="w-32 accent-primary-600 h-1 bg-charcoal-100 rounded-lg cursor-pointer"
+                                        className="w-24 accent-primary-600 h-1 bg-charcoal-50 rounded-lg cursor-pointer"
                                     />
-                                    <span className="text-xs font-black text-primary-600">₹{(minIncome / 1000).toFixed(0)}k+</span>
+                                    <span className="text-[10px] font-black text-primary-600">₹{(minIncome / 1000).toFixed(0)}k+</span>
                                 </div>
                             </div>
 
@@ -189,7 +189,7 @@ export default function IdeasPage() {
                             <div className="relative sort-dropdown-container">
                                 <button
                                     onClick={() => setShowSortDropdown(!showSortDropdown)}
-                                    className={`h-full px-8 py-5 flex items-center gap-3 cursor-pointer transition-all rounded-tr-[2rem] md:rounded-tr-[2rem] md:rounded-tl-none ${showSortDropdown ? 'bg-charcoal-50' : 'hover:bg-charcoal-50/50'}`}
+                                    className={`h-full px-6 py-3.5 flex items-center gap-3 cursor-pointer transition-all border-r border-charcoal-50 ${showSortDropdown ? 'bg-charcoal-50' : 'hover:bg-charcoal-50/50'}`}
                                 >
                                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-charcoal-900 whitespace-nowrap">
                                         {sortBy === 'created_at' ? 'Newest First' :
@@ -240,13 +240,13 @@ export default function IdeasPage() {
 
                             {/* SMART MATCH TOGGLE */}
                             {profile && (
-                                <div className="flex items-center px-6 py-5 border-l border-charcoal-50 bg-primary-50/20">
+                                <div className="flex items-center px-6 py-3.5 bg-primary-50/10">
                                     <button
                                         onClick={() => setSmartMatch(!smartMatch)}
-                                        className={`flex items-center gap-3 px-4 py-2 rounded-xl transition-all ${smartMatch ? 'bg-primary-600 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
+                                        className={`flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl transition-all ${smartMatch ? 'bg-primary-600 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
                                     >
-                                        <span className="text-sm">{smartMatch ? '🎯' : '⭕'}</span>
-                                        <span className="text-[10px] font-black uppercase tracking-widest leading-none">Smart Match</span>
+                                        <span className="text-xs">{smartMatch ? '🎯' : '🎯'}</span>
+                                        <span className="text-[9px] font-black uppercase tracking-widest leading-none">Smart Match</span>
                                     </button>
                                 </div>
                             )}
@@ -255,18 +255,18 @@ export default function IdeasPage() {
 
                     {/* Bottom Row: Classification Pills & Expanded Filters */}
                     <div className="p-3 flex flex-col md:flex-row gap-4 bg-charcoal-50/30 rounded-b-[2rem] items-center">
-                        <div className="flex flex-wrap gap-2 flex-1">
+                        <div className="flex flex-wrap gap-1.5 flex-1">
                             <button
                                 onClick={() => setSelectedCategory('all')}
-                                className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${selectedCategory === 'all' ? 'bg-charcoal-900 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
+                                className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${selectedCategory === 'all' ? 'bg-charcoal-900 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
                             >
-                                All Categories
+                                All Sectors
                             </button>
                             {categories.map((category) => (
                                 <button
                                     key={category.id}
                                     onClick={() => setSelectedCategory(category.id)}
-                                    className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${selectedCategory === category.id ? 'bg-primary-600 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
+                                    className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${selectedCategory === category.id ? 'bg-primary-600 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
                                 >
                                     <span>{category.icon}</span>
                                     {category.name}
@@ -280,7 +280,7 @@ export default function IdeasPage() {
                                 onChange={(e) => setSelectedRisk(e.target.value)}
                                 className="bg-white border border-charcoal-100 rounded-xl px-4 py-2 text-[9px] font-black uppercase tracking-widest outline-none cursor-pointer"
                             >
-                                <option value="all">All Risk</option>
+                                <option value="all">Any Risk</option>
                                 <option value="low">Low Risk</option>
                                 <option value="medium">Medium Risk</option>
                                 <option value="high">High Risk</option>

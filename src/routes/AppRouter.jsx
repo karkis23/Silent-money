@@ -30,11 +30,7 @@ const ComparisonPage = lazy(() => import('../pages/ComparisonPage'));
 const AdminDashboardPage = lazy(() => import('../pages/AdminDashboardPage'));
 import ErrorPage from '../pages/ErrorPage';
 
-const PageLoader = () => (
-    <div className="min-h-screen bg-cream-50 flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin"></div>
-    </div>
-);
+import PageLoader from '../components/PageLoader';
 
 const router = createBrowserRouter([
     {

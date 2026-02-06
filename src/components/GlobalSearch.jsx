@@ -32,28 +32,20 @@ export default function GlobalSearch() {
         const fetchResults = async () => {
             setLoading(true);
 
-            // Search Blueprints
-            const { data: ideas } = await supabase
-                .from('income_ideas')
-                .select('id, title, slug')
-                .eq('is_approved', true)
-                .ilike('title', `%${query}%`)
-                .limit(4);
+            // Use the Postgres Full-Text Search RPC for scalability
+            const { data, error } = await supabase.rpc('search_knowledge', {
+                search_query: query
+            });
 
-            // Search Franchises
-            const { data: franchises } = await supabase
-                .from('franchises')
-                .select('id, name, slug')
-                .eq('is_approved', true)
-                .ilike('name', `%${query}%`)
-                .limit(4);
-
-            const unified = [
-                ...(ideas || []).map(i => ({ ...i, name: i.title, type: 'blueprint', path: `/ideas/${i.slug}` })),
-                ...(franchises || []).map(f => ({ ...f, type: 'franchise', path: `/franchise/${f.slug}` }))
-            ];
-
-            setResults(unified);
+            if (error) {
+                console.error('Search error:', error);
+                setResults([]);
+            } else {
+                setResults((data || []).map(res => ({
+                    ...res,
+                    path: res.type === 'blueprint' ? `/ideas/${res.slug}` : `/franchise/${res.slug}`
+                })));
+            }
             setLoading(false);
         };
 

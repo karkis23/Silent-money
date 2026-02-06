@@ -42,6 +42,8 @@ export default function PostFranchisePage() {
         staffing_model: '',
         tech_stack: '',
         marketing_support: '',
+        meta_title: '',
+        meta_description: '',
     });
 
     const categories = ['Food & Beverage', 'Retail', 'Healthcare', 'Logistics', 'Education', 'Automotive', 'Service'];
@@ -49,6 +51,38 @@ export default function PostFranchisePage() {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleNameChange = (e) => {
+        const name = e.target.value;
+        setFormData(prev => {
+            const updates = { name };
+            // Auto-generate meta title
+            if (!prev.meta_title || prev.meta_title === `${prev.name} | Silent Money`) {
+                updates.meta_title = `${name} | Silent Money`;
+            }
+            return { ...prev, ...updates };
+        });
+    };
+
+    const handleDescriptionChange = (e) => {
+        const { value } = e.target;
+        setFormData(prev => {
+            const updates = { description: value };
+
+            // Intelligence-Led SEO Generation: Strip Markdown & Formatting
+            const cleanText = value
+                .replace(/[#*`~_]/g, '')              // Strip headers, bold, italics
+                .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Strip link syntax but keep text
+                .replace(/\n+/g, ' ')                 // Replace multiple newlines with single space
+                .trim();
+
+            // Auto-generate meta description if currently empty or matches truncated description
+            if (!prev.meta_description || prev.meta_description.length < 5 || prev.meta_description === prev.description.substring(0, 160)) {
+                updates.meta_description = cleanText.substring(0, 160);
+            }
+            return { ...prev, ...updates };
+        });
     };
 
     const nextStep = () => {
@@ -107,6 +141,8 @@ export default function PostFranchisePage() {
             staffing_model: formData.staffing_model,
             tech_stack: formData.tech_stack,
             marketing_support: formData.marketing_support,
+            meta_title: formData.meta_title,
+            meta_description: formData.meta_description,
             author_id: user.id,
             is_approved: false // Require moderation
         }]);
@@ -137,7 +173,7 @@ export default function PostFranchisePage() {
                                 List <span className="text-primary-600">Franchise</span>
                             </h1>
                             <p className="text-charcoal-400 font-bold uppercase text-[10px] tracking-[0.3em]">
-                                Phase {step} of 3 • {step === 1 ? 'Business Foundation' : step === 2 ? 'Operational Metrics' : 'Connectivity'}
+                                Phase {step} of 3 • {step === 1 ? 'Business Foundation' : step === 2 ? 'Operational Metrics' : 'SEO & Connectivity'}
                             </p>
                         </div>
                         <div className="flex gap-1 mb-2">
@@ -166,7 +202,7 @@ export default function PostFranchisePage() {
                                     <div className="space-y-8">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Brand Identity</label>
-                                            <input required name="name" value={formData.name} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-bold" placeholder="e.g. Chai Point Express" />
+                                            <input required name="name" value={formData.name} onChange={handleNameChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-bold" placeholder="e.g. Chai Point Express" />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Sector Classification</label>
@@ -293,7 +329,7 @@ export default function PostFranchisePage() {
                                             **bold** • - list • {">"} quote • # header
                                         </div>
                                     </div>
-                                    <textarea name="description" rows={8} value={formData.description} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-medium min-h-[200px] research-editor resize-y" placeholder="Explain the business model, support, and track record..." />
+                                    <textarea name="description" rows={8} value={formData.description} onChange={handleDescriptionChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-medium min-h-[200px] research-editor resize-y" placeholder="Explain the business model, support, and track record..." />
                                 </div>
                             </motion.div>
                         )}
@@ -316,6 +352,38 @@ export default function PostFranchisePage() {
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* SEO Section */}
+                                <div className="space-y-8 pt-8 border-t border-charcoal-100">
+                                    <div className="flex items-center gap-3">
+                                        <span className="w-8 h-8 rounded-lg bg-primary-50 text-primary-600 flex items-center justify-center text-sm">🔍</span>
+                                        <h2 className="text-[10px] font-black uppercase tracking-widest text-charcoal-950">Signal Presence (SEO)</h2>
+                                    </div>
+                                    <div className="space-y-6">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Meta Title (Signal Header)</label>
+                                            <input
+                                                type="text"
+                                                name="meta_title"
+                                                value={formData.meta_title}
+                                                onChange={handleChange}
+                                                className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-bold text-charcoal-900 transition-all"
+                                                placeholder="Strategic title for search engines..."
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Meta Description (Signal Summary)</label>
+                                            <textarea
+                                                name="meta_description"
+                                                rows={2}
+                                                value={formData.meta_description}
+                                                onChange={handleChange}
+                                                className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-medium text-charcoal-700 transition-all"
+                                                placeholder="Executive summary for search engine snippet..."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -328,7 +396,7 @@ export default function PostFranchisePage() {
                         )}
                         {step < 3 ? (
                             <button type="button" onClick={nextStep} className="flex-1 py-5 bg-charcoal-900 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-primary-600 transition-all shadow-xl shadow-charcoal-100">
-                                Proceed to {step === 1 ? 'Operational Metrics' : 'Connectivity Protocol'}
+                                Proceed to {step === 1 ? 'Operational Metrics' : 'SEO & Connectivity'}
                             </button>
                         ) : (
                             <button type="submit" disabled={loading} className="flex-1 py-5 bg-primary-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-emerald-600 transition-all shadow-xl shadow-primary-200">

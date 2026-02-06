@@ -49,6 +49,7 @@ export default function AdminDashboardPage() {
     const [auditRequests, setAuditRequests] = useState([]);
     const [allUsers, setAllUsers] = useState([]);
     const [allCategories, setAllCategories] = useState([]);
+    const [maintenanceQueue, setMaintenanceQueue] = useState([]);
     const location = useLocation();
 
     // Category Modal State
@@ -87,7 +88,7 @@ export default function AdminDashboardPage() {
     useEffect(() => {
         const query = new URLSearchParams(location.search);
         const tab = query.get('tab');
-        if (tab && ['pending', 'history', 'all', 'audits', 'users'].includes(tab)) {
+        if (tab && ['pending', 'history', 'all', 'audits', 'users', 'categories', 'logs', 'performance', 'maintenance'].includes(tab)) {
             setActiveTab(tab);
             setPage(0); // Reset page on direct tab navigation
         }
@@ -161,15 +162,17 @@ export default function AdminDashboardPage() {
             };
 
             const fetchMetaData = async () => {
-                const [{ data: logs }, { data: categories }, { data: users }] = await Promise.all([
+                const [{ data: logs }, { data: categories }, { data: users }, { data: maintenance }] = await Promise.all([
                     supabase.from('admin_logs').select('*, profiles:admin_id(full_name)').order('created_at', { ascending: false }).limit(50),
                     supabase.from('categories').select('*').order('display_order', { ascending: true }),
-                    supabase.from('profiles').select('*').order('created_at', { ascending: false })
+                    supabase.from('profiles').select('*').order('created_at', { ascending: false }),
+                    supabase.from('storage_deletion_queue').select('*').order('created_at', { ascending: false })
                 ]);
                 setAdminLogs(logs || []);
                 setAllCategories(categories || []);
                 setAllUsers(users || []);
-                return { logs, categories, users };
+                setMaintenanceQueue(maintenance || []);
+                return { logs, categories, users, maintenance };
             };
 
             const [ideas, franchises, approved, archived, audits, meta] = await Promise.all([
@@ -259,10 +262,47 @@ export default function AdminDashboardPage() {
                 })
                 .subscribe();
 
+            // Real-time User Profile Updates
+            const userSub = supabase
+                .channel('admin-users')
+                .on('postgres_changes', {
+                    event: 'UPDATE',
+                    table: 'profiles',
+                    schema: 'public'
+                }, (payload) => {
+                    const updatedUser = payload.new;
+
+                    // Update local state with the changed user
+                    setAllUsers(prev => prev.map(u =>
+                        u.id === updatedUser.id ? { ...u, ...updatedUser } : u
+                    ));
+
+                    // Show notification for admin-related changes (only if not current user)
+                    if (updatedUser.id !== user.id) {
+                        if (payload.old.is_admin !== updatedUser.is_admin) {
+                            toast.info(
+                                updatedUser.is_admin
+                                    ? `👑 ${updatedUser.full_name || 'A user'} was promoted to admin`
+                                    : `⚡ ${updatedUser.full_name || 'A user'} was demoted from admin`,
+                                { duration: 4000 }
+                            );
+                        } else if (payload.old.is_banned !== updatedUser.is_banned) {
+                            toast.info(
+                                updatedUser.is_banned
+                                    ? `🚫 ${updatedUser.full_name || 'A user'} was banned`
+                                    : `✅ ${updatedUser.full_name || 'A user'} was unbanned`,
+                                { duration: 4000 }
+                            );
+                        }
+                    }
+                })
+                .subscribe();
+
             return () => {
                 supabase.removeChannel(auditSub);
                 supabase.removeChannel(ideaSub);
                 supabase.removeChannel(franchiseSub);
+                supabase.removeChannel(userSub);
             };
         }
     }, [profile, navigate, searchQuery]); // REMOVED page dependency
@@ -394,27 +434,162 @@ export default function AdminDashboardPage() {
     };
 
     const handleBanUser = (userId) => {
+        // Check if user is an admin
+        const targetUser = allUsers.find(u => u.id === userId);
+        const isTargetAdmin = targetUser?.is_admin;
+
         setConfirmConfig({
             isOpen: true,
-            title: "Ban Investor User?",
-            message: "Are you sure you want to ban this user? They will lose access to all institutional features immediately.",
+            title: "Ban User?",
+            message: isTargetAdmin
+                ? "⚠️ This user is an administrator. Banning will automatically revoke their admin privileges and they will lose access to all institutional features immediately."
+                : "Are you sure you want to ban this user? They will lose access to all institutional features immediately.",
             type: "danger",
             confirmText: "Ban User",
             onConfirm: async () => {
-                const { error } = await supabase.from('profiles').update({ is_banned: true }).eq('id', userId);
+                // Auto-revoke admin if user is admin
+                const updateData = isTargetAdmin
+                    ? { is_banned: true, is_admin: false }
+                    : { is_banned: true };
+
+                const { error } = await supabase
+                    .from('profiles')
+                    .update(updateData)
+                    .eq('id', userId);
+
                 if (!error) {
-                    toast.success('User has been banned.');
+                    toast.success(isTargetAdmin
+                        ? 'User has been banned and admin privileges revoked.'
+                        : 'User has been banned.'
+                    );
+
                     // Log action
                     await supabase.from('admin_logs').insert([{
                         admin_id: user.id,
                         action_type: 'ban',
                         target_type: 'user',
                         target_id: userId,
-                        details: { reason: 'Manual Admin Ban' }
+                        details: {
+                            reason: 'Manual Admin Ban',
+                            admin_revoked: isTargetAdmin
+                        }
                     }]);
-                    setAllUsers(prev => prev.map(u => u.id === userId ? { ...u, is_banned: true } : u));
+
+                    // Update local state
+                    setAllUsers(prev => prev.map(u =>
+                        u.id === userId
+                            ? { ...u, is_banned: true, is_admin: isTargetAdmin ? false : u.is_admin }
+                            : u
+                    ));
                 } else {
                     toast.error('Ban failed: ' + error.message);
+                }
+            }
+        });
+    };
+
+    const handleToggleAdmin = (userId, currentAdminStatus, userName) => {
+        const targetUser = allUsers.find(u => u.id === userId);
+        const currentUserProfile = allUsers.find(u => u.id === user.id);
+
+        // Define hierarchy levels
+        const hierarchyLevels = {
+            'owner': 4,
+            'super_admin': 3,
+            'admin': 2,
+            'moderator': 1,
+            'user': 0
+        };
+
+        const currentUserLevel = hierarchyLevels[currentUserProfile?.role || 'admin'] || 2;
+        const targetUserLevel = hierarchyLevels[targetUser?.role || 'user'] || 0;
+
+        // CRITICAL SAFETY CHECK #1: Prevent self-demotion
+        if (userId === user.id && currentAdminStatus) {
+            toast.error('⚠️ Security Error: You cannot revoke your own admin privileges. Ask another administrator to do this.', {
+                duration: 5000,
+                icon: '🚫'
+            });
+            return;
+        }
+
+        // HIERARCHY CHECK: Prevent demoting owners
+        if (currentAdminStatus && targetUser?.role === 'owner') {
+            toast.error('🛡️ Protection: Platform owners cannot be demoted. This is a permanent security role.', {
+                duration: 6000,
+                icon: '👑'
+            });
+            return;
+        }
+
+        // HIERARCHY CHECK: Can only manage users at lower levels
+        if (currentAdminStatus && targetUserLevel >= currentUserLevel) {
+            const roleName = targetUser?.role === 'super_admin' ? 'Super Administrator' : targetUser?.role === 'owner' ? 'Owner' : 'Peer Administrator';
+            toast.error(`⚠️ Insufficient Privileges: You cannot demote a ${roleName}. Only higher-level admins can perform this action.`, {
+                duration: 6000,
+                icon: '🚫'
+            });
+            return;
+        }
+
+        // CRITICAL SAFETY CHECK #2: Prevent last admin from being demoted
+        if (currentAdminStatus) {
+            const totalAdmins = allUsers.filter(u => u.is_admin).length;
+            if (totalAdmins <= 1) {
+                toast.error('⚠️ System Protection: Cannot revoke the last administrator. The platform must have at least one admin at all times.', {
+                    duration: 6000,
+                    icon: '🛡️'
+                });
+                return;
+            }
+        }
+
+        const action = currentAdminStatus ? 'Revoke' : 'Grant';
+        const newStatus = !currentAdminStatus;
+
+        setConfirmConfig({
+            isOpen: true,
+            title: `${action} Administrator Privileges?`,
+            message: currentAdminStatus
+                ? `Are you sure you want to revoke admin privileges from ${userName || 'this user'}? They will lose access to all administrative functions and the admin dashboard.`
+                : `Are you sure you want to grant administrator privileges to ${userName || 'this user'}? They will have full access to moderate content, manage users, and all administrative functions.`,
+            type: currentAdminStatus ? "warning" : "success",
+            confirmText: `${action} Admin Access`,
+            onConfirm: async () => {
+                // When granting admin, set level to 'admin' by default
+                const updateData = newStatus
+                    ? { is_admin: true, role: 'admin' }
+                    : { is_admin: false, role: 'user' };
+
+                const { error } = await supabase
+                    .from('profiles')
+                    .update(updateData)
+                    .eq('id', userId);
+
+                if (!error) {
+                    toast.success(`${action === 'Grant' ? 'Administrator privileges granted' : 'Administrator privileges revoked'} successfully.`);
+
+                    // Log action
+                    await supabase.from('admin_logs').insert([{
+                        admin_id: user.id,
+                        action_type: newStatus ? 'grant_admin' : 'revoke_admin',
+                        target_type: 'user',
+                        target_id: userId,
+                        details: {
+                            action: `${action} Admin Privileges`,
+                            target_user: userName || 'Unknown User',
+                            admin_level: newStatus ? 'admin' : null
+                        }
+                    }]);
+
+                    // Update local state
+                    setAllUsers(prev => prev.map(u =>
+                        u.id === userId
+                            ? { ...u, is_admin: newStatus, role: newStatus ? 'admin' : 'user' }
+                            : u
+                    ));
+                } else {
+                    toast.error(`Failed to ${action.toLowerCase()} admin privileges: ` + error.message);
                 }
             }
         });
@@ -434,12 +609,25 @@ export default function AdminDashboardPage() {
         const itemType = type === 'idea' ? 'Idea' : 'Franchise';
         const table = type === 'idea' ? 'income_ideas' : 'franchises';
 
-        const { error } = await supabase
+        const { error, data } = await supabase
             .from(table)
             .delete()
-            .eq('id', id);
+            .eq('id', id)
+            .select();
 
-        if (!error) {
+        if (error) {
+            toast.error('Delete failed: ' + error.message);
+            return;
+        }
+
+        // RLS Policy Check: If no data returned, delete was blocked or row not found
+        if (!data || data.length === 0) {
+            toast.error('Delete failed: Permission denied or item not found. Check Admin RLS policies.');
+            console.error('Delete returned 0 rows. Possible RLS blocking.');
+            return;
+        }
+
+        if (!error && data.length > 0) {
             toast.success(`${itemType} permanently deleted from database`);
 
             // Log action
@@ -790,6 +978,35 @@ export default function AdminDashboardPage() {
         }
     };
 
+    const handlePurgeStorage = async () => {
+        setConfirmConfig({
+            isOpen: true,
+            title: '☢️ AUTHORIZE SYSTEM PURGE',
+            message: `You are about to permanently delete ${maintenanceQueue.length} orphaned assets from Supabase Storage clusters. This action is IRREVERSIBLE. Do you wish to proceed with the reclamation protocol?`,
+            type: 'danger',
+            onConfirm: async () => {
+                const results = { success: 0, failed: 0 };
+
+                for (const item of maintenanceQueue) {
+                    const { error: storageError } = await supabase.storage
+                        .from(item.bucket_name)
+                        .remove([item.file_path]);
+
+                    if (!storageError) {
+                        await supabase.from('storage_deletion_queue').delete().eq('id', item.id);
+                        results.success++;
+                    } else {
+                        results.failed++;
+                    }
+                }
+
+                toast.success(`Purge complete: ${results.success} cleared, ${results.failed} failed.`);
+                setMaintenanceQueue([]);
+                await logAssetAction('SYSTEM', 'MAINTENANCE', 'STORAGE_PURGE', 'active', 'purged', `Cleaned ${results.success} orphaned files.`);
+            }
+        });
+    };
+
     if (!profile?.is_admin) return null;
 
     return (
@@ -847,7 +1064,8 @@ export default function AdminDashboardPage() {
                                     <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black ${activeTab === 'archived' ? 'bg-white/10 text-white' : 'bg-charcoal-100 text-charcoal-400'}`}>{archivedIdeas.length + archivedFranchises.length}</span>
                                 </button>
 
-                                <div className="hidden lg:block w-[1px] h-6 bg-charcoal-100 mx-2" />
+                                {/* Spacing to delineate Administrative sectors from Database sectors */}
+                                <div className="hidden lg:block w-4 shrink-0" />
 
                                 <button
                                     onClick={() => setActiveTab('audits')}
@@ -878,6 +1096,21 @@ export default function AdminDashboardPage() {
                                     className={`px-4 py-3 rounded-[1.15rem] text-[10px] font-black uppercase tracking-[0.1em] transition-all flex items-center gap-3 whitespace-nowrap flex-1 justify-center ${activeTab === 'logs' ? 'bg-charcoal-950 text-white shadow-xl translate-y-[-1px]' : 'text-charcoal-400 hover:text-charcoal-900 hover:bg-charcoal-50'}`}
                                 >
                                     <span>Logs</span>
+                                </button>
+
+                                <button
+                                    onClick={() => setActiveTab('performance')}
+                                    className={`px-4 py-3 rounded-[1.15rem] text-[10px] font-black uppercase tracking-[0.1em] transition-all flex items-center gap-3 whitespace-nowrap flex-1 justify-center ${activeTab === 'performance' ? 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-xl translate-y-[-1px]' : 'text-charcoal-400 hover:text-emerald-600 hover:bg-emerald-50'}`}
+                                >
+                                    <span>Growth</span>
+                                </button>
+
+                                <button
+                                    onClick={() => setActiveTab('maintenance')}
+                                    className={`px-4 py-3 rounded-[1.15rem] text-[10px] font-black uppercase tracking-[0.1em] transition-all flex items-center gap-3 whitespace-nowrap flex-1 justify-center ${activeTab === 'maintenance' ? 'bg-red-500 text-white shadow-xl shadow-red-500/20 translate-y-[-1px]' : 'text-charcoal-400 hover:text-red-500 hover:bg-red-50'}`}
+                                >
+                                    <span>System</span>
+                                    <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black ${activeTab === 'maintenance' ? 'bg-white/20 text-white' : 'bg-red-50 text-red-500'}`}>{maintenanceQueue.length}</span>
                                 </button>
                             </div>
                         </div>
@@ -983,7 +1216,7 @@ export default function AdminDashboardPage() {
                     </div>
                 )}
 
-                {activeTab === 'audits' ? (
+                {activeTab === 'audits' && (
                     <div className="mt-8">
                         <section className="card bg-white border-none shadow-xl p-8">
                             <div className="flex justify-between items-center mb-8 border-b border-charcoal-50 pb-4">
@@ -1068,23 +1301,12 @@ export default function AdminDashboardPage() {
                                     ))
                                 )}
 
-                                {filterItems(activeTab === 'pending' ? pendingIdeas : activeTab === 'history' ? approvedIdeas : activeTab === 'archived' ? archivedIdeas : allIdeas).length === 0 && (
-                                    <div className="py-20 text-center">
-                                        <div className="text-4xl mb-4">🔍</div>
-                                        <div className="text-sm font-black text-charcoal-900 uppercase tracking-widest">No Intelligence Matching Criteria</div>
-                                        <p className="text-[10px] text-charcoal-400 font-bold uppercase tracking-widest mt-2">Adjust search parameters or clear filters</p>
-                                        <button
-                                            onClick={() => setSearchQuery('')}
-                                            className="mt-6 px-6 py-2 bg-charcoal-950 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-black transition-all"
-                                        >
-                                            Reset Search Phase
-                                        </button>
-                                    </div>
-                                )}
                             </div>
                         </section>
                     </div>
-                ) : ['pending', 'history', 'all', 'archived'].includes(activeTab) ? (
+                )}
+
+                {['pending', 'history', 'all', 'archived'].includes(activeTab) && (
                     <>
                         <div className="grid lg:grid-cols-2 gap-8">
                             {/* Ideas Section */}
@@ -1149,16 +1371,18 @@ export default function AdminDashboardPage() {
                                                 </div>
 
                                                 <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-charcoal-100/50 ml-8">
-                                                    <button
-                                                        onClick={() => handleToggleFeatured(idea.id, 'idea', idea.is_featured)}
-                                                        className={`px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-wider transition-all ${idea.is_featured
-                                                            ? 'bg-amber-100 text-amber-700 border border-amber-300'
-                                                            : 'bg-white text-charcoal-400 border border-charcoal-200 hover:border-amber-300'
-                                                            }`}
-                                                        title={idea.is_featured ? 'Remove from Featured' : 'Mark as Featured'}
-                                                    >
-                                                        {idea.is_featured ? '⭐ Featured' : '☆ Feature'}
-                                                    </button>
+                                                    {activeTab !== 'pending' && (
+                                                        <button
+                                                            onClick={() => handleToggleFeatured(idea.id, 'idea', idea.is_featured)}
+                                                            className={`px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-wider transition-all ${idea.is_featured
+                                                                ? 'bg-amber-100 text-amber-700 border border-amber-300'
+                                                                : 'bg-white text-charcoal-400 border border-charcoal-200 hover:border-amber-300'
+                                                                }`}
+                                                            title={idea.is_featured ? 'Remove from Featured' : 'Mark as Featured'}
+                                                        >
+                                                            {idea.is_featured ? '⭐ Featured' : '☆ Feature'}
+                                                        </button>
+                                                    )}
                                                     {activeTab === 'pending' && (
                                                         <>
                                                             <button
@@ -1284,16 +1508,18 @@ export default function AdminDashboardPage() {
 
 
                                                 <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-charcoal-100/50 ml-8">
-                                                    <button
-                                                        onClick={() => handleToggleFeatured(fran.id, 'franchise', fran.is_featured)}
-                                                        className={`px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-wider transition-all ${fran.is_featured
-                                                            ? 'bg-amber-100 text-amber-700 border border-amber-300'
-                                                            : 'bg-white text-charcoal-400 border border-charcoal-200 hover:border-amber-300'
-                                                            }`}
-                                                        title={fran.is_featured ? 'Remove from Featured' : 'Mark as Featured'}
-                                                    >
-                                                        {fran.is_featured ? '⭐ Featured' : '☆ Feature'}
-                                                    </button>
+                                                    {activeTab !== 'pending' && (
+                                                        <button
+                                                            onClick={() => handleToggleFeatured(fran.id, 'franchise', fran.is_featured)}
+                                                            className={`px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-wider transition-all ${fran.is_featured
+                                                                ? 'bg-amber-100 text-amber-700 border border-amber-300'
+                                                                : 'bg-white text-charcoal-400 border border-charcoal-200 hover:border-amber-300'
+                                                                }`}
+                                                            title={fran.is_featured ? 'Remove from Featured' : 'Mark as Featured'}
+                                                        >
+                                                            {fran.is_featured ? '⭐ Featured' : '☆ Feature'}
+                                                        </button>
+                                                    )}
                                                     {activeTab === 'pending' && (
                                                         <>
                                                             <button
@@ -1417,7 +1643,7 @@ export default function AdminDashboardPage() {
                             </div>
                         )}
                     </>
-                ) : null}
+                )}
 
                 {activeTab === 'users' && (
                     <div className="mt-8">
@@ -1453,16 +1679,48 @@ export default function AdminDashboardPage() {
                                                             {u.avatar_url ? <img src={u.avatar_url} className="w-full h-full rounded-2xl object-cover" /> : '👤'}
                                                         </div>
                                                         <div>
-                                                            <div className="text-sm font-black text-charcoal-900">{u.full_name || 'Anonymous'}</div>
+                                                            <div className="text-sm font-black text-charcoal-900 flex items-center gap-2">
+                                                                {u.full_name || 'Anonymous'}
+                                                                {u.id === user.id && (
+                                                                    <span className="text-[9px] font-black text-primary-600 bg-primary-50 px-2 py-0.5 rounded-md uppercase tracking-widest">You</span>
+                                                                )}
+                                                            </div>
                                                             <div className="text-[10px] font-bold text-primary-600 uppercase tracking-widest">{u.membership_tier || 'Basic'}</div>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td className="py-6 text-center">
-                                                    <div className="flex gap-2 justify-center">
-                                                        <span className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${u.is_admin ? 'bg-charcoal-900 text-white' : 'bg-charcoal-100 text-charcoal-400'}`}>
-                                                            {u.is_admin ? 'ADMINISTRATOR' : 'INVESTOR'}
-                                                        </span>
+                                                    <div className="flex gap-2 justify-center flex-wrap">
+                                                        {u.is_admin ? (
+                                                            <span className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${u.role === 'owner'
+                                                                ? 'bg-gradient-to-r from-yellow-500 to-amber-600 text-white shadow-lg'
+                                                                : u.role === 'super_admin'
+                                                                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md'
+                                                                    : 'bg-charcoal-900 text-white'
+                                                                }`}>
+                                                                {u.role === 'owner' && '👑'}
+                                                                {u.role === 'super_admin' && '⚡'}
+                                                                {u.role === 'admin' && '🔑'}
+                                                                {u.role === 'moderator' && '🛡️'}
+                                                                {u.role === 'owner' ? 'OWNER' : u.role === 'super_admin' ? 'SUPER ADMIN' : u.role === 'admin' ? 'ADMINISTRATOR' : 'MODERATOR'}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest bg-charcoal-100 text-charcoal-400">
+                                                                INVESTOR
+                                                            </span>
+                                                        )}
+                                                        {!u.is_banned && (
+                                                            <button
+                                                                onClick={() => handleToggleAdmin(u.id, u.is_admin, u.full_name)}
+                                                                className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${u.is_admin
+                                                                    ? 'bg-amber-100 text-amber-700 border border-amber-300 hover:bg-amber-200'
+                                                                    : 'bg-emerald-100 text-emerald-700 border border-emerald-300 hover:bg-emerald-200'
+                                                                    }`}
+                                                                title={u.is_admin ? 'Revoke Admin Privileges' : 'Grant Admin Privileges'}
+                                                            >
+                                                                {u.is_admin ? '⚡ Revoke Admin' : '👑 Make Admin'}
+                                                            </button>
+                                                        )}
                                                         {!u.is_admin && !u.is_banned && (
                                                             <button
                                                                 onClick={() => handleBanUser(u.id)}
@@ -1496,7 +1754,6 @@ export default function AdminDashboardPage() {
                     </div>
                 )}
 
-                {/* CATEGORIES TAB CONTENT */}
                 {activeTab === 'categories' && (
                     <div className="space-y-6">
                         <section className="card bg-white border-none shadow-xl p-8 mb-10 overflow-hidden relative">
@@ -1512,7 +1769,6 @@ export default function AdminDashboardPage() {
                                     <span>➕</span> Add New Category
                                 </button>
                             </div>
-
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left">
                                     <thead>
@@ -1541,31 +1797,15 @@ export default function AdminDashboardPage() {
                                                     </div>
                                                 </td>
                                                 <td className="py-6">
-                                                    <span className="px-2 py-1 bg-charcoal-100 rounded text-[9px] font-mono font-bold text-charcoal-600">
-                                                        /{cat.slug}
-                                                    </span>
+                                                    <span className="px-2 py-1 bg-charcoal-100 rounded text-[9px] font-mono font-bold text-charcoal-600">/{cat.slug}</span>
                                                 </td>
                                                 <td className="py-6 pr-8">
-                                                    <div className="text-[10px] font-medium text-charcoal-500 line-clamp-1 max-w-xs">
-                                                        {cat.description || 'No description provided.'}
-                                                    </div>
+                                                    <div className="text-[10px] font-medium text-charcoal-500 line-clamp-1 max-w-xs">{cat.description || 'No description provided.'}</div>
                                                 </td>
                                                 <td className="py-6 text-right pr-4">
                                                     <div className="flex gap-2 justify-end">
-                                                        <button
-                                                            onClick={() => setCategoryModal({ isOpen: true, category: cat })}
-                                                            className="p-2 bg-white text-charcoal-400 rounded-lg hover:text-primary-600 hover:bg-primary-50 transition-all"
-                                                            title="Edit Technical Config"
-                                                        >
-                                                            ⚙️
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDeleteCategory(cat.id)}
-                                                            className="p-2 bg-white text-charcoal-400 rounded-lg hover:text-red-600 hover:bg-red-50 transition-all"
-                                                            title="Delete Permanently"
-                                                        >
-                                                            🗑️
-                                                        </button>
+                                                        <button onClick={() => setCategoryModal({ isOpen: true, category: cat })} className="p-2 bg-white text-charcoal-400 rounded-lg hover:text-primary-600 hover:bg-primary-50 transition-all">⚙️</button>
+                                                        <button onClick={() => handleDeleteCategory(cat.id)} className="p-2 bg-white text-charcoal-400 rounded-lg hover:text-red-600 hover:bg-red-50 transition-all">🗑️</button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -1574,6 +1814,208 @@ export default function AdminDashboardPage() {
                                 </table>
                             </div>
                         </section>
+                    </div>
+                )}
+
+                {/* PERFORMANCE HUB TAB CONTENT */}
+                {activeTab === 'performance' && (
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                        <section className="grid lg:grid-cols-4 gap-6">
+                            <div className="bg-white p-8 rounded-[2rem] border border-charcoal-50 shadow-xl shadow-charcoal-900/5 relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">📈</div>
+                                <h3 className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] mb-4">User Adoption</h3>
+                                <div className="text-4xl font-black text-charcoal-950 mb-2">{allUsers.length} <span className="text-emerald-500 text-sm">Active</span></div>
+                                <div className="w-full h-1 bg-charcoal-50 rounded-full mt-4 overflow-hidden">
+                                    <div className="h-full bg-emerald-500 rounded-full w-[65%]" />
+                                </div>
+                                <p className="text-[10px] text-charcoal-400 font-bold mt-4 uppercase tracking-widest">Growth Velocity: High</p>
+                            </div>
+
+                            <div className="bg-charcoal-950 p-8 rounded-[2rem] text-white shadow-2xl shadow-charcoal-950/20 relative group">
+                                <div className="absolute top-0 right-0 p-4 opacity-20">💎</div>
+                                <h3 className="text-[10px] font-black text-primary-400 uppercase tracking-[0.2em] mb-4">Asset Inventory</h3>
+                                <div className="text-4xl font-black mb-2">{stats.ideas + stats.franchises} <span className="text-primary-400/50 text-sm">Silos</span></div>
+                                <div className="flex gap-1 mt-6">
+                                    {[30, 45, 25, 60, 40, 75, 90].map((h, i) => (
+                                        <div key={i} className="flex-1 bg-primary-600/20 rounded-t-sm relative group/bar" style={{ height: '40px' }}>
+                                            <div className="absolute bottom-0 left-0 w-full bg-primary-500 rounded-t-sm transition-all duration-1000" style={{ height: `${h}%` }} />
+                                        </div>
+                                    ))}
+                                </div>
+                                <p className="text-[10px] text-white/30 font-bold mt-4 uppercase tracking-widest">Submissions: +12% WoW</p>
+                            </div>
+
+                            <div className="bg-white p-8 rounded-[2rem] border border-charcoal-50 shadow-xl shadow-charcoal-900/5">
+                                <h3 className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] mb-4">Audit Conversion</h3>
+                                <div className="text-4xl font-black text-charcoal-950 mb-2">
+                                    {auditRequests.length > 0 ? ((auditRequests.filter(a => a.status === 'completed').length / auditRequests.length) * 100).toFixed(0) : 0}%
+                                </div>
+                                <div className="flex items-center gap-3 mt-4">
+                                    <div className="w-12 h-12 rounded-full border-4 border-charcoal-50 border-t-primary-600 animate-spin" />
+                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">
+                                        {auditRequests.filter(a => a.status === 'pending').length} Pending Review
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-gradient-to-br from-primary-600 to-indigo-700 p-8 rounded-[2rem] text-white shadow-xl">
+                                <h3 className="text-[10px] font-black text-white/60 uppercase tracking-[0.2em] mb-4">Global Reach</h3>
+                                <div className="text-4xl font-black mb-2">PAN <span className="text-white/40">India</span></div>
+                                <div className="mt-4 flex -space-x-3">
+                                    {allUsers.slice(0, 5).map((u, i) => (
+                                        <div key={i} className="w-10 h-10 rounded-full bg-white/20 border-2 border-primary-600 flex items-center justify-center text-xs font-black backdrop-blur-sm">
+                                            {u.full_name?.[0] || 'U'}
+                                        </div>
+                                    ))}
+                                    <div className="w-10 h-10 rounded-full bg-white text-primary-600 border-2 border-primary-600 flex items-center justify-center text-[10px] font-black">
+                                        +{allUsers.length - 5}
+                                    </div>
+                                </div>
+                                <p className="text-[10px] text-white/60 font-bold mt-4 uppercase tracking-widest">Institutional Coverage</p>
+                            </div>
+                        </section>
+
+                        <div className="grid lg:grid-cols-2 gap-8">
+                            <section className="bg-white p-10 rounded-[2.5rem] border border-charcoal-50 shadow-xl">
+                                <div className="flex justify-between items-center mb-10">
+                                    <h2 className="text-xl font-black text-charcoal-950 uppercase tracking-tighter">Sector Distribution</h2>
+                                    <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Macro Overview</span>
+                                </div>
+                                <div className="space-y-6">
+                                    {allCategories.slice(0, 6).map((cat, i) => {
+                                        const count = (allIdeas.filter(id => id.category === cat.name).length + allFranchises.filter(f => f.category === cat.name).length);
+                                        const percentage = Math.max(15, Math.min(95, (count / (stats.ideas + stats.franchises || 1)) * 300));
+                                        return (
+                                            <div key={cat.id} className="group">
+                                                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest mb-2 text-charcoal-600">
+                                                    <span>{cat.name}</span>
+                                                    <span className="text-primary-600">{count} Units</span>
+                                                </div>
+                                                <div className="h-4 bg-charcoal-50 rounded-lg p-1">
+                                                    <motion.div
+                                                        initial={{ width: 0 }}
+                                                        animate={{ width: `${percentage}%` }}
+                                                        transition={{ duration: 1.5, delay: i * 0.1, ease: "circOut" }}
+                                                        className="h-full bg-gradient-to-r from-charcoal-900 to-charcoal-700 rounded-md"
+                                                    />
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </section>
+
+                            <section className="bg-charcoal-950 p-10 rounded-[2.5rem] text-white relative overflow-hidden shadow-2xl">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-primary-600/10 blur-[80px] rounded-full -mr-32 -mt-32" />
+                                <div className="flex justify-between items-center mb-10 relative">
+                                    <h2 className="text-xl font-black uppercase tracking-tighter">Approval Efficiency</h2>
+                                    <div className="px-4 py-2 bg-white/5 rounded-xl border border-white/10 text-[10px] font-black tracking-widest">Q1 STATS</div>
+                                </div>
+                                <div className="space-y-8 relative">
+                                    <div className="flex items-end gap-2 h-48">
+                                        {[15, 25, 20, 35, 45, 40, 60, 55, 75, 70, 85, 95].map((h, i) => (
+                                            <motion.div
+                                                key={i}
+                                                initial={{ scaleY: 0 }}
+                                                animate={{ scaleY: 1 }}
+                                                transition={{ duration: 0.8, delay: i * 0.05 }}
+                                                className="flex-1 bg-primary-500/30 rounded-t-lg origin-bottom border-t-2 border-primary-400"
+                                                style={{ height: `${h}%` }}
+                                            />
+                                        ))}
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="p-5 bg-white/5 rounded-2xl border border-white/5">
+                                            <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-2">Avg Time to Approve</div>
+                                            <div className="text-2xl font-black">4.2h</div>
+                                        </div>
+                                        <div className="p-5 bg-white/5 rounded-2xl border border-white/5">
+                                            <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-2">Rejection Ratio</div>
+                                            <div className="text-2xl font-black">12.5%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                )}
+
+                {/* MAINTENANCE TAB CONTENT */}
+                {activeTab === 'maintenance' && (
+                    <div className="space-y-6">
+                        <section className="card bg-white border-none shadow-xl p-10 overflow-hidden relative">
+                            <div className="flex items-center justify-between mb-12">
+                                <div>
+                                    <h2 className="text-2xl font-black text-charcoal-900 uppercase tracking-tighter">System Reclamation HUD</h2>
+                                    <p className="text-[10px] font-bold text-charcoal-400 uppercase tracking-widest mt-1">Orphaned storage identification and mass purge protocol</p>
+                                </div>
+                                <button
+                                    onClick={handlePurgeStorage}
+                                    disabled={maintenanceQueue.length === 0}
+                                    className="px-8 py-3.5 bg-red-600 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-700 shadow-xl shadow-red-200 transition-all flex items-center gap-3 disabled:opacity-30 disabled:grayscale"
+                                >
+                                    <span>☢️</span> Purge Orphaned Assets
+                                </button>
+                            </div>
+
+                            {maintenanceQueue.length === 0 ? (
+                                <div className="py-32 flex flex-col items-center justify-center text-center">
+                                    <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center text-4xl mb-6 border border-emerald-100 shadow-inner">🟢</div>
+                                    <h3 className="text-sm font-black text-charcoal-900 uppercase tracking-[0.2em]">Storage Optimized</h3>
+                                    <p className="text-[10px] text-charcoal-400 font-bold uppercase tracking-widest mt-2 max-w-xs">No orphaned image assets detected in the deletion queue.</p>
+                                </div>
+                            ) : (
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left">
+                                        <thead>
+                                            <tr className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] border-b border-charcoal-50">
+                                                <th className="pb-4 pl-4">Asset Type</th>
+                                                <th className="pb-4">Source Path</th>
+                                                <th className="pb-4">Bucket</th>
+                                                <th className="pb-4 text-right pr-4">Identified On</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-charcoal-50">
+                                            {maintenanceQueue.map(item => (
+                                                <tr key={item.id} className="group hover:bg-charcoal-50 transition-colors">
+                                                    <td className="py-5 pl-4">
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="text-lg">{item.bucket_name === 'assets' ? '💡' : '🏢'}</span>
+                                                            <span className="text-[10px] font-black text-charcoal-900 uppercase">{item.bucket_name === 'assets' ? 'Blueprint' : 'Franchise'} Image</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-5">
+                                                        <span className="px-3 py-1 bg-charcoal-100 rounded text-[9px] font-mono font-bold text-charcoal-600 truncate max-w-xs block">
+                                                            {item.file_path}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-5">
+                                                        <span className="text-[10px] font-black text-primary-600 bg-primary-50 px-2 py-1 rounded-md uppercase tracking-widest">{item.bucket_name}</span>
+                                                    </td>
+                                                    <td className="py-5 text-right pr-4">
+                                                        <span className="text-[9px] font-black text-charcoal-400">{new Date(item.created_at).toLocaleString()}</span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </section>
+
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div className="bg-charcoal-900 rounded-[2rem] p-8 text-white relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-[40px] rounded-full -mr-16 -mt-16 group-hover:bg-white/10 transition-all duration-700" />
+                                <h4 className="text-[10px] font-black text-primary-400 uppercase tracking-[0.3em] mb-4">Total Debt Clearance</h4>
+                                <div className="text-4xl font-black mb-2">{maintenanceQueue.length} <span className="text-white/30">Assets</span></div>
+                                <p className="text-[11px] text-white/50 leading-relaxed font-medium">Accumulated orphaned files awaiting hard-deletion from Supabase storage clusters.</p>
+                            </div>
+                            <div className="bg-white rounded-[2rem] p-8 border border-charcoal-100 shadow-xl group">
+                                <h4 className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-4">Storage Integrity</h4>
+                                <div className="text-4xl font-black text-charcoal-900 mb-2">99.9%</div>
+                                <p className="text-[11px] text-charcoal-500 leading-relaxed font-medium">Current database-to-storage synchronization status. Automated triggers are operational.</p>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>

@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../services/supabase';
 import SEO from '../components/SEO';
+import toast from 'react-hot-toast';
 
 /**
  * Institutional Command Hub & Public Landing Page
@@ -15,9 +16,31 @@ import SEO from '../components/SEO';
  */
 export default function LandingPage() {
     const { user, profile } = useAuth();
+    const location = useLocation();
+    const banToastShown = useRef(false);
 
     // Administrative logic gate - transforms the UI into a Command HUD if the user has admin clearance
     const isAdmin = profile?.is_admin === true;
+
+    // Check for banned parameter (only show once)
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        if (params.get('banned') === 'true' && !banToastShown.current) {
+            banToastShown.current = true;
+            toast.error('🚫 Your account has been banned by an administrator. You no longer have access to this platform.', {
+                duration: 8000,
+                position: 'top-center',
+                style: {
+                    background: '#fee2e2',
+                    color: '#991b1b',
+                    fontWeight: 'bold',
+                    padding: '16px 24px',
+                    borderRadius: '16px',
+                    border: '2px solid #fca5a5'
+                }
+            });
+        }
+    }, [location]);
 
     /**
      * Platform-wide diagnostic statistics (Admin Only)

@@ -26,6 +26,31 @@ export const AuthProvider = ({ children }) => {
                 .maybeSingle();
 
             if (error) throw error;
+
+            // BAN ENFORCEMENT: Check if user is banned
+            if (data?.is_banned) {
+                console.warn('Banned user detected, forcing sign out');
+
+                // Sign out immediately
+                await authService.signOut();
+
+                // Clear all state
+                setUser(null);
+                setProfile(null);
+                setSession(null);
+
+                // Clear storage
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('sb-')) {
+                        localStorage.removeItem(key);
+                    }
+                });
+
+                // Show error and redirect
+                window.location.href = '/?banned=true';
+                return;
+            }
+
             setProfile(data || null);
         } catch (err) {
             console.error('Profile sync error:', err);

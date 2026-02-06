@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../services/supabase';
+import imageCompression from 'browser-image-compression';
 
 export default function ImageUpload({ onUpload, bucket = 'assets', label = 'Upload Image', currentUrl = '', acceptTypes = 'image/*' }) {
     const [uploading, setUploading] = useState(false);
@@ -12,7 +13,23 @@ export default function ImageUpload({ onUpload, bucket = 'assets', label = 'Uplo
                 throw new Error('You must select a file to upload.');
             }
 
-            const file = event.target.files[0];
+            let file = event.target.files[0];
+
+            // Only compress if it's an image
+            if (file.type.startsWith('image/')) {
+                const options = {
+                    maxSizeMB: 1, // Max 1MB
+                    maxWidthOrHeight: 1920, // Max 1080p roughly
+                    useWebWorker: true,
+                };
+                try {
+                    const compressedFile = await imageCompression(file, options);
+                    file = compressedFile;
+                } catch (compressionError) {
+                    console.error('Compression failed, uploading original:', compressionError);
+                }
+            }
+
             const fileExt = file.name.split('.').pop();
             const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
             const filePath = `${fileName}`;

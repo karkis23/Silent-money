@@ -53,7 +53,7 @@ export default function Navbar() {
                                 Silent Money
                             </span>
                             <span className="bg-charcoal-100 text-charcoal-500 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest border border-charcoal-200/50">
-                                Beta 2.0
+                                Beta 2.1
                             </span>
                         </div>
                     </Link>
