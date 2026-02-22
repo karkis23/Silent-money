@@ -87,7 +87,27 @@ export default function LandingPage() {
                 }
             }
 
-            if (data) setTopIdeas(data);
+            if (data) {
+                // If user is logged in, fetch their votes
+                let ideasWithVotes = data.map(idea => ({ ...idea, hasVoted: false }));
+
+                if (profile) {
+                    const { data: userVotes } = await supabase
+                        .from('income_ideas_votes')
+                        .select('idea_id')
+                        .eq('user_id', profile.id)
+                        .in('idea_id', data.map(i => i.id));
+
+                    if (userVotes) {
+                        const votedIds = new Set(userVotes.map(v => v.idea_id));
+                        ideasWithVotes = ideasWithVotes.map(idea => ({
+                            ...idea,
+                            hasVoted: votedIds.has(idea.id)
+                        }));
+                    }
+                }
+                setTopIdeas(ideasWithVotes);
+            }
             setTopLoading(false);
         };
 
@@ -117,7 +137,33 @@ export default function LandingPage() {
 
         fetchTopIdeas();
         if (isAdmin) fetchAdminStats();
-    }, [isAdmin]);
+    }, [isAdmin, profile]);
+
+    const handleVote = async (e, ideaId, currentVotes, hasVoted) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!user) {
+            window.location.href = '/login';
+            return;
+        }
+
+        const newHasVoted = !hasVoted;
+        const newVotesCount = newHasVoted ? currentVotes + 1 : Math.max(0, currentVotes - 1);
+
+        // Optimistic UI Update
+        setTopIdeas(prevIdeas => prevIdeas.map(idea =>
+            idea.id === ideaId
+                ? { ...idea, upvotes_count: newVotesCount, hasVoted: newHasVoted }
+                : idea
+        ));
+
+        if (newHasVoted) {
+            await supabase.from('income_ideas_votes').insert([{ user_id: user.id, idea_id: ideaId }]);
+        } else {
+            await supabase.from('income_ideas_votes').delete().eq('user_id', user.id).eq('idea_id', ideaId);
+        }
+    };
 
     if (isAdmin) {
         return (
@@ -452,16 +498,30 @@ export default function LandingPage() {
                                     <p className="text-sm text-charcoal-500 font-medium mb-8 line-clamp-2">
                                         {idea.short_description}
                                     </p>
-                                    <div className="flex items-center justify-between pt-6 border-t border-charcoal-50">
+                                    <div className="flex items-center justify-between pt-6 border-t border-charcoal-50 mt-auto">
                                         <div>
                                             <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Target Yield</div>
-                                            <div className="text-lg font-black text-charcoal-900">
+                                            <div className="text-lg font-black text-charcoal-900 leading-none">
                                                 ₹{(idea.monthly_income_min / 1000).toFixed(0)}k<span className="text-xs text-charcoal-400 pl-0.5">/mo</span>
                                             </div>
                                         </div>
-                                        <Link to={`/ideas/${idea.slug}`} className="w-12 h-12 rounded-2xl bg-charcoal-50 flex items-center justify-center text-charcoal-950 group-hover:bg-primary-600 group-hover:text-white transition-all shadow-sm">
-                                            →
-                                        </Link>
+
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                onClick={(e) => handleVote(e, idea.id, idea.upvotes_count || 0, idea.hasVoted)}
+                                                className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl border transition-all ${idea.hasVoted
+                                                    ? 'bg-blue-600 border-blue-500 text-white shadow-lg'
+                                                    : 'bg-charcoal-50 border-charcoal-100 text-charcoal-400 group-hover:bg-blue-50 group-hover:border-blue-100 group-hover:text-blue-600'
+                                                    }`}
+                                            >
+                                                <span className="text-[10px] font-bold leading-none">{idea.upvotes_count || 0}</span>
+                                                <span className="text-[7px] font-black uppercase tracking-tighter">{idea.hasVoted ? 'Voted' : 'Impact'}</span>
+                                            </button>
+
+                                            <Link to={`/ideas/${idea.slug}`} className="w-12 h-12 rounded-2xl bg-charcoal-950 flex items-center justify-center text-white group-hover:bg-primary-600 transition-all shadow-xl shrink-0">
+                                                →
+                                            </Link>
+                                        </div>
                                     </div>
                                 </motion.div>
                             ))

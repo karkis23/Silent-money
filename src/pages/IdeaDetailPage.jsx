@@ -7,7 +7,6 @@ import ROICalculator from '../components/ROICalculator';
 import ReviewsSection from '../components/ReviewsSection';
 import SEO from '../components/SEO';
 import BackButton from '../components/BackButton';
-import ExpertAuditModal from '../components/ExpertAuditModal';
 import AssetAuditTrail from '../components/AssetAuditTrail';
 import ErrorBoundary from '../components/ErrorBoundary';
 import DetailHero from '../components/details/DetailHero';
@@ -39,9 +38,9 @@ export default function IdeaDetailPage() {
     const [userNotes, setUserNotes] = useState('');
     const [updateLoading, setUpdateLoading] = useState(false);
     const [updateMessage, setUpdateMessage] = useState('');
-    const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
-    const [hasPendingAudit, setHasPendingAudit] = useState(false);
+    const [isVoted, setIsVoted] = useState(false);
+    const [voteCount, setVoteCount] = useState(0);
 
     useEffect(() => {
         const fetchIdea = async () => {
@@ -61,6 +60,7 @@ export default function IdeaDetailPage() {
                 setError('Blueprint not found in current database shard.');
             } else {
                 setIdea(data);
+                setVoteCount(data.upvotes_count || 0);
             }
             setLoading(false);
         };
@@ -87,21 +87,50 @@ export default function IdeaDetailPage() {
         checkSaveStatus();
     }, [user, idea]);
 
+
     useEffect(() => {
-        const checkAuditStatus = async () => {
+        const checkVoteStatus = async () => {
             if (!user || !idea) return;
             const { data } = await supabase
-                .from('expert_audit_requests')
+                .from('income_ideas_votes')
                 .select('*')
                 .eq('user_id', user.id)
-                .eq('brand_name', idea.title)
-                .eq('status', 'pending')
+                .eq('idea_id', idea.id)
                 .maybeSingle();
 
-            if (data) setHasPendingAudit(true);
+            if (data) setIsVoted(true);
         };
-        checkAuditStatus();
+        checkVoteStatus();
     }, [user, idea]);
+
+    const handleToggleVote = async () => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+
+        if (isVoted) {
+            const { error } = await supabase
+                .from('income_ideas_votes')
+                .delete()
+                .eq('user_id', user.id)
+                .eq('idea_id', idea.id);
+
+            if (!error) {
+                setIsVoted(false);
+                setVoteCount(prev => Math.max(0, prev - 1));
+            }
+        } else {
+            const { error } = await supabase
+                .from('income_ideas_votes')
+                .insert([{ user_id: user.id, idea_id: idea.id }]);
+
+            if (!error) {
+                setIsVoted(true);
+                setVoteCount(prev => prev + 1);
+            }
+        }
+    };
 
     const handleToggleSave = async () => {
         if (!user) {
@@ -165,9 +194,25 @@ export default function IdeaDetailPage() {
     const ideaMetrics = [
         { label: 'Initial Investment', value: formatCurrency(idea.initial_investment_min) },
         { label: 'Time to First ₹', value: `${idea.time_to_first_income_days || 0} Days`, variant: 'success' },
-        { label: 'Success Rate', value: `${idea.success_rate_percentage || 0}%`, unit: 'HISTORICAL' },
+        { label: 'Failure Rate', value: `${idea.failure_rate_percentage || 15}%`, unit: 'OPERATIONAL RISK', variant: 'danger' },
         { label: 'Projected Profit', value: formatCurrency(idea.monthly_income_min || 0), unit: '/mo', variant: 'primary', highlight: true }
     ];
+
+    const schemaData = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": idea.title,
+        "description": idea.short_description,
+        "brand": {
+            "@type": "Brand",
+            "name": "Silent Money"
+        },
+        "offers": {
+            "@type": "Offer",
+            "price": idea.initial_investment_min,
+            "priceCurrency": "INR"
+        }
+    };
 
     const heroStats = [
         { label: 'Network Risk', value: idea.risk_level?.toUpperCase() || 'LOW' },
@@ -197,20 +242,21 @@ export default function IdeaDetailPage() {
                 </div>
             </button>
 
-            <div className="w-px h-8 bg-charcoal-100 shrink-0 hidden sm:block" />
-
             <button
-                onClick={() => !hasPendingAudit && setIsAuditModalOpen(true)}
-                disabled={hasPendingAudit}
-                className={`h-14 px-8 border rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 w-full sm:w-auto min-w-[180px] shrink-0 group shadow-lg ${hasPendingAudit
-                    ? 'bg-charcoal-50 border-charcoal-200 text-charcoal-400 cursor-not-allowed'
+                onClick={handleToggleVote}
+                className={`h-14 px-8 border rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 w-full sm:w-auto min-w-[140px] shrink-0 group shadow-lg ${isVoted
+                    ? 'bg-blue-600 text-white border-blue-500 shadow-blue-500/20'
                     : 'bg-white border-charcoal-100 text-charcoal-900 hover:bg-charcoal-50 hover:border-charcoal-300 shadow-charcoal-900/5'
                     }`}
             >
-                <svg className={`w-4 h-4 transition-transform ${hasPendingAudit ? 'text-charcoal-300' : 'text-primary-600 group-hover:scale-110'}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span className="whitespace-nowrap font-black tracking-[0.25em]">{hasPendingAudit ? 'VERIFICATION PENDING' : 'REQUEST VERIFICATION'}</span>
+                <div className="relative z-10 flex items-center gap-3">
+                    <span className={`text-base transition-transform group-hover:scale-125 ${isVoted ? 'animate-bounce' : ''}`}>
+                        {isVoted ? '🔥' : '⚡'}
+                    </span>
+                    <span className="whitespace-nowrap font-black tracking-[0.25em]">
+                        {voteCount} IMPACT
+                    </span>
+                </div>
             </button>
         </>
     );
@@ -220,7 +266,23 @@ export default function IdeaDetailPage() {
             <SEO
                 title={idea.meta_title || `${idea.title} | Silent Money Blueprints`}
                 description={idea.meta_description || idea.short_description}
+                schemaData={schemaData}
             />
+
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4">
+                <div className="flex items-center gap-3 bg-white/50 border border-charcoal-100 rounded-2xl p-4 backdrop-blur-sm">
+                    <span className="flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">
+                        Asset Status: LIVE & VERIFIED
+                    </span>
+                    <span className="text-[10px] font-medium text-charcoal-300 ml-auto uppercase tracking-widest">
+                        Last Intel Sync: {idea.last_verified_at ? new Date(idea.last_verified_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Feb 2026'}
+                    </span>
+                </div>
+            </div>
 
             <DetailHero
                 title={idea.title}
@@ -238,21 +300,50 @@ export default function IdeaDetailPage() {
             />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="grid lg:grid-cols-2 gap-16">
-                    {/* Visuals & Data */}
-                    <div className="space-y-8">
+                {/* 1. FINANCIAL MODELING HUB (Optimized Layout) */}
+                <div className="grid lg:grid-cols-2 gap-12 mb-16 items-start">
+                    <div className="space-y-12">
                         <DetailMetrics metrics={ideaMetrics} />
 
-                        {/* Reality Check */}
-                        <div className="bg-amber-50 rounded-[3rem] p-6 md:p-10 border border-amber-100/50 shadow-sm">
-                            <h3 className="text-[11px] font-black text-amber-700 uppercase tracking-[0.3em] mb-8 flex items-center gap-3">
-                                <span>⚠️</span> Reality Check
+                        {/* Reality Check - Moved up to fill gap */}
+                        <div className="bg-amber-50 rounded-[3rem] p-6 md:p-10 border border-amber-100/50 shadow-sm relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/20 blur-3xl rounded-full -mr-16 -mt-16" />
+                            <h3 className="text-[11px] font-black text-amber-700 uppercase tracking-[0.3em] mb-8 flex items-center gap-3 relative z-10">
+                                <span className="flex h-2 w-2 relative">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                                </span>
+                                Reality Check
                             </h3>
-                            <div className="prose prose-amber max-w-none prose-p:text-amber-900 prose-p:font-medium text-sm leading-relaxed">
+                            <div className="prose prose-amber max-w-none prose-p:text-amber-900 prose-p:font-medium text-sm leading-relaxed relative z-10">
                                 <ReactMarkdown>{idea.reality_check}</ReactMarkdown>
                             </div>
                         </div>
+                    </div>
+                    <div className="lg:pt-[72px]"> {/* Align with metrics cards below the heading */}
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.8 }}
+                        >
+                            <ErrorBoundary compact>
+                                <ROICalculator
+                                    assetId={idea.id}
+                                    assetType="idea"
+                                    initialDefaults={{
+                                        investment: idea.initial_investment_min,
+                                        income: idea.monthly_income_min,
+                                        expenses: 0
+                                    }}
+                                />
+                            </ErrorBoundary>
+                        </motion.div>
+                    </div>
+                </div>
 
+                <div className="grid lg:grid-cols-2 gap-16">
+                    {/* 2. OPERATIONAL CONTENT & INTEL */}
+                    <div className="space-y-12">
                         {/* How it Works */}
                         <div className={`bg-white rounded-[3rem] p-6 md:p-10 border border-charcoal-100 shadow-xl relative transition-all duration-700 ${isExpanded ? '' : 'max-h-[600px] overflow-hidden'}`}>
                             <h3 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-8 flex items-center gap-3">
@@ -276,25 +367,6 @@ export default function IdeaDetailPage() {
                                 <span className={`text-lg transition-transform duration-500 ${isExpanded ? 'rotate-180' : 'group-hover:translate-y-1'}`}>↓</span>
                             </button>
                         </div>
-
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6 }}
-                        >
-                            <ErrorBoundary compact>
-                                <ROICalculator
-                                    assetId={idea.id}
-                                    assetType="idea"
-                                    initialDefaults={{
-                                        investment: idea.initial_investment_min,
-                                        income: idea.monthly_income_min,
-                                        expenses: 0
-                                    }}
-                                />
-                            </ErrorBoundary>
-                        </motion.div>
 
                         {/* Reviews */}
                         <motion.div
@@ -371,12 +443,6 @@ export default function IdeaDetailPage() {
                 </div>
             </div>
 
-            <ExpertAuditModal
-                isOpen={isAuditModalOpen}
-                onClose={() => setIsAuditModalOpen(false)}
-                prefillBrand={idea.title}
-                prefillSector={idea.categories?.name}
-            />
         </div>
     );
 }

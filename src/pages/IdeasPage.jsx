@@ -95,7 +95,26 @@ export default function IdeasPage() {
 
             const { data, error } = await query;
             if (error) console.error(error);
-            setIdeas(data || []);
+
+            // If user is logged in, fetch their votes to show active state
+            let ideasWithVotes = (data || []).map(idea => ({ ...idea, hasVoted: false }));
+
+            if (profile && data && data.length > 0) {
+                const { data: userVotes } = await supabase
+                    .from('income_ideas_votes')
+                    .select('idea_id')
+                    .eq('user_id', profile.id);
+
+                if (userVotes) {
+                    const votedIds = new Set(userVotes.map(v => v.idea_id));
+                    ideasWithVotes = ideasWithVotes.map(idea => ({
+                        ...idea,
+                        hasVoted: votedIds.has(idea.id)
+                    }));
+                }
+            }
+
+            setIdeas(ideasWithVotes);
             setLoading(false);
         };
 
@@ -111,6 +130,32 @@ export default function IdeasPage() {
         if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
         if (amount >= 1000) return `₹${(amount / 1000).toFixed(0)}k`;
         return `₹${amount}`;
+    };
+
+    const handleVote = async (e, ideaId, currentVotes, hasVoted) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!profile) {
+            window.location.href = '/login';
+            return;
+        }
+
+        const newHasVoted = !hasVoted;
+        const newVotesCount = newHasVoted ? currentVotes + 1 : Math.max(0, currentVotes - 1);
+
+        // Optimistic UI Update
+        setIdeas(prevIdeas => prevIdeas.map(idea =>
+            idea.id === ideaId
+                ? { ...idea, upvotes_count: newVotesCount, hasVoted: newHasVoted }
+                : idea
+        ));
+
+        if (newHasVoted) {
+            await supabase.from('income_ideas_votes').insert([{ user_id: profile.id, idea_id: ideaId }]);
+        } else {
+            await supabase.from('income_ideas_votes').delete().eq('user_id', profile.id).eq('idea_id', ideaId);
+        }
     };
 
     const [showSortDropdown, setShowSortDropdown] = useState(false);
@@ -157,9 +202,9 @@ export default function IdeasPage() {
                 </header>
 
                 {/* 2. COMPACT INTELLIGENCE BAR (Unified Filter) */}
-                <section className="bg-white border border-charcoal-100 rounded-[2rem] md:rounded-[1.5rem] shadow-premium mb-6 md:mb-8 relative overflow-hidden">
+                <section className="bg-white border border-charcoal-100 rounded-[2rem] md:rounded-[1.5rem] shadow-premium mb-6 md:mb-8 relative">
                     {/* Top Row: Search & Sort */}
-                    <div className="flex flex-col md:flex-row border-b border-charcoal-50">
+                    <div className="flex flex-col md:flex-row border-b border-charcoal-50 rounded-t-[2rem] md:rounded-t-[1.5rem]">
                         <div className="flex-1 relative border-r border-charcoal-50">
                             <span className="absolute left-6 top-1/2 -translate-y-1/2 text-charcoal-400">🔍</span>
                             <input
@@ -266,11 +311,13 @@ export default function IdeasPage() {
                     </div>
 
                     {/* Bottom Row: Classification Pills & Expanded Filters */}
-                    <div className="p-2 md:p-3 flex flex-col md:flex-row gap-3 md:gap-4 bg-charcoal-50/30 rounded-b-[2rem] items-start md:items-center">
-                        <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 -mx-2 px-2 md:mx-0 md:px-0 hide-scrollbar w-full md:w-auto flex-1">
+                    <div className="p-4 md:p-6 flex flex-col gap-6 bg-charcoal-50/50 rounded-b-[2rem]">
+                        <div className="flex flex-wrap gap-2.5">
                             <button
                                 onClick={() => setSelectedCategory('all')}
-                                className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap shrink-0 ${selectedCategory === 'all' ? 'bg-charcoal-900 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
+                                className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] transition-all whitespace-nowrap border ${selectedCategory === 'all'
+                                    ? 'bg-charcoal-900 text-white border-charcoal-900 shadow-lg shadow-charcoal-900/20'
+                                    : 'bg-white text-charcoal-500 border-charcoal-100 hover:border-charcoal-300 hover:text-charcoal-900'}`}
                             >
                                 All Sectors
                             </button>
@@ -278,9 +325,11 @@ export default function IdeasPage() {
                                 <button
                                     key={category.id}
                                     onClick={() => setSelectedCategory(category.id)}
-                                    className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap shrink-0 ${selectedCategory === category.id ? 'bg-primary-600 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
+                                    className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] transition-all flex items-center gap-2.5 whitespace-nowrap border ${selectedCategory === category.id
+                                        ? 'bg-primary-600 text-white border-primary-600 shadow-lg shadow-primary-600/20'
+                                        : 'bg-white text-charcoal-500 border-charcoal-100 hover:border-charcoal-300 hover:text-charcoal-900'}`}
                                 >
-                                    <span>{category.icon}</span>
+                                    <span className="text-xs">{category.icon}</span>
                                     {category.name}
                                 </button>
                             ))}
@@ -392,10 +441,16 @@ export default function IdeasPage() {
                                                             #{index + 1} Strategic Asset
                                                         </div>
                                                     </div>
-                                                    <div className="flex flex-col items-center gap-0.5 bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-100 text-gray-400 group-hover:bg-blue-50 group-hover:border-blue-100 group-hover:text-blue-600 transition-colors">
+                                                    <button
+                                                        onClick={(e) => handleVote(e, idea.id, idea.upvotes_count || 0, idea.hasVoted)}
+                                                        className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl border transition-all ${idea.hasVoted
+                                                            ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/20'
+                                                            : 'bg-gray-50 border-gray-100 text-gray-400 group-hover:bg-blue-50 group-hover:border-blue-100 group-hover:text-blue-600'
+                                                            }`}
+                                                    >
                                                         <span className="text-[10px] font-bold leading-none">{idea.upvotes_count || 0}</span>
-                                                        <span className="text-[7px] font-black uppercase tracking-tighter">Impact</span>
-                                                    </div>
+                                                        <span className="text-[7px] font-black uppercase tracking-tighter">{idea.hasVoted ? 'Voted' : 'Impact'}</span>
+                                                    </button>
                                                 </div>
 
                                                 {/* Content */}

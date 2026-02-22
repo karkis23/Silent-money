@@ -22,7 +22,8 @@ export default function SEO({
     keywords = 'passive income india, franchise opportunities, income ideas, financial freedom, side hustle india',
     ogImage = '/og-image.jpg',
     ogType = 'website',
-    twitterCard = 'summary_large_image'
+    twitterCard = 'summary_large_image',
+    schemaData = null
 }) {
     const siteUrl = 'https://silent-money.vercel.app'; // Update with your actual domain
     const fullTitle = title.includes('Silent Money') ? title : `${title} | Silent Money`;
@@ -48,6 +49,13 @@ export default function SEO({
             <meta property="twitter:title" content={fullTitle} />
             <meta property="twitter:description" content={description} />
             <meta property="twitter:image" content={`${siteUrl}${ogImage}`} />
+
+            {/* Structured Data (JSON-LD) */}
+            {schemaData && (
+                <script type="application/ld+json">
+                    {JSON.stringify(schemaData)}
+                </script>
+            )}
 
             {/* Additional SEO */}
             <meta name="robots" content="index, follow" />

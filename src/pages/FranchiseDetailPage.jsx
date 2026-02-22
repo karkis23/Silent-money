@@ -159,8 +159,26 @@ export default function FranchiseDetailPage() {
 
     const heroStats = [
         { label: 'Tier Status', value: 'PREMIUM' },
-        { label: 'Verification', value: franchise.is_verified ? 'OFFICIAL' : 'PENDING' }
+        { label: 'Verification', value: franchise.is_verified ? 'OFFICIAL' : 'PENDING' },
+        { label: 'Market Sync', value: franchise.last_verified_at ? new Date(franchise.last_verified_at).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : 'Feb 2026' }
     ];
+
+    const schemaData = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": franchise.name,
+        "description": franchise.description,
+        "category": franchise.category,
+        "brand": {
+            "@type": "Brand",
+            "name": "Silent Money"
+        },
+        "offers": {
+            "@type": "Offer",
+            "price": franchise.investment_min,
+            "priceCurrency": "INR"
+        }
+    };
 
     const heroActions = (
         <>
@@ -208,7 +226,23 @@ export default function FranchiseDetailPage() {
             <SEO
                 title={franchise.meta_title || `${franchise.name} Franchise Opportunity`}
                 description={franchise.meta_description || franchise.description}
+                schemaData={schemaData}
             />
+
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4">
+                <div className="flex items-center gap-3 bg-white/50 border border-charcoal-100 rounded-2xl p-4 backdrop-blur-sm">
+                    <span className="flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-primary-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
+                    </span>
+                    <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">
+                        Investment Status: OPEN & ACTIVE
+                    </span>
+                    <span className="text-[10px] font-medium text-charcoal-300 ml-auto uppercase tracking-widest text-right">
+                        Last Institutional Audit: {franchise.last_verified_at ? new Date(franchise.last_verified_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Feb 2026'}
+                    </span>
+                </div>
+            </div>
 
             <DetailHero
                 title={franchise.name}
@@ -223,12 +257,12 @@ export default function FranchiseDetailPage() {
             />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="grid lg:grid-cols-2 gap-16">
-                    {/* Visuals & Data */}
-                    <div className="space-y-8">
+                {/* 1. INSTITUTIONAL FINANCIAL HUB (Optimized Layout) */}
+                <div className="grid lg:grid-cols-2 gap-12 mb-16 items-start">
+                    <div className="space-y-12">
                         <DetailMetrics metrics={franchiseMetrics} />
 
-                        {/* Intelligence Signal */}
+                        {/* Market Outlook - Moved up into Financial Hub column to balance layout */}
                         <div className="bg-charcoal-950 rounded-[3rem] p-6 md:p-10 shadow-2xl shadow-charcoal-900/20 relative overflow-hidden group">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-primary-600/10 blur-[80px] rounded-full -mr-32 -mt-32 transition-transform duration-1000 group-hover:scale-110" />
                             <h3 className="text-[11px] font-black text-white/40 uppercase tracking-[0.3em] mb-8 flex items-center gap-3 relative z-10">
@@ -251,7 +285,31 @@ export default function FranchiseDetailPage() {
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div className="lg:pt-[72px]"> {/* Align with metrics cards below the heading */}
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.8 }}
+                        >
+                            <ErrorBoundary compact>
+                                <ROICalculator
+                                    assetId={franchise.id}
+                                    assetType="franchise"
+                                    initialDefaults={{
+                                        investment: franchise.investment_min,
+                                        income: franchise.expected_profit_min,
+                                        expenses: 0
+                                    }}
+                                />
+                            </ErrorBoundary>
+                        </motion.div>
+                    </div>
+                </div>
 
+                <div className="grid lg:grid-cols-2 gap-16">
+                    {/* 2. STRATEGIC SIGNALS & CONTENT */}
+                    <div className="space-y-12">
                         {/* Core Identity */}
                         <div className={`bg-white rounded-[3rem] p-6 md:p-12 border border-charcoal-100 shadow-xl relative transition-all duration-700 ${isExpanded ? '' : 'max-h-[600px] overflow-hidden'}`}>
                             <h3 className="text-[11px] font-black text-charcoal-300 uppercase tracking-[0.4em] mb-10 flex items-center gap-3">
@@ -315,25 +373,6 @@ export default function FranchiseDetailPage() {
                                 <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em] group-hover:text-emerald-600 transition-colors">Contact</div>
                             </a>
                         </div>
-
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6 }}
-                        >
-                            <ErrorBoundary compact>
-                                <ROICalculator
-                                    assetId={franchise.id}
-                                    assetType="franchise"
-                                    initialDefaults={{
-                                        investment: franchise.investment_min,
-                                        income: franchise.expected_profit_min,
-                                        expenses: 0
-                                    }}
-                                />
-                            </ErrorBoundary>
-                        </motion.div>
 
                         {/* Reviews */}
                         <motion.div

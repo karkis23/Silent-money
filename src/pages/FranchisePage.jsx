@@ -168,8 +168,8 @@ export default function FranchisePage() {
                 </header>
 
                 {/* 2. COMPACT INTELLIGENCE BAR */}
-                <section className="bg-white border border-charcoal-100 rounded-[1.5rem] shadow-premium mb-8 overflow-hidden">
-                    <div className="flex flex-col md:flex-row border-b border-charcoal-50">
+                <section className="bg-white border border-charcoal-100 rounded-[1.5rem] shadow-premium mb-8 relative">
+                    <div className="flex flex-col md:flex-row border-b border-charcoal-50 rounded-t-[1.5rem]">
                         <div className="flex-1 relative border-r border-charcoal-50">
                             <span className="absolute left-6 top-1/2 -translate-y-1/2 text-charcoal-400">🔍</span>
                             <input
@@ -197,13 +197,15 @@ export default function FranchisePage() {
                         </div>
                     </div>
 
-                    <div className="p-2 flex flex-col md:flex-row gap-3 bg-charcoal-50/30 items-start md:items-center">
-                        <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 -mx-1 px-1 md:mx-0 md:px-0 hide-scrollbar w-full md:w-auto flex-1">
+                    <div className="p-4 md:p-6 flex flex-col gap-6 bg-charcoal-50/50 rounded-b-[1.5rem]">
+                        <div className="flex flex-wrap gap-2.5">
                             {categories.map((cat) => (
                                 <button
                                     key={cat}
                                     onClick={() => setSelectedCategory(cat)}
-                                    className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap shrink-0 ${selectedCategory === cat ? 'bg-charcoal-900 text-white shadow-lg' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
+                                    className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] transition-all whitespace-nowrap border ${selectedCategory === cat
+                                        ? 'bg-charcoal-900 text-white border-charcoal-900 shadow-lg shadow-charcoal-900/20'
+                                        : 'bg-white text-charcoal-500 border-charcoal-100 hover:border-charcoal-300 hover:text-charcoal-900'}`}
                                 >
                                     {cat === 'all' ? 'All Sectors' : cat}
                                 </button>

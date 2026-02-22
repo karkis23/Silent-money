@@ -937,6 +937,50 @@ export default function AdminDashboardPage() {
         }
     };
 
+    /**
+     * Institutional Verification Handler:
+     * Marks an asset as officially audited and updates the last verified timestamp.
+     */
+    const handleInstitutionalVerify = (id, type) => {
+        setConfirmConfig({
+            isOpen: true,
+            title: 'Authorize Institutional Audit?',
+            message: 'Attesting to the current validity of this asset will update its "Last Verified" timestamp and notify the community of its active status.',
+            type: 'success',
+            confirmText: 'Verify Market Data',
+            onConfirm: async () => {
+                const table = type === 'idea' ? 'income_ideas' : 'franchises';
+                const { error } = await supabase
+                    .from(table)
+                    .update({
+                        is_verified: true,
+                        last_verified_at: new Date().toISOString()
+                    })
+                    .eq('id', id);
+
+                if (!error) {
+                    toast.success('Asset verified and timestamped.');
+                    await logAssetAction(id, type, 'INSTITUTIONAL_AUDIT', 'active', 'verified', 'Official Market Data Sync Performed');
+
+                    // Update local state across all relevant lists
+                    const updater = (prev) => prev.map(item =>
+                        item.id === id ? { ...item, is_verified: true, last_verified_at: new Date().toISOString() } : item
+                    );
+
+                    if (type === 'idea') {
+                        setAllIdeas(updater);
+                        setApprovedIdeas(updater);
+                    } else {
+                        setAllFranchises(updater);
+                        setApprovedFranchises(updater);
+                    }
+                } else {
+                    toast.error('Verification failed: ' + error.message);
+                }
+            }
+        });
+    };
+
     const handleUpdateAuditStatus = (id, status) => {
         if (status === 'completed') {
             setActionConfig({
@@ -1399,16 +1443,25 @@ export default function AdminDashboardPage() {
 
                                                 <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-charcoal-100/50">
                                                     {activeTab !== 'pending' && (
-                                                        <button
-                                                            onClick={() => handleToggleFeatured(idea.id, 'idea', idea.is_featured)}
-                                                            className={`px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-wider transition-all ${idea.is_featured
-                                                                ? 'bg-amber-100 text-amber-700 border border-amber-300'
-                                                                : 'bg-white text-charcoal-400 border border-charcoal-200 hover:border-amber-300'
-                                                                }`}
-                                                            title={idea.is_featured ? 'Remove from Featured' : 'Mark as Featured'}
-                                                        >
-                                                            {idea.is_featured ? '⭐ Featured' : '☆ Feature'}
-                                                        </button>
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleToggleFeatured(idea.id, 'idea', idea.is_featured)}
+                                                                className={`px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-wider transition-all ${idea.is_featured
+                                                                    ? 'bg-amber-100 text-amber-700 border border-amber-300'
+                                                                    : 'bg-white text-charcoal-400 border border-charcoal-200 hover:border-amber-300'
+                                                                    }`}
+                                                                title={idea.is_featured ? 'Remove from Featured' : 'Mark as Featured'}
+                                                            >
+                                                                {idea.is_featured ? '⭐ Featured' : '☆ Feature'}
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleInstitutionalVerify(idea.id, 'idea')}
+                                                                className="px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-blue-600 hover:text-white transition-all"
+                                                                title="Perform Institutional Market Audit"
+                                                            >
+                                                                🛡️ Verify Data
+                                                            </button>
+                                                        </>
                                                     )}
                                                     {activeTab === 'pending' && (
                                                         <div className="flex gap-1.5 w-full sm:w-auto">
@@ -1538,16 +1591,25 @@ export default function AdminDashboardPage() {
 
                                                 <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-charcoal-100/50 ml-8">
                                                     {activeTab !== 'pending' && (
-                                                        <button
-                                                            onClick={() => handleToggleFeatured(fran.id, 'franchise', fran.is_featured)}
-                                                            className={`px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-wider transition-all ${fran.is_featured
-                                                                ? 'bg-amber-100 text-amber-700 border border-amber-300'
-                                                                : 'bg-white text-charcoal-400 border border-charcoal-200 hover:border-amber-300'
-                                                                }`}
-                                                            title={fran.is_featured ? 'Remove from Featured' : 'Mark as Featured'}
-                                                        >
-                                                            {fran.is_featured ? '⭐ Featured' : '☆ Feature'}
-                                                        </button>
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleToggleFeatured(fran.id, 'franchise', fran.is_featured)}
+                                                                className={`px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-wider transition-all ${fran.is_featured
+                                                                    ? 'bg-amber-100 text-amber-700 border border-amber-300'
+                                                                    : 'bg-white text-charcoal-400 border border-charcoal-200 hover:border-amber-300'
+                                                                    }`}
+                                                                title={fran.is_featured ? 'Remove from Featured' : 'Mark as Featured'}
+                                                            >
+                                                                {fran.is_featured ? '⭐ Featured' : '☆ Feature'}
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleInstitutionalVerify(fran.id, 'franchise')}
+                                                                className="px-3.5 py-1.5 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-blue-600 hover:text-white transition-all"
+                                                                title="Perform Institutional Market Audit"
+                                                            >
+                                                                🛡️ Verify Data
+                                                            </button>
+                                                        </>
                                                     )}
                                                     {activeTab === 'pending' && (
                                                         <>
