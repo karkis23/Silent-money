@@ -128,6 +128,33 @@ export default function EditIdeaPage() {
         });
     };
 
+    const handleFullDescChange = (e) => {
+        const { value } = e.target;
+        setFormData(prev => {
+            const updates = { full_description: value };
+
+            // SECURE SKILL EXTRACTION:
+            // Scan for intent-based keywords if field is empty to maintain blueprint integrity.
+            if (!prev.skills_required || prev.skills_required.length < 2) {
+                const commonSkills = [
+                    'Digital Marketing', 'Market Research', 'Basic Sales', 'Social Media',
+                    'Content Creation', 'Consistency', 'Customer Support', 'AI Tools',
+                    'Financial Planning', 'Logistics', 'Technical Setup', 'Networking',
+                    'Writing', 'Graphic Design', 'Video Editing', 'Product Sourcing'
+                ];
+
+                const matches = commonSkills
+                    .filter(skill => value.toLowerCase().includes(skill.toLowerCase()))
+                    .slice(0, 3);
+
+                if (matches.length > 0) {
+                    updates.skills_required = matches.join(', ');
+                }
+            }
+            return { ...prev, ...updates };
+        });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSaving(true);
@@ -356,7 +383,7 @@ export default function EditIdeaPage() {
                                     required
                                     rows={10}
                                     value={formData.full_description}
-                                    onChange={handleChange}
+                                    onChange={handleFullDescChange}
                                     className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 focus:bg-white outline-none font-medium text-charcoal-700 transition-all min-h-[250px] research-editor resize-y"
                                 />
                             </div>

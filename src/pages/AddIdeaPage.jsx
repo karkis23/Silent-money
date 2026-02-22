@@ -96,6 +96,33 @@ export default function AddIdeaPage() {
         });
     };
 
+    const handleFullDescChange = (e) => {
+        const { value } = e.target;
+        setFormData(prev => {
+            const updates = { full_description: value };
+
+            // SECURE SKILL EXTRACTION:
+            // Auto-detect expertise nodes from operational documentation.
+            if (!prev.skills_required || prev.skills_required.length < 2) {
+                const commonSkills = [
+                    'Digital Marketing', 'Market Research', 'Basic Sales', 'Social Media',
+                    'Content Creation', 'Consistency', 'Customer Support', 'AI Tools',
+                    'Financial Planning', 'Logistics', 'Technical Setup', 'Networking',
+                    'Writing', 'Graphic Design', 'Video Editing', 'Product Sourcing'
+                ];
+
+                const matches = commonSkills
+                    .filter(skill => value.toLowerCase().includes(skill.toLowerCase()))
+                    .slice(0, 3);
+
+                if (matches.length > 0) {
+                    updates.skills_required = matches.join(', ');
+                }
+            }
+            return { ...prev, ...updates };
+        });
+    };
+
     const nextStep = () => {
         if (step === 1 && (!formData.title || !formData.category_id || !formData.short_description)) {
             setError('Foundational intelligence required (Title, Category, Summary).');
@@ -308,7 +335,7 @@ export default function AddIdeaPage() {
                                                 **bold** • - list • {">"} quote • # header
                                             </div>
                                         </div>
-                                        <textarea required name="full_description" rows={10} value={formData.full_description} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-medium text-charcoal-700 transition-all min-h-[250px] research-editor resize-y" placeholder="Explain the mechanics of this wealth engine step-by-step..." />
+                                        <textarea required name="full_description" rows={10} value={formData.full_description} onChange={handleFullDescChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-medium text-charcoal-700 transition-all min-h-[250px] research-editor resize-y" placeholder="Explain the mechanics of this wealth engine step-by-step..." />
                                     </div>
                                     <div className="grid md:grid-cols-2 gap-8">
                                         <div className="space-y-2">
