@@ -79,9 +79,16 @@ export default function EditFranchisePage() {
                 setError('Could not find franchise or permission denied.');
                 setLoading(false);
             } else {
+                // SECURE SEO SYNCHRONIZATION:
+                // Auto-detect and pre-fill meta tags if missing in the database to ensure search parity.
+                const cleanDesc = (data.description || '')
+                    .replace(/[#*`~_]/g, '')
+                    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+                    .replace(/\n+/g, ' ')
+                    .trim();
+
                 setFormData({
-                    name: data.name,
-                    category: data.category,
+                    ...data,
                     investment_min: data.investment_min.toString(),
                     investment_max: data.investment_max?.toString() || '',
                     roi_months_min: data.roi_months_min?.toString() || '',
@@ -89,26 +96,8 @@ export default function EditFranchisePage() {
                     space_required_sqft: data.space_required_sqft?.toString() || '',
                     expected_profit_min: data.expected_profit_min?.toString() || '',
                     expected_profit_max: data.expected_profit_max?.toString() || '',
-                    description: data.description,
-                    image_url: data.image_url || '',
-                    website_url: data.website_url || '',
-                    contact_email: data.contact_email || '',
-                    contact_phone: data.contact_phone || '',
-                    // Enhanced Data Population
-                    unit_model: data.unit_model || '',
-                    market_maturity: data.market_maturity || '',
-                    corporate_support: data.corporate_support || '',
-                    operator_retention: data.operator_retention?.toString() || '',
-                    network_density: data.network_density?.toString() || '',
-                    asset_grade: data.asset_grade || 'A',
-                    risk_profile: data.risk_profile || 'Low',
-                    supply_chain: data.supply_chain || '',
-                    staffing_model: data.staffing_model || '',
-                    tech_stack: data.tech_stack || '',
-                    marketing_support: data.marketing_support || '',
-                    meta_title: data.meta_title || '',
-                    meta_description: data.meta_description || '',
-                    slug: data.slug,
+                    meta_title: data.meta_title || (data.name ? `${data.name} | Silent Money` : ''),
+                    meta_description: data.meta_description || cleanDesc.substring(0, 160),
                 });
                 setLoading(false);
             }

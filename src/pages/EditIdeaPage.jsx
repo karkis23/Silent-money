@@ -70,9 +70,18 @@ export default function EditIdeaPage() {
             } else if (!profile?.is_admin && idea.author_id !== user.id) {
                 setError('You do not have permission to edit this idea');
             } else {
+                // SECURE SEO SYNCHRONIZATION:
+                // Auto-detect and pre-fill meta tags if missing in the database to ensure search parity.
+                const cleanShortDesc = (idea.short_description || '')
+                    .replace(/[#*`~_]/g, '')
+                    .replace(/\n+/g, ' ')
+                    .trim();
+
                 setFormData({
                     ...idea,
-                    skills_required: idea.skills_required?.join(', ') || ''
+                    skills_required: idea.skills_required?.join(', ') || '',
+                    meta_title: idea.meta_title || (idea.title ? `${idea.title} | Silent Money` : ''),
+                    meta_description: idea.meta_description || cleanShortDesc.substring(0, 160)
                 });
             }
             setLoading(false);
