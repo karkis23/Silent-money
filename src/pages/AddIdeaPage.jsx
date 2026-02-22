@@ -170,7 +170,7 @@ export default function AddIdeaPage() {
 
             if (insertError) throw insertError;
 
-            navigate('/dashboard');
+            navigate(`/ideas/${uniqueSlug}`);
         } catch (err) {
             console.error('Error adding idea:', err);
             setError(err.message || 'Failed to add idea');

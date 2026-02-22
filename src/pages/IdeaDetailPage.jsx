@@ -319,6 +319,25 @@ export default function IdeaDetailPage() {
                                 <ReactMarkdown>{idea.reality_check}</ReactMarkdown>
                             </div>
                         </div>
+
+                        {/* Expertise Required */}
+                        {idea.skills_required && idea.skills_required.length > 0 && (
+                            <div className="bg-white rounded-[3rem] p-6 md:p-10 border border-charcoal-100 shadow-sm relative overflow-hidden">
+                                <h3 className="text-[11px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-8 flex items-center gap-3 relative z-10">
+                                    <span>🧠</span> Expertise Required
+                                </h3>
+                                <div className="flex flex-wrap gap-3 relative z-10">
+                                    {idea.skills_required.map((skill, index) => (
+                                        <span
+                                            key={index}
+                                            className="px-6 py-3 bg-charcoal-50 text-charcoal-700 rounded-2xl text-[10px] font-black uppercase tracking-[0.1em] border border-charcoal-100/50 hover:bg-primary-50 hover:border-primary-200 hover:text-primary-700 transition-all cursor-default"
+                                        >
+                                            {skill}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                     <div className="lg:pt-[72px]"> {/* Align with metrics cards below the heading */}
                         <motion.div

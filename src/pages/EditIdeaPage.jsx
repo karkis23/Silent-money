@@ -172,7 +172,7 @@ export default function EditIdeaPage() {
             const { error: updateError } = await query;
 
             if (updateError) throw updateError;
-            navigate('/my-ideas');
+            navigate(`/ideas/${formData.slug}`);
         } catch (err) {
             console.error('Error updating idea:', err);
             setError(err.message || 'Failed to update idea');
