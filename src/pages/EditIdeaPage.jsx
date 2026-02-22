@@ -135,21 +135,25 @@ export default function EditIdeaPage() {
 
             // SECURE SKILL EXTRACTION:
             // Scan for intent-based keywords if field is empty to maintain blueprint integrity.
-            if (!prev.skills_required || prev.skills_required.length < 2) {
-                const commonSkills = [
+            if (!prev.skills_required || prev.skills_required.length < 5) {
+                const prioritizedSkills = [
                     'Digital Marketing', 'Market Research', 'Basic Sales', 'Social Media',
                     'Content Creation', 'Consistency', 'Customer Support', 'AI Tools',
-                    'Financial Planning', 'Logistics', 'Technical Setup', 'Networking',
-                    'Writing', 'Graphic Design', 'Video Editing', 'Product Sourcing'
+                    'SEO', 'Email Marketing', 'Financial Planning', 'Logistics',
+                    'Technical Setup', 'Networking', 'Project Management', 'Branding',
+                    'Writing', 'Graphic Design', 'Video Editing', 'Product Sourcing',
+                    'Strategic Planning', 'Problem Solving', 'Data Analysis'
                 ];
 
-                const matches = commonSkills
-                    .filter(skill => value.toLowerCase().includes(skill.toLowerCase()))
+                const discovered = prioritizedSkills
+                    .filter(skill => value.toLowerCase().includes(skill.toLowerCase()));
+
+                // Ensure at least 3 are selected by taking discovered ones first, 
+                // then filling with the top general skills if needed.
+                const finalMatches = [...new Set([...discovered, 'Market Research', 'Strategic Planning', 'Consistency'])]
                     .slice(0, 3);
 
-                if (matches.length > 0) {
-                    updates.skills_required = matches.join(', ');
-                }
+                updates.skills_required = finalMatches.join(', ');
             }
             return { ...prev, ...updates };
         });
