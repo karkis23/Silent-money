@@ -389,6 +389,66 @@ export default function FranchiseDetailPage() {
 
                     {/* Content & Logistics */}
                     <div className="space-y-8">
+                        {/* Business Analysis Card */}
+                        <div className="bg-white rounded-[3rem] p-6 md:p-10 border border-charcoal-100 shadow-xl space-y-8">
+                            <h3 className="text-[11px] font-black text-charcoal-300 uppercase tracking-[0.4em] flex items-center gap-3">
+                                📊 Business Analysis
+                            </h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-6">
+                                <div className="space-y-1">
+                                    <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest block">Unit Model</span>
+                                    <span className="text-sm font-bold text-charcoal-900">{franchise.unit_model || 'FOCO / FOFO'}</span>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest block">Market Maturity</span>
+                                    <span className="text-sm font-bold text-charcoal-900">{franchise.market_maturity || 'National Leader'}</span>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest block">Network Density</span>
+                                    <span className="text-sm font-bold text-emerald-600">{franchise.network_density || 'High Traffic'}%</span>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest block">Risk Profile</span>
+                                    <span className="text-sm font-bold text-blue-600">{franchise.risk_level || franchise.risk_profile || 'Low Risk'}</span>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest block">Retention Rate</span>
+                                    <span className="text-sm font-bold text-emerald-600">{franchise.operator_retention || '95'}%</span>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest block">Asset Grade</span>
+                                    <span className="text-sm font-bold text-primary-600">{franchise.asset_grade || 'AAA+'}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Operational Logistics Card */}
+                        <div className="bg-white rounded-[3rem] p-6 md:p-10 border border-charcoal-100 shadow-xl space-y-8">
+                            <h3 className="text-[11px] font-black text-charcoal-300 uppercase tracking-[0.4em] flex items-center gap-3">
+                                ⚙️ Operational Logistics
+                            </h3>
+                            <div className="space-y-6">
+                                <div className="space-y-1">
+                                    <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest block">Supply Chain</span>
+                                    <span className="text-sm font-bold text-charcoal-800 leading-relaxed block">{franchise.supply_chain || 'Centralized Procurement Systems'}</span>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest block">Staffing Model</span>
+                                    <span className="text-sm font-bold text-charcoal-800 leading-relaxed block">{franchise.staffing_model || 'Certified Modular Teams'}</span>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest block">Tech Stack</span>
+                                    <span className="text-sm font-bold text-charcoal-800 leading-relaxed block">{franchise.tech_stack || 'Integrated CRM & Inventory ERP'}</span>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest block">Support Ecosystem</span>
+                                    <span className="text-sm font-bold text-charcoal-800 leading-relaxed block">{franchise.marketing_support || franchise.corporate_support || 'Full Marketing & Operational Guardrails'}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <AssetAuditTrail assetId={franchise.id} assetType="franchise" />
+
                         {!user && (
                             <div className="bg-primary-600 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-3xl rounded-full" />
@@ -399,7 +459,6 @@ export default function FranchiseDetailPage() {
                                 </Link>
                             </div>
                         )}
-                        <AssetAuditTrail assetId={franchise.id} assetType="franchise" />
                     </div>
                 </div>
             </div>
