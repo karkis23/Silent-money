@@ -269,20 +269,6 @@ export default function IdeaDetailPage() {
                 schemaData={schemaData}
             />
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4">
-                <div className="flex items-center gap-3 bg-white/50 border border-charcoal-100 rounded-2xl p-4 backdrop-blur-sm">
-                    <span className="flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">
-                        Asset Status: LIVE & VERIFIED
-                    </span>
-                    <span className="text-[10px] font-medium text-charcoal-300 ml-auto uppercase tracking-widest">
-                        Last Intel Sync: {idea.last_verified_at ? new Date(idea.last_verified_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Feb 2026'}
-                    </span>
-                </div>
-            </div>
 
             <DetailHero
                 title={idea.title}

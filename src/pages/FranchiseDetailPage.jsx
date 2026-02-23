@@ -12,6 +12,7 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import ExpertAuditModal from '../components/ExpertAuditModal';
 import DetailHero from '../components/details/DetailHero';
 import DetailMetrics from '../components/details/DetailMetrics';
+import ContactModal from '../components/ContactModal';
 import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 
@@ -39,6 +40,7 @@ export default function FranchiseDetailPage() {
     const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
     const [hasPendingAudit, setHasPendingAudit] = useState(false);
+    const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchFranchise = async () => {
@@ -205,19 +207,6 @@ export default function FranchiseDetailPage() {
 
             <div className="w-px h-8 bg-charcoal-100 shrink-0 hidden sm:block" />
 
-            <button
-                onClick={() => !hasPendingAudit && setIsAuditModalOpen(true)}
-                disabled={hasPendingAudit}
-                className={`h-14 px-8 border rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 w-full sm:w-auto min-w-[180px] shrink-0 group shadow-lg ${hasPendingAudit
-                    ? 'bg-charcoal-50 border-charcoal-200 text-charcoal-400 cursor-not-allowed'
-                    : 'bg-white border-charcoal-100 text-charcoal-900 hover:bg-charcoal-50 hover:border-charcoal-300 shadow-charcoal-900/5'
-                    }`}
-            >
-                <svg className={`w-4 h-4 transition-transform ${hasPendingAudit ? 'text-charcoal-300' : 'text-primary-600 group-hover:scale-110'}`} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span className="whitespace-nowrap font-black tracking-[0.25em]">{hasPendingAudit ? 'VERIFICATION PENDING' : 'REQUEST VERIFICATION'}</span>
-            </button>
         </>
     );
 
@@ -229,20 +218,6 @@ export default function FranchiseDetailPage() {
                 schemaData={schemaData}
             />
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4">
-                <div className="flex items-center gap-3 bg-white/50 border border-charcoal-100 rounded-2xl p-4 backdrop-blur-sm">
-                    <span className="flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-primary-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
-                    </span>
-                    <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">
-                        Investment Status: OPEN & ACTIVE
-                    </span>
-                    <span className="text-[10px] font-medium text-charcoal-300 ml-auto uppercase tracking-widest text-right">
-                        Last Institutional Audit: {franchise.last_verified_at ? new Date(franchise.last_verified_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Feb 2026'}
-                    </span>
-                </div>
-            </div>
 
             <DetailHero
                 title={franchise.name}
@@ -358,20 +333,35 @@ export default function FranchiseDetailPage() {
                         </div>
 
                         <div className="grid grid-cols-2 gap-4 mt-8">
-                            <a
-                                href={franchise.website_url || '#'}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="bg-charcoal-50 p-6 md:p-8 rounded-[2rem] text-center border border-charcoal-100 hover:bg-white hover:shadow-xl hover:border-primary-100 transition-all group"
-                            >
-                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em] group-hover:text-primary-600 transition-colors">Website</div>
-                            </a>
-                            <a
-                                href={`mailto:${franchise.contact_email}`}
-                                className="bg-charcoal-50 p-6 md:p-8 rounded-[2rem] text-center border border-charcoal-100 hover:bg-white hover:shadow-xl hover:border-emerald-100 transition-all group"
-                            >
-                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em] group-hover:text-emerald-600 transition-colors">Contact</div>
-                            </a>
+                            {franchise.website_url ? (
+                                <a
+                                    href={franchise.website_url.startsWith('http') ? franchise.website_url : `https://${franchise.website_url}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="bg-charcoal-50 p-6 md:p-8 rounded-[2rem] text-center border border-charcoal-100 hover:bg-white hover:shadow-xl hover:border-primary-100 transition-all group flex flex-col items-center justify-center gap-1"
+                                >
+                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em] group-hover:text-primary-600 transition-colors">Website</div>
+                                    <div className="text-[8px] font-bold text-charcoal-300 truncate max-w-full italic">{new URL(franchise.website_url.startsWith('http') ? franchise.website_url : `https://${franchise.website_url}`).hostname}</div>
+                                </a>
+                            ) : (
+                                <div className="bg-charcoal-50/50 p-6 md:p-8 rounded-[2rem] text-center border border-charcoal-50 cursor-not-allowed opacity-50">
+                                    <div className="text-[10px] font-black text-charcoal-300 uppercase tracking-[0.3em]">No Website</div>
+                                </div>
+                            )}
+
+                            {franchise.contact_email || franchise.contact_phone ? (
+                                <button
+                                    onClick={() => setIsContactModalOpen(true)}
+                                    className="bg-charcoal-50 p-6 md:p-8 rounded-[2rem] text-center border border-charcoal-100 hover:bg-white hover:shadow-xl hover:border-emerald-100 transition-all group flex flex-col items-center justify-center gap-1"
+                                >
+                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em] group-hover:text-emerald-600 transition-colors">Contact</div>
+                                    <div className="text-[8px] font-bold text-charcoal-300 truncate max-w-full italic">Reveal Details</div>
+                                </button>
+                            ) : (
+                                <div className="bg-charcoal-50/50 p-6 md:p-8 rounded-[2rem] text-center border border-charcoal-50 cursor-not-allowed opacity-50">
+                                    <div className="text-[10px] font-black text-charcoal-300 uppercase tracking-[0.3em]">No Contact</div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Reviews */}
@@ -462,6 +452,14 @@ export default function FranchiseDetailPage() {
                     </div>
                 </div>
             </div>
+
+            <ContactModal
+                isOpen={isContactModalOpen}
+                onClose={() => setIsContactModalOpen(false)}
+                brandName={franchise.name}
+                email={franchise.contact_email}
+                phone={franchise.contact_phone}
+            />
 
             <ExpertAuditModal
                 isOpen={isAuditModalOpen}

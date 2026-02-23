@@ -102,8 +102,13 @@ export default function PostFranchisePage() {
             setError('Please complete the business foundation.');
             return;
         }
-        if (step === 2 && (!formData.investment_min || !formData.roi_months_min || !formData.description)) {
-            setError('Operational metrics are required for verification.');
+        if (step === 2 && (
+            !formData.investment_min ||
+            !formData.roi_months_min ||
+            !formData.expected_profit_min ||
+            !formData.description
+        )) {
+            setError('Operational metrics, profit projections, and description are required.');
             return;
         }
         setError('');
@@ -117,11 +122,17 @@ export default function PostFranchisePage() {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
 
         // Strategic Safeguard: Only allow submission on the final Phase
         if (step < 3) {
             nextStep();
+            return;
+        }
+
+        // Final Step Validation
+        if (!formData.website_url || !formData.contact_email || !formData.meta_title || !formData.meta_description) {
+            setError('Connectivity and Search Optimization details are required.');
             return;
         }
 
@@ -131,16 +142,16 @@ export default function PostFranchisePage() {
         const baseSlug = formData.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
         const slug = `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`;
 
-        const { error } = await supabase.from('franchises').insert([{
+        const { error: insertError } = await supabase.from('franchises').insert([{
             ...formData,
             slug,
-            investment_min: parseInt(formData.investment_min),
-            investment_max: parseInt(formData.investment_max),
-            roi_months_min: parseInt(formData.roi_months_min),
-            roi_months_max: parseInt(formData.roi_months_max),
-            space_required_sqft: parseInt(formData.space_required_sqft),
-            expected_profit_min: parseInt(formData.expected_profit_min),
-            expected_profit_max: parseInt(formData.expected_profit_max),
+            investment_min: parseInt(formData.investment_min) || 0,
+            investment_max: formData.investment_max ? parseInt(formData.investment_max) : null,
+            roi_months_min: parseInt(formData.roi_months_min) || 0,
+            roi_months_max: formData.roi_months_max ? parseInt(formData.roi_months_max) : null,
+            space_required_sqft: formData.space_required_sqft ? parseInt(formData.space_required_sqft) : null,
+            expected_profit_min: parseInt(formData.expected_profit_min) || 0,
+            expected_profit_max: formData.expected_profit_max ? parseInt(formData.expected_profit_max) : null,
             // Pass Enhanced Fields
             unit_model: formData.unit_model,
             market_maturity: formData.market_maturity,
@@ -159,8 +170,8 @@ export default function PostFranchisePage() {
             is_approved: false // Require moderation
         }]);
 
-        if (error) {
-            setError(error.message);
+        if (insertError) {
+            setError(insertError.message);
             setLoading(false);
         } else {
             navigate('/dashboard');
@@ -244,16 +255,35 @@ export default function PostFranchisePage() {
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Payback (Mo)</label>
-                                                <input type="number" name="roi_months_min" value={formData.roi_months_min} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl font-bold" />
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Payback (Mo)</label>
+                                                <input required type="number" name="roi_months_min" value={formData.roi_months_min} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl font-bold" />
                                             </div>
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Space (Sqft)</label>
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Space (Sqft)</label>
                                                 <input type="number" name="space_required_sqft" value={formData.space_required_sqft} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl font-bold" />
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Min Profit / Mo (₹)</label>
+                                                <input required type="number" name="expected_profit_min" value={formData.expected_profit_min} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl font-bold" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Max Profit / Mo (₹)</label>
+                                                <input type="number" name="expected_profit_max" value={formData.expected_profit_max} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl font-bold" />
                                             </div>
                                         </div>
                                     </div>
                                     <ImageUpload label="Verification Proof (Private)" bucket="proofs" onUpload={(url) => setFormData(prev => ({ ...prev, proof_url: url }))} currentUrl={formData.proof_url} />
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center mb-1 pr-1">
+                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Operational Analytics & Description</label>
+                                        <div className="text-[8px] font-bold text-primary-600/60 uppercase tracking-widest">
+                                            **bold** • - list • {">"} quote • # header
+                                        </div>
+                                    </div>
+                                    <textarea name="description" rows={8} value={formData.description} onChange={handleDescriptionChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-medium min-h-[200px] research-editor resize-y" placeholder="Explain the business model, support, and track record..." />
                                 </div>
 
                                 {/* Enhanced Data Input Section */}
@@ -333,16 +363,6 @@ export default function PostFranchisePage() {
                                         </div>
                                     </div>
                                 </div>
-
-                                <div className="space-y-2">
-                                    <div className="flex justify-between items-center mb-1 pr-1">
-                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Operational Analytics & Description</label>
-                                        <div className="text-[8px] font-bold text-primary-600/60 uppercase tracking-widest">
-                                            **bold** • - list • {">"} quote • # header
-                                        </div>
-                                    </div>
-                                    <textarea name="description" rows={8} value={formData.description} onChange={handleDescriptionChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-medium min-h-[200px] research-editor resize-y" placeholder="Explain the business model, support, and track record..." />
-                                </div>
                             </motion.div>
                         )}
 
@@ -351,12 +371,12 @@ export default function PostFranchisePage() {
                                 <div className="space-y-8">
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Official Digital Hub (URL)</label>
-                                        <input type="url" name="website_url" value={formData.website_url} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl font-bold" placeholder="https://brand.com" />
+                                        <input required type="url" name="website_url" value={formData.website_url} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl font-bold" placeholder="https://brand.com" />
                                     </div>
                                     <div className="grid md:grid-cols-2 gap-8">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Intelligence Relay (Email)</label>
-                                            <input type="email" name="contact_email" value={formData.contact_email} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl font-bold" placeholder="inquiry@brand.com" />
+                                            <input required type="email" name="contact_email" value={formData.contact_email} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl font-bold" placeholder="inquiry@brand.com" />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Operations Comm (Phone)</label>
@@ -375,6 +395,7 @@ export default function PostFranchisePage() {
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Meta Title (Signal Header)</label>
                                             <input
+                                                required
                                                 type="text"
                                                 name="meta_title"
                                                 value={formData.meta_title}
@@ -386,6 +407,7 @@ export default function PostFranchisePage() {
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Meta Description (Signal Summary)</label>
                                             <textarea
+                                                required
                                                 name="meta_description"
                                                 rows={2}
                                                 value={formData.meta_description}
@@ -402,19 +424,23 @@ export default function PostFranchisePage() {
 
                     <div className="flex gap-4 pt-12 border-t border-charcoal-50 mt-12">
                         {step > 1 && (
-                            <button type="button" onClick={prevStep} className="px-8 py-5 border border-charcoal-100 text-charcoal-400 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-charcoal-50 transition-all">
+                            <button
+                                type="button"
+                                onClick={prevStep}
+                                disabled={loading}
+                                className="px-8 py-5 border border-charcoal-100 text-charcoal-400 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-charcoal-50 transition-all disabled:opacity-50"
+                            >
                                 Back
                             </button>
                         )}
-                        {step < 3 ? (
-                            <button type="button" onClick={nextStep} className="flex-1 py-5 bg-charcoal-900 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-primary-600 transition-all shadow-xl shadow-charcoal-100">
-                                Proceed to {step === 1 ? 'Operational Metrics' : 'SEO & Connectivity'}
-                            </button>
-                        ) : (
-                            <button type="submit" disabled={loading} className="flex-1 py-5 bg-primary-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-emerald-600 transition-all shadow-xl shadow-primary-200">
-                                {loading ? 'Transmitting...' : '🚀 Finalize Brand Listing'}
-                            </button>
-                        )}
+                        <button
+                            type="button"
+                            onClick={step < 3 ? nextStep : handleSubmit}
+                            disabled={loading}
+                            className={`flex-1 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all shadow-xl disabled:opacity-50 ${step < 3 ? 'bg-charcoal-900 text-white hover:bg-primary-600' : 'bg-primary-600 text-white hover:bg-emerald-600 shadow-primary-200'}`}
+                        >
+                            {loading ? 'Transmitting...' : step < 3 ? `Proceed to ${step === 1 ? 'Operational Metrics' : 'SEO & Connectivity'}` : '🚀 Finalize Brand Listing'}
+                        </button>
                     </div>
                 </form>
             </div>

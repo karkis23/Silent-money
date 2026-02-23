@@ -1454,13 +1454,6 @@ export default function AdminDashboardPage() {
                                                             >
                                                                 {idea.is_featured ? '⭐ Featured' : '☆ Feature'}
                                                             </button>
-                                                            <button
-                                                                onClick={() => handleInstitutionalVerify(idea.id, 'idea')}
-                                                                className="px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-blue-600 hover:text-white transition-all"
-                                                                title="Perform Institutional Market Audit"
-                                                            >
-                                                                🛡️ Verify Data
-                                                            </button>
                                                         </>
                                                     )}
                                                     {activeTab === 'pending' && (
@@ -1500,7 +1493,7 @@ export default function AdminDashboardPage() {
                                                         >
                                                             {activeTab === 'archived' ? 'Restore' : 'Archive'}
                                                         </button>
-                                                        {(activeTab === 'archived' || activeTab === 'all') && (
+                                                        {(activeTab === 'archived' || activeTab === 'all' || activeTab === 'pending') && (
                                                             <button
                                                                 onClick={() => handlePermanentDelete(idea.id, 'idea', idea.title)}
                                                                 className="px-2.5 py-1.5 bg-red-600 text-white rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-red-700 transition-all"
@@ -1602,13 +1595,6 @@ export default function AdminDashboardPage() {
                                                             >
                                                                 {fran.is_featured ? '⭐ Featured' : '☆ Feature'}
                                                             </button>
-                                                            <button
-                                                                onClick={() => handleInstitutionalVerify(fran.id, 'franchise')}
-                                                                className="px-3.5 py-1.5 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-blue-600 hover:text-white transition-all"
-                                                                title="Perform Institutional Market Audit"
-                                                            >
-                                                                🛡️ Verify Data
-                                                            </button>
                                                         </>
                                                     )}
                                                     {activeTab === 'pending' && (
@@ -1647,7 +1633,7 @@ export default function AdminDashboardPage() {
                                                     >
                                                         {activeTab === 'archived' ? 'Unarchive' : 'Archive'}
                                                     </button>
-                                                    {(activeTab === 'archived' || activeTab === 'all') && (
+                                                    {(activeTab === 'archived' || activeTab === 'all' || activeTab === 'pending') && (
                                                         <button
                                                             onClick={() => handlePermanentDelete(fran.id, 'franchise', fran.name)}
                                                             className="px-3.5 py-1.5 bg-red-600 text-white border border-red-700 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-red-700 transition-all"

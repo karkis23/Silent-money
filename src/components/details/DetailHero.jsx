@@ -53,12 +53,6 @@ export default function DetailHero({
                                 <span className="bg-charcoal-900 text-white px-4 md:px-5 py-1.5 md:py-2 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2 shadow-xl shadow-charcoal-200/50">
                                     {category === 'blueprint' ? '💡' : '🏢'} {category}
                                 </span>
-                                {isVerified && (
-                                    <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] border border-emerald-100">
-                                        <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
-                                        Verified
-                                    </div>
-                                )}
                                 {isPremium && (
                                     <span className="bg-amber-50 text-amber-600 border border-amber-100 px-4 md:px-5 py-1.5 md:py-2 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em]">
                                         Premium
