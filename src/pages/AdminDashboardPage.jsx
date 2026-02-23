@@ -325,11 +325,15 @@ export default function AdminDashboardPage() {
                 let iQuery = supabase
                     .from('income_ideas')
                     .select('*, profiles(full_name)')
+                    .eq('is_approved', true)
+                    .is('deleted_at', null)
                     .order('created_at', { ascending: false });
 
                 let fQuery = supabase
                     .from('franchises')
                     .select('*, profiles(full_name)')
+                    .eq('is_approved', true)
+                    .is('deleted_at', null)
                     .order('created_at', { ascending: false });
 
                 if (searchStr) {
