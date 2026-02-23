@@ -169,17 +169,95 @@ export default function AdminDashboardPage() {
             };
 
             const fetchMetaData = async () => {
-                const [{ data: logs }, { data: categories }, { data: users }, { data: maintenance }] = await Promise.all([
-                    supabase.from('admin_logs').select('*, profiles:admin_id(full_name)').order('created_at', { ascending: false }).limit(50),
+                const fetchAdminLogs = async () => {
+                    try {
+                        const { data, error } = await supabase
+                            .from('admin_logs')
+                            .select('*, profiles:admin_id(full_name)')
+                            .order('created_at', { ascending: false })
+                            .limit(50);
+
+                        if (error) {
+                            // Fallback to simpler query if join fails
+                            const { data: simpleData } = await supabase
+                                .from('admin_logs')
+                                .select('*')
+                                .order('created_at', { ascending: false })
+                                .limit(50);
+                            return simpleData || [];
+                        }
+                        return data || [];
+                    } catch (e) {
+                        return [];
+                    }
+                };
+
+                const fetchAssetLogs = async () => {
+                    try {
+                        const { data, error } = await supabase
+                            .from('asset_audit_logs')
+                            .select('*, profiles:modified_by(full_name)')
+                            .order('created_at', { ascending: false })
+                            .limit(50);
+
+                        if (error) {
+                            const { data: simpleData } = await supabase
+                                .from('asset_audit_logs')
+                                .select('*')
+                                .order('created_at', { ascending: false })
+                                .limit(50);
+                            return simpleData || [];
+                        }
+                        return data || [];
+                    } catch (e) {
+                        return [];
+                    }
+                };
+
+                const [aLogs, astLogs, categoriesRes, usersRes, maintenanceRes] = await Promise.all([
+                    fetchAdminLogs(),
+                    fetchAssetLogs(),
                     supabase.from('categories').select('*').order('display_order', { ascending: true }),
                     supabase.from('profiles').select('*').order('created_at', { ascending: false }),
                     supabase.from('storage_deletion_queue').select('*').order('created_at', { ascending: false })
                 ]);
-                setAdminLogs(logs || []);
-                setAllCategories(categories || []);
-                setAllUsers(users || []);
-                setMaintenanceQueue(maintenance || []);
-                return { logs, categories, users, maintenance };
+
+                // Normalize and combine logs
+                const normalizedAdminLogs = aLogs.map(log => ({
+                    id: `admin-${log.id}`,
+                    action_type: log.action_type || 'system_action',
+                    target_type: log.target_type || 'system',
+                    target_id: log.target_id || '',
+                    created_at: log.created_at,
+                    profiles: log.profiles,
+                    details: log.details
+                }));
+
+                const normalizedAssetLogs = astLogs.map(log => ({
+                    id: `asset-${log.id}`,
+                    action_type: log.action || 'asset_action',
+                    target_type: log.asset_type || 'asset',
+                    target_id: log.asset_id || '',
+                    created_at: log.created_at,
+                    profiles: log.profiles,
+                    details: log.feedback
+                }));
+
+                const combinedLogs = [...normalizedAdminLogs, ...normalizedAssetLogs]
+                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                    .slice(0, 100);
+
+                setAdminLogs(combinedLogs);
+                setAllCategories(categoriesRes.data || []);
+                setAllUsers(usersRes.data || []);
+                setMaintenanceQueue(maintenanceRes.data || []);
+
+                return {
+                    logs: combinedLogs,
+                    categories: categoriesRes.data,
+                    users: usersRes.data,
+                    maintenance: maintenanceRes.data
+                };
             };
 
             const [ideas, franchises, approved, archived, audits, meta] = await Promise.all([
@@ -1269,24 +1347,42 @@ export default function AdminDashboardPage() {
                     <div className="card bg-white border-none shadow-xl p-8">
                         <h2 className="text-xl font-black text-charcoal-900 uppercase tracking-tighter mb-6">System Activity Logs</h2>
                         <div className="space-y-4">
-                            {adminLogs.map(log => (
-                                <div key={log.id} className="flex items-center gap-4 p-4 bg-charcoal-50 rounded-xl border border-charcoal-100">
-                                    <div className="w-10 h-10 rounded-full bg-charcoal-200 flex items-center justify-center text-lg">
-                                        {log.action_type === 'approve' ? '✅' : log.action_type === 'ban' ? '🚫' : '📝'}
-                                    </div>
-                                    <div>
-                                        <div className="text-xs font-black text-charcoal-900 uppercase tracking-wide">
-                                            {log.profiles?.full_name || 'System Admin'} <span className="text-charcoal-400">•</span> {log.action_type}
-                                        </div>
-                                        <div className="text-[10px] font-mono text-charcoal-500 mt-1">
-                                            Target: {log.target_type} ({log.target_id})
-                                        </div>
-                                    </div>
-                                    <div className="ml-auto text-[10px] font-bold text-charcoal-400">
-                                        {new Date(log.created_at).toLocaleString()}
-                                    </div>
+                            {adminLogs.length === 0 ? (
+                                <div className="py-20 text-center text-charcoal-400 font-medium italic">
+                                    No activity logs recorded yet.
                                 </div>
-                            ))}
+                            ) : (
+                                adminLogs.map(log => (
+                                    <div key={log.id} className="flex items-center gap-4 p-4 bg-charcoal-50 rounded-xl border border-charcoal-100 group hover:border-primary-200 transition-all">
+                                        <div className="w-10 h-10 rounded-full bg-white border border-charcoal-100 flex items-center justify-center text-lg shadow-sm group-hover:scale-110 transition-transform">
+                                            {log.action_type?.includes('approve') || log.action_type === 'AUTHORIZATION' ? '✅' :
+                                                log.action_type?.includes('ban') ? '🚫' :
+                                                    log.action_type?.includes('REVISION') ? '📝' :
+                                                        log.action_type?.includes('RESTORE') ? '♻️' :
+                                                            log.action_type?.includes('DECOMMISSION') || log.action_type?.includes('archive') ? '📁' :
+                                                                log.action_type?.includes('DELETE') ? '🗑️' : '⚙️'}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-xs font-black text-charcoal-900 uppercase tracking-wide flex items-center gap-2">
+                                                {log.profiles?.full_name || 'System Admin'}
+                                                <span className="text-charcoal-300">•</span>
+                                                <span className="text-primary-600">{log.action_type?.replace(/_/g, ' ')}</span>
+                                            </div>
+                                            <div className="text-[10px] font-mono text-charcoal-500 mt-1 flex items-center gap-2">
+                                                <span className="px-1.5 py-0.5 bg-charcoal-100 rounded text-[8px] font-black uppercase tracking-widest">{log.target_type}</span>
+                                                <span className="truncate">{log.target_id}</span>
+                                            </div>
+                                            {log.details && (
+                                                <div className="mt-2 text-[10px] text-charcoal-600 italic leading-relaxed border-l-2 border-charcoal-200 pl-3">
+                                                    "{log.details}"
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="text-[10px] font-bold text-charcoal-400 whitespace-nowrap">
+                                            {new Date(log.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+                                        </div>
+                                    </div>
+                                )))}
                         </div>
                     </div>
                 )}
@@ -1754,82 +1850,89 @@ export default function AdminDashboardPage() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-charcoal-50">
-                                        {allUsers.map(u => (
-                                            <tr key={u.id} className="group hover:bg-charcoal-50 transition-colors">
-                                                <td className="py-6 pl-4">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-12 h-12 rounded-2xl bg-primary-50 flex items-center justify-center text-xl border border-primary-100 group-hover:scale-110 transition-transform">
-                                                            {u.avatar_url ? <img src={u.avatar_url} className="w-full h-full rounded-2xl object-cover" /> : '👤'}
-                                                        </div>
-                                                        <div>
-                                                            <div className="text-sm font-black text-charcoal-900 flex items-center gap-2">
-                                                                {u.full_name || 'Anonymous'}
-                                                                {u.id === user.id && (
-                                                                    <span className="text-[9px] font-black text-primary-600 bg-primary-50 px-2 py-0.5 rounded-md uppercase tracking-widest">You</span>
-                                                                )}
-                                                            </div>
-                                                            <div className="text-[10px] font-bold text-primary-600 uppercase tracking-widest">{u.membership_tier || 'Basic'}</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="py-6 text-center">
-                                                    <div className="flex gap-2 justify-center flex-wrap">
-                                                        {u.is_admin ? (
-                                                            <span className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${u.role === 'owner'
-                                                                ? 'bg-gradient-to-r from-yellow-500 to-amber-600 text-white shadow-lg'
-                                                                : u.role === 'super_admin'
-                                                                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md'
-                                                                    : 'bg-charcoal-900 text-white'
-                                                                }`}>
-                                                                {u.role === 'owner' && '👑'}
-                                                                {u.role === 'super_admin' && '⚡'}
-                                                                {u.role === 'admin' && '🔑'}
-                                                                {u.role === 'moderator' && '🛡️'}
-                                                                {u.role === 'owner' ? 'OWNER' : u.role === 'super_admin' ? 'SUPER ADMIN' : u.role === 'admin' ? 'ADMINISTRATOR' : 'MODERATOR'}
-                                                            </span>
-                                                        ) : (
-                                                            <span className="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest bg-charcoal-100 text-charcoal-400">
-                                                                INVESTOR
-                                                            </span>
-                                                        )}
-                                                        {!u.is_banned && (
-                                                            <button
-                                                                onClick={() => handleToggleAdmin(u.id, u.is_admin, u.full_name)}
-                                                                className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${u.is_admin
-                                                                    ? 'bg-amber-100 text-amber-700 border border-amber-300 hover:bg-amber-200'
-                                                                    : 'bg-emerald-100 text-emerald-700 border border-emerald-300 hover:bg-emerald-200'
-                                                                    }`}
-                                                                title={u.is_admin ? 'Revoke Admin Privileges' : 'Grant Admin Privileges'}
-                                                            >
-                                                                {u.is_admin ? '⚡ Revoke Admin' : '👑 Make Admin'}
-                                                            </button>
-                                                        )}
-                                                        {!u.is_admin && !u.is_banned && (
-                                                            <button
-                                                                onClick={() => handleBanUser(u.id)}
-                                                                className="px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-red-200"
-                                                            >
-                                                                BAN
-                                                            </button>
-                                                        )}
-                                                        {u.is_banned && (
-                                                            <button
-                                                                onClick={() => handleUnbanUser(u.id)}
-                                                                className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-red-700 shadow-lg shadow-red-200"
-                                                            >
-                                                                BANNED (UNBAN)
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                                <td className="py-6 text-center text-[11px] font-mono font-bold text-charcoal-500">
-                                                    {new Date(u.created_at).toLocaleDateString()}
-                                                </td>
-                                                <td className="py-6 text-right pr-4 text-[9px] font-mono text-charcoal-300">
-                                                    {u.id.slice(0, 16)}...
+                                        {allUsers.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="4" className="py-20 text-center text-charcoal-400 font-medium italic">
+                                                    No users registered in the system yet.
                                                 </td>
                                             </tr>
-                                        ))}
+                                        ) : (
+                                            allUsers.map(u => (
+                                                <tr key={u.id} className="group hover:bg-charcoal-50 transition-colors">
+                                                    <td className="py-6 pl-4">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="w-12 h-12 rounded-2xl bg-primary-50 flex items-center justify-center text-xl border border-primary-100 group-hover:scale-110 transition-transform">
+                                                                {u.avatar_url ? <img src={u.avatar_url} className="w-full h-full rounded-2xl object-cover" /> : '👤'}
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-sm font-black text-charcoal-900 flex items-center gap-2">
+                                                                    {u.full_name || 'Anonymous'}
+                                                                    {u.id === user.id && (
+                                                                        <span className="text-[9px] font-black text-primary-600 bg-primary-50 px-2 py-0.5 rounded-md uppercase tracking-widest">You</span>
+                                                                    )}
+                                                                </div>
+                                                                <div className="text-[10px] font-bold text-primary-600 uppercase tracking-widest">{u.membership_tier || 'Basic'}</div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-6 text-center">
+                                                        <div className="flex gap-2 justify-center flex-wrap">
+                                                            {u.is_admin ? (
+                                                                <span className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${u.role === 'owner'
+                                                                    ? 'bg-gradient-to-r from-yellow-500 to-amber-600 text-white shadow-lg'
+                                                                    : u.role === 'super_admin'
+                                                                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md'
+                                                                        : 'bg-charcoal-900 text-white'
+                                                                    }`}>
+                                                                    {u.role === 'owner' && '👑'}
+                                                                    {u.role === 'super_admin' && '⚡'}
+                                                                    {u.role === 'admin' && '🔑'}
+                                                                    {u.role === 'moderator' && '🛡️'}
+                                                                    {u.role === 'owner' ? 'OWNER' : u.role === 'super_admin' ? 'SUPER ADMIN' : u.role === 'admin' ? 'ADMINISTRATOR' : 'MODERATOR'}
+                                                                </span>
+                                                            ) : (
+                                                                <span className="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest bg-charcoal-100 text-charcoal-400">
+                                                                    INVESTOR
+                                                                </span>
+                                                            )}
+                                                            {!u.is_banned && (
+                                                                <button
+                                                                    onClick={() => handleToggleAdmin(u.id, u.is_admin, u.full_name)}
+                                                                    className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${u.is_admin
+                                                                        ? 'bg-amber-100 text-amber-700 border border-amber-300 hover:bg-amber-200'
+                                                                        : 'bg-emerald-100 text-emerald-700 border border-emerald-300 hover:bg-emerald-200'
+                                                                        }`}
+                                                                    title={u.is_admin ? 'Revoke Admin Privileges' : 'Grant Admin Privileges'}
+                                                                >
+                                                                    {u.is_admin ? '⚡ Revoke Admin' : '👑 Make Admin'}
+                                                                </button>
+                                                            )}
+                                                            {!u.is_admin && !u.is_banned && (
+                                                                <button
+                                                                    onClick={() => handleBanUser(u.id)}
+                                                                    className="px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-red-200"
+                                                                >
+                                                                    BAN
+                                                                </button>
+                                                            )}
+                                                            {u.is_banned && (
+                                                                <button
+                                                                    onClick={() => handleUnbanUser(u.id)}
+                                                                    className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-red-700 shadow-lg shadow-red-200"
+                                                                >
+                                                                    BANNED (UNBAN)
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-6 text-center text-[11px] font-mono font-bold text-charcoal-500">
+                                                        {new Date(u.created_at).toLocaleDateString()}
+                                                    </td>
+                                                    <td className="py-6 text-right pr-4 text-[9px] font-mono text-charcoal-300">
+                                                        {u.id.slice(0, 16)}...
+                                                    </td>
+                                                </tr>
+                                            ))}
                                     </tbody>
                                 </table>
                             </div>
@@ -1892,7 +1995,7 @@ export default function AdminDashboardPage() {
                                                     </div>
                                                 </td>
                                             </tr>
-                                        ))}
+                                        )))}
                                     </tbody>
                                 </table>
                             </div>
