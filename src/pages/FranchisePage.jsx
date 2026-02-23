@@ -193,11 +193,17 @@ export default function FranchisePage() {
                                 </button>
                             )}
                         </div>
-                        <div className="px-6 py-3.5 bg-charcoal-50/10 flex items-center justify-center">
-                            <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest whitespace-nowrap">
-                                {filteredFranchises.length} Brands Verified
+                        {profile && (
+                            <div className="px-6 py-2.5 bg-charcoal-50/10 flex items-center justify-center border-t md:border-t-0 md:border-l border-charcoal-50">
+                                <button
+                                    onClick={() => setSmartMatch(!smartMatch)}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${smartMatch ? 'bg-primary-600 text-white shadow-lg' : 'bg-white text-charcoal-400 border border-charcoal-100 hover:text-charcoal-900'}`}
+                                >
+                                    <span className="text-xs">🎯</span>
+                                    <span className="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">Smart Match</span>
+                                </button>
                             </div>
-                        </div>
+                        )}
                     </div>
 
                     <div className="p-4 md:p-6 flex flex-col gap-6 bg-charcoal-50/50 rounded-b-[1.5rem]">
@@ -239,15 +245,7 @@ export default function FranchisePage() {
                                 <option value="36">Under 36m</option>
                             </select>
 
-                            {profile && (
-                                <button
-                                    onClick={() => setSmartMatch(!smartMatch)}
-                                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg transition-all shrink-0 ${smartMatch ? 'bg-primary-600 text-white shadow-lg border-primary-600' : 'bg-white text-charcoal-500 border border-charcoal-100 hover:bg-charcoal-50'}`}
-                                >
-                                    <span className="text-xs">🎯</span>
-                                    <span className="text-[9px] font-black uppercase tracking-widest leading-none whitespace-nowrap">{smartMatch ? 'Match On' : 'Smart Match'}</span>
-                                </button>
-                            )}
+
                         </div>
                     </div>
                 </section>
