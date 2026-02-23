@@ -32,20 +32,64 @@ export default function GlobalSearch() {
         const fetchResults = async () => {
             setLoading(true);
 
-            // Use the Postgres Full-Text Search RPC for scalability
-            const { data, error } = await supabase.rpc('search_knowledge', {
-                search_query: query
-            });
+            try {
+                // Try the RPC first, then fallback to direct queries
+                const { data: rpcData, error: rpcError } = await supabase.rpc('search_knowledge', {
+                    search_query: query
+                });
 
-            if (error) {
-                console.error('Search error:', error);
+                if (!rpcError && rpcData && rpcData.length > 0) {
+                    setResults(rpcData.map(res => ({
+                        ...res,
+                        path: res.type === 'blueprint' ? `/ideas/${res.slug}` : `/franchise/${res.slug}`
+                    })));
+                    setLoading(false);
+                    return;
+                }
+
+                // Fallback: Direct table search using ilike
+                const searchPattern = `%${query}%`;
+
+                const [ideasRes, franchisesRes] = await Promise.all([
+                    supabase
+                        .from('income_ideas')
+                        .select('id, title, slug, short_description')
+                        .eq('is_approved', true)
+                        .is('deleted_at', null)
+                        .or(`title.ilike.${searchPattern},short_description.ilike.${searchPattern}`)
+                        .limit(10),
+                    supabase
+                        .from('franchises')
+                        .select('id, name, slug, description')
+                        .eq('is_approved', true)
+                        .is('deleted_at', null)
+                        .or(`name.ilike.${searchPattern},description.ilike.${searchPattern}`)
+                        .limit(10)
+                ]);
+
+                const combined = [
+                    ...(ideasRes.data || []).map(idea => ({
+                        id: idea.id,
+                        name: idea.title,
+                        slug: idea.slug,
+                        type: 'blueprint',
+                        path: `/ideas/${idea.slug}`
+                    })),
+                    ...(franchisesRes.data || []).map(fran => ({
+                        id: fran.id,
+                        name: fran.name,
+                        slug: fran.slug,
+                        type: 'franchise',
+                        path: `/franchise/${fran.slug}`
+                    }))
+                ];
+
+                setResults(combined);
+            } catch (err) {
+                console.error('Search error:', err);
                 setResults([]);
-            } else {
-                setResults((data || []).map(res => ({
-                    ...res,
-                    path: res.type === 'blueprint' ? `/ideas/${res.slug}` : `/franchise/${res.slug}`
-                })));
             }
+
             setLoading(false);
         };
 
