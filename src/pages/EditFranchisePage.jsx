@@ -8,13 +8,14 @@ import ImageUpload from '../components/ImageUpload';
 import { motion } from 'framer-motion';
 
 /**
- * EditFranchisePage: A refined editor for managing franchise profiles.
+ * EditFranchisePage: A simple editor for managing franchise brands.
  * 
  * DESIGN SPECIFICATIONS:
- * - Secure Lifecycle Management: Prevents unauthorized modification via strict profile and ownership gates.
- * - Enhanced Data Fidelity: Manages operational metrics (Investment, ROI, Scale).
- * - Multi-Channel SEO: Integrated system for updating brand presence and search visibility.
+ * - Ownership Gates: Ensures only owners or admins can update content.
+ * - Detailed Info: Manages financial numbers (Investment, ROI, Scale).
+ * - SEO: Integrated system for updating brand presence and search visibility.
  * - Media Synchronization: Handles updates to brand imagery and logos.
+ * 
  * @component
  */
 export default function EditFranchisePage() {
@@ -202,10 +203,10 @@ export default function EditFranchisePage() {
                     >
                         <BackButton label="Back to Dashboard" className="mb-8" />
                         <h1 className="text-5xl md:text-6xl font-black text-charcoal-950 mb-4 tracking-tightest leading-tight">
-                            Edit <span className="text-primary-600">Details.</span>
+                            Edit <span className="text-primary-600">Brand.</span>
                         </h1>
                         <p className="text-charcoal-500 font-medium text-lg">
-                            Update your franchise details and market positioning.
+                            Update your franchise details and brand info.
                         </p>
                     </motion.div>
                 </header>
@@ -263,8 +264,8 @@ export default function EditFranchisePage() {
                                     💰
                                 </div>
                                 <div>
-                                    <h2 className="text-[11px] font-black text-charcoal-900 uppercase tracking-[0.3em]">Economics</h2>
-                                    <p className="text-[9px] font-bold text-charcoal-400 uppercase tracking-widest mt-1">Financial Requirements & Projections</p>
+                                    <h2 className="text-[11px] font-black text-charcoal-900 uppercase tracking-[0.3em]">Financials</h2>
+                                    <p className="text-[9px] font-bold text-charcoal-400 uppercase tracking-widest mt-1">Investment & ROI Projections</p>
                                 </div>
                             </div>
 
@@ -294,7 +295,7 @@ export default function EditFranchisePage() {
 
                             <div className="grid md:grid-cols-2 gap-10">
                                 <div className="space-y-3">
-                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">ROI (Months)</label>
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">ROI Timeline (Months)</label>
                                     <input
                                         type="number"
                                         name="roi_months_min"
@@ -354,7 +355,7 @@ export default function EditFranchisePage() {
                                     📊
                                 </div>
                                 <div>
-                                    <h2 className="text-[11px] font-black text-charcoal-900 uppercase tracking-[0.3em]">Business Analysis</h2>
+                                    <h2 className="text-[11px] font-black text-charcoal-900 uppercase tracking-[0.3em]">Analysis</h2>
                                     <p className="text-[9px] font-bold text-charcoal-400 uppercase tracking-widest mt-1">Operational Metrics & Quality</p>
                                 </div>
                             </div>
@@ -376,15 +377,15 @@ export default function EditFranchisePage() {
 
                             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
                                 <div className="space-y-3">
-                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Retention (%)</label>
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Success Rate (%)</label>
                                     <input type="number" name="operator_retention" value={formData.operator_retention} onChange={handleChange} className="w-full px-6 py-5 bg-charcoal-50/50 border border-charcoal-100 rounded-[1.5rem] focus:ring-4 focus:ring-primary-600/5 focus:border-primary-600 focus:bg-white outline-none transition-all font-bold text-charcoal-900" max="100" />
                                 </div>
                                 <div className="space-y-3">
-                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Density (%)</label>
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Network Strength (%)</label>
                                     <input type="number" name="network_density" value={formData.network_density} onChange={handleChange} className="w-full px-6 py-5 bg-charcoal-50/50 border border-charcoal-100 rounded-[1.5rem] focus:ring-4 focus:ring-primary-600/5 focus:border-primary-600 focus:bg-white outline-none transition-all font-bold text-charcoal-900" max="100" />
                                 </div>
                                 <div className="space-y-3">
-                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Asset Grade</label>
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Rating</label>
                                     <select name="asset_grade" value={formData.asset_grade} onChange={handleChange} className="w-full px-6 py-5 bg-charcoal-50/50 border border-charcoal-100 rounded-[1.5rem] focus:ring-4 focus:ring-primary-600/5 focus:border-primary-600 focus:bg-white outline-none transition-all font-bold text-charcoal-900 appearance-none">
                                         <option value="AAA+">AAA+</option>
                                         <option value="AA">AA</option>
@@ -394,7 +395,7 @@ export default function EditFranchisePage() {
                                     </select>
                                 </div>
                                 <div className="space-y-3">
-                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Risk Profile</label>
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Risk Level</label>
                                     <select name="risk_profile" value={formData.risk_profile} onChange={handleChange} className="w-full px-6 py-5 bg-charcoal-50/50 border border-charcoal-100 rounded-[1.5rem] focus:ring-4 focus:ring-primary-600/5 focus:border-primary-600 focus:bg-white outline-none transition-all font-bold text-charcoal-900 appearance-none">
                                         <option value="Low">Low</option>
                                         <option value="Medium">Medium</option>
@@ -406,7 +407,7 @@ export default function EditFranchisePage() {
 
                         {/* Operational Logistics Section */}
                         <div className="space-y-6">
-                            <h3 className="text-sm font-black text-charcoal-900 uppercase tracking-widest pl-1 border-l-4 border-amber-500 ml-1">Operational Logistics</h3>
+                            <h3 className="text-sm font-black text-charcoal-900 uppercase tracking-widest pl-1 border-l-4 border-amber-500 ml-1">Operations</h3>
                             <div className="grid md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Supply Chain</label>
@@ -429,7 +430,7 @@ export default function EditFranchisePage() {
 
                         <div className="space-y-2">
                             <div className="flex justify-between items-center mb-1 pr-1">
-                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Detailed Analysis & Description</label>
+                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Business Description</label>
                                 <div className="text-[8px] font-bold text-primary-600/60 uppercase tracking-widest">
                                     **bold** • - list • {">"} quote • # header
                                 </div>
@@ -482,7 +483,7 @@ export default function EditFranchisePage() {
                         </div>
 
                         <div className="space-y-6">
-                            <h3 className="text-sm font-black text-charcoal-900 uppercase tracking-widest pl-1 border-l-4 border-primary-600 ml-1">Brand Connectivity</h3>
+                            <h3 className="text-sm font-black text-charcoal-900 uppercase tracking-widest pl-1 border-l-4 border-primary-600 ml-1">Contact Information</h3>
 
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Official Website URL</label>
@@ -497,7 +498,7 @@ export default function EditFranchisePage() {
 
                             <div className="grid md:grid-cols-2 gap-8">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Franchise Inquiry Email</label>
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Contact Email</label>
                                     <input
                                         type="email"
                                         name="contact_email"
@@ -507,7 +508,7 @@ export default function EditFranchisePage() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Support Phone Number</label>
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Contact Phone Number</label>
                                     <input
                                         type="tel"
                                         name="contact_phone"

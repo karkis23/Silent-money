@@ -8,13 +8,13 @@ import ImageUpload from '../components/ImageUpload';
 import { motion } from 'framer-motion';
 
 /**
- * EditIdeaPage: A refined editor for modifying existing income blueprints.
+ * EditIdeaPage: A simple editor for modifying existing business ideas.
  * 
  * CORE OPERATIONS:
- * - Authorized Modification: Enforces ownership or administrative role gates for asset updates.
- * - Data Synchronization: Real-time validation of cross-linked categories and slugs.
- * - High-Fidelity Data Entry: Comprehensive forms for financial, strategic, and operational metrics.
- * - SEO Optimization: Integrated system for updating meta tags.
+ * - Authorized Modification: Ensures only owners or admins can update content.
+ * - Data Synchronization: Validates categories and links.
+ * - Detailed Info: Simple forms for financials and descriptions.
+ * - SEO Optimization: Integrated system for updating search engine tags.
  */
 export default function EditIdeaPage() {
     const { id } = useParams();
@@ -234,9 +234,9 @@ export default function EditIdeaPage() {
                     >
                         <BackButton label="Back to Dashboard" className="mb-6" />
                         <h1 className="text-5xl md:text-6xl font-black text-charcoal-950 tracking-tightest leading-tight">
-                            Edit <span className="text-primary-600">Blueprint.</span>
+                            Edit <span className="text-primary-600">Idea.</span>
                         </h1>
-                        <p className="text-charcoal-500 font-medium mt-2">Refine your asset parameters and market positioning.</p>
+                        <p className="text-charcoal-500 font-medium mt-2">Refine your idea details.</p>
                     </motion.div>
                 </div>
 
@@ -257,13 +257,13 @@ export default function EditIdeaPage() {
                                     📁
                                 </div>
                                 <div>
-                                    <h2 className="text-[11px] font-black text-charcoal-900 uppercase tracking-[0.3em]">Essential Info</h2>
-                                    <p className="text-[9px] font-bold text-charcoal-400 uppercase tracking-widest mt-1">Foundational Blueprint Data</p>
+                                    <h2 className="text-[11px] font-black text-charcoal-900 uppercase tracking-[0.3em]">Basic Info</h2>
+                                    <p className="text-[9px] font-bold text-charcoal-400 uppercase tracking-widest mt-1">General Information</p>
                                 </div>
                             </div>
                             <div className="grid md:grid-cols-2 gap-10">
                                 <div className="space-y-3">
-                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Blueprint Title</label>
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Title</label>
                                     <input
                                         type="text"
                                         name="title"
@@ -286,7 +286,7 @@ export default function EditIdeaPage() {
                             </div>
 
                             <div className="space-y-3">
-                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Category Classification</label>
+                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Category</label>
                                 <select
                                     name="category_id"
                                     required
@@ -377,7 +377,7 @@ export default function EditIdeaPage() {
 
                             <div className="space-y-2">
                                 <div className="flex justify-between items-center mb-1 pr-1">
-                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Operational Guide (Markdown)</label>
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">How it Works (Full Description)</label>
                                     <div className="text-[8px] font-bold text-primary-600/60 uppercase tracking-widest">
                                         **bold** • - list • {">"} quote • # header
                                     </div>
@@ -393,7 +393,7 @@ export default function EditIdeaPage() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Reality Protocol</label>
+                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Expert Review</label>
                                 <textarea
                                     name="reality_check"
                                     required
@@ -411,8 +411,8 @@ export default function EditIdeaPage() {
                                     📈
                                 </div>
                                 <div>
-                                    <h2 className="text-[11px] font-black text-charcoal-900 uppercase tracking-[0.3em]">Financial Estimates</h2>
-                                    <p className="text-[9px] font-bold text-charcoal-400 uppercase tracking-widest mt-1">Investment & Yield Projections</p>
+                                    <h2 className="text-[11px] font-black text-charcoal-900 uppercase tracking-[0.3em]">Financials</h2>
+                                    <p className="text-[9px] font-bold text-charcoal-400 uppercase tracking-widest mt-1">Investment & Income Projections</p>
                                 </div>
                             </div>
 
@@ -442,7 +442,7 @@ export default function EditIdeaPage() {
                                     </div>
                                     <div className="grid grid-cols-2 gap-6">
                                         <div className="space-y-3">
-                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Expected Min Yield (₹)</label>
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Expected Min Income (₹)</label>
                                             <input
                                                 type="number"
                                                 name="monthly_income_min"
@@ -452,7 +452,7 @@ export default function EditIdeaPage() {
                                             />
                                         </div>
                                         <div className="space-y-3">
-                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Expected Max Yield (₹)</label>
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Expected Max Income (₹)</label>
                                             <input
                                                 type="number"
                                                 name="monthly_income_max"
@@ -467,7 +467,7 @@ export default function EditIdeaPage() {
                                 <div className="space-y-8">
                                     <div className="grid grid-cols-2 gap-6">
                                         <div className="space-y-3">
-                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Risk Profile</label>
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Risk Level</label>
                                             <select
                                                 name="risk_level"
                                                 value={formData.risk_level}
@@ -480,7 +480,7 @@ export default function EditIdeaPage() {
                                             </select>
                                         </div>
                                         <div className="space-y-3">
-                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Required Effort</label>
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Effort Level</label>
                                             <select
                                                 name="effort_level"
                                                 value={formData.effort_level}
@@ -532,7 +532,7 @@ export default function EditIdeaPage() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Required Expertise (Comma Separated)</label>
+                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Required Expertise</label>
                                 <input
                                     type="text"
                                     name="skills_required"
@@ -587,7 +587,7 @@ export default function EditIdeaPage() {
                                                 onChange={(e) => setFormData(prev => ({ ...prev, is_featured: e.target.checked }))}
                                                 className="w-5 h-5 rounded border-indigo-200 text-indigo-600 focus:ring-indigo-500 bg-white"
                                             />
-                                            <span className="text-[10px] font-black text-indigo-700 uppercase tracking-widest">Featured Asset</span>
+                                            <span className="text-[10px] font-black text-indigo-700 uppercase tracking-widest">Featured Idea</span>
                                         </label>
                                     </>
                                 )}
@@ -607,7 +607,7 @@ export default function EditIdeaPage() {
                             </div>
                             <div className="space-y-6">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Meta Title (Signal Header)</label>
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Meta Title</label>
                                     <input
                                         type="text"
                                         name="meta_title"
@@ -618,7 +618,7 @@ export default function EditIdeaPage() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Meta Description (Signal Summary)</label>
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Meta Description</label>
                                     <textarea
                                         name="meta_description"
                                         rows={2}

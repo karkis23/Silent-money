@@ -8,14 +8,14 @@ import ConfirmModal from '../components/ConfirmModal';
 import { toast } from 'react-hot-toast';
 
 /**
- * DashboardPage: The "Command Center" for the user.
+ * DashboardPage: The main dashboard for the user.
  * 
  * This component aggregates all user-specific operational data including:
- * - Saved income blueprints (ideas) and franchises.
+ * - Saved ideas and franchises.
  * - Created content (ideas/franchises authored by the user).
- * - Social intelligence (reviews/intel provided by the user).
- * - Financial goals and real-time progress tracking.
- * - Expert audit requests for business validation.
+ * - Reviews and feedback provided by the user.
+ * - Income goals and progress tracking.
+ * - Verification requests for business validation.
  */
 export default function DashboardPage() {
     const { user, profile } = useAuth();
@@ -436,7 +436,7 @@ export default function DashboardPage() {
                             </>
                         ) : (
                             <>
-                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1.5 ">Saved Blueprints</div>
+                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1.5 ">Saved Items</div>
                                 <div className="text-3xl font-black text-charcoal-950 tracking-tighter">
                                     {savedIdeas.length + savedFranchises.length}
                                 </div>
@@ -452,7 +452,7 @@ export default function DashboardPage() {
                             </>
                         ) : (
                             <>
-                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1.5">My Contributions</div>
+                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1.5">My Posts</div>
                                 <div className="text-3xl font-black text-charcoal-950 tracking-tighter">
                                     {myIdeaCount + myFranchiseCount}
                                 </div>
@@ -473,7 +473,7 @@ export default function DashboardPage() {
                             </>
                         ) : (
                             <>
-                                <div className="text-[10px] font-black text-white/70 uppercase tracking-widest mb-1.5 relative z-10">Projected Yield</div>
+                                <div className="text-[10px] font-black text-white/70 uppercase tracking-widest mb-1.5 relative z-10">Potential Income</div>
                                 <div className="text-3xl font-black text-white tracking-tighter relative z-10">
                                     ₹{(calculatePotentialIncome() / 1000).toFixed(1)}k<span className="text-md text-white/50 ml-1">/mo</span>
                                 </div>
@@ -533,13 +533,13 @@ export default function DashboardPage() {
                         <div className="relative z-10">
                             <div className="flex items-center gap-2 mb-4">
                                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
-                                <span className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.3em]">Quick Start Guide</span>
+                                <span className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.3em]">Getting Started</span>
                             </div>
                             <h2 className="text-2xl md:text-3xl font-black text-white tracking-tighter mb-2">
-                                Welcome to Your Command Center<span className="text-primary-500">.</span>
+                                Welcome to Your Dashboard<span className="text-primary-500">.</span>
                             </h2>
                             <p className="text-charcoal-400 text-sm font-medium mb-8 max-w-xl">
-                                Your dashboard is ready. Follow these steps to build your passive income portfolio and start tracking progress towards financial freedom.
+                                Your dashboard is ready. Follow these steps to build your portfolio and track your progress.
                             </p>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -552,7 +552,7 @@ export default function DashboardPage() {
                                         <span className="text-[9px] font-black text-primary-400 uppercase tracking-widest">Step 1</span>
                                     </div>
                                     <h3 className="text-sm font-black text-white mb-1 tracking-tight">Set Your Goals</h3>
-                                    <p className="text-[11px] text-charcoal-400 leading-relaxed">Define your income goals & risk tolerance to get personalized matches.</p>
+                                    <p className="text-[11px] text-charcoal-400 leading-relaxed">Define your income goals and risk levels to get matching ideas.</p>
                                 </Link>
 
                                 <Link
@@ -564,7 +564,7 @@ export default function DashboardPage() {
                                         <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Step 2</span>
                                     </div>
                                     <h3 className="text-sm font-black text-white mb-1 tracking-tight">Explore Ideas</h3>
-                                    <p className="text-[11px] text-charcoal-400 leading-relaxed">Browse 60+ vetted passive income blueprints and franchise brands.</p>
+                                    <p className="text-[11px] text-charcoal-400 leading-relaxed">Browse 60+ verified passive income ideas and franchise brands.</p>
                                 </Link>
 
                                 <Link
@@ -587,7 +587,7 @@ export default function DashboardPage() {
                                         <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest">Step 4</span>
                                     </div>
                                     <h3 className="text-sm font-black text-white mb-1 tracking-tight">Track Progress</h3>
-                                    <p className="text-[11px] text-charcoal-400 leading-relaxed">Monitor your ROI, update asset status, and hit your income goals.</p>
+                                    <p className="text-[11px] text-charcoal-400 leading-relaxed">Monitor your income, update asset status, and reach your goals.</p>
                                 </div>
                             </div>
                         </div>
@@ -600,7 +600,7 @@ export default function DashboardPage() {
                         onClick={() => setActiveTab('ideas')}
                         className={`pb-4 text-[12px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'ideas' ? 'text-primary-600' : 'text-charcoal-400 hover:text-charcoal-600'}`}
                     >
-                        Saved Blueprints ({savedIdeas.length})
+                        Saved Ideas ({savedIdeas.length})
                         {activeTab === 'ideas' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-primary-600 rounded-full" />}
                     </button>
                     <button
@@ -614,21 +614,21 @@ export default function DashboardPage() {
                         onClick={() => setActiveTab('intel')}
                         className={`pb-4 text-[12px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'intel' ? 'text-primary-600' : 'text-charcoal-400 hover:text-charcoal-600'}`}
                     >
-                        My Intel ({myReviews.length})
+                        My Reviews ({myReviews.length})
                         {activeTab === 'intel' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-primary-600 rounded-full" />}
                     </button>
                     <button
                         onClick={() => setActiveTab('projections')}
                         className={`pb-4 text-[12px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'projections' ? 'text-primary-600' : 'text-charcoal-400 hover:text-charcoal-600'}`}
                     >
-                        ROI Projections ({savedCalculations.length})
+                        Calculations ({savedCalculations.length})
                         {activeTab === 'projections' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-primary-600 rounded-full" />}
                     </button>
                     <button
                         onClick={() => setActiveTab('audits')}
                         className={`pb-4 text-[12px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === 'audits' ? 'text-primary-600' : 'text-charcoal-400 hover:text-charcoal-600'}`}
                     >
-                        Audits ({myAudits.length})
+                        Verifications ({myAudits.length})
                         {activeTab === 'audits' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-primary-600 rounded-full" />}
                     </button>
                 </div>

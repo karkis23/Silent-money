@@ -17,15 +17,13 @@ import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 
 /**
- * FranchiseDetailPage: The technical "Asset Dossier" for a specific franchise partnership.
+ * FranchiseDetailPage: Detailed information for a specific franchise brand.
  * 
- * CORE COMPONENTS:
- * - Institutional Hero: Displays high-fidelity asset branding and validation states.
- * - Intelligence Signal HUB: Visualizes key performance indicators (ROI, Profit, Investment).
- * - ROI Forecasting: Integrated calculator for user-specific financial projections.
- * - Expert Audit Trail: Detailed vetting history and validation metrics.
- * - Institutional Trust: Community reviews and brand connectivity (website/contact).
- * 
+ * - Brand Summary: Shows brand details and verification status.
+ * - Key Metrics: Shows important numbers like ROI, Profit, and Investment.
+ * - Calculator: Tools to help you project your potential earnings.
+ * - Verification History: Vetting history and validation metrics.
+ * - Reviews & Contact: Community reviews and brand contact information.
  * @component
  */
 export default function FranchiseDetailPage() {
@@ -56,7 +54,7 @@ export default function FranchiseDetailPage() {
 
             if (error) {
                 console.error('Error fetching franchise:', error);
-                setError('Franchise opportunity not found.');
+                setError('Franchise not found.');
             } else {
                 setFranchise(data);
             }
@@ -112,7 +110,7 @@ export default function FranchiseDetailPage() {
 
             if (!error) {
                 setIsSaved(false);
-                toast.success('Asset removed from Vault');
+                toast.success('Removed from saved items');
             } else {
                 toast.error('Failed to update Vault status');
             }
@@ -123,9 +121,9 @@ export default function FranchiseDetailPage() {
 
             if (!error) {
                 setIsSaved(true);
-                toast.success('Asset secured in Vault');
+                toast.success('Saved successfully');
             } else {
-                toast.error('Failed to secure asset');
+                toast.error('Failed to save brand');
             }
         }
     };
@@ -148,7 +146,7 @@ export default function FranchiseDetailPage() {
         <div className="min-h-screen bg-cream-50 flex flex-col items-center justify-center p-4 text-center">
             <div className="text-6xl mb-6">🏢</div>
             <h1 className="text-3xl font-black text-charcoal-950 mb-4">{error}</h1>
-            <Link to="/franchise" className="btn-primary">Back to Expansion Feed</Link>
+            <Link to="/franchise" className="btn-primary">Back to Franchises</Link>
         </div>
     );
 
@@ -160,9 +158,9 @@ export default function FranchiseDetailPage() {
     ];
 
     const heroStats = [
-        { label: 'Tier Status', value: 'PREMIUM' },
-        { label: 'Verification', value: franchise.is_verified ? 'OFFICIAL' : 'PENDING' },
-        { label: 'Market Sync', value: franchise.last_verified_at ? new Date(franchise.last_verified_at).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : 'Feb 2026' }
+        { label: 'Type', value: 'PREMIUM' },
+        { label: 'Status', value: franchise.is_verified ? 'OFFICIAL' : 'PENDING' },
+        { label: 'Last Verified', value: franchise.last_verified_at ? new Date(franchise.last_verified_at).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : 'Feb 2026' }
     ];
 
     const schemaData = {
@@ -201,7 +199,7 @@ export default function FranchiseDetailPage() {
                             <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
                         </svg>
                     )}
-                    <span className="whitespace-nowrap font-black tracking-[0.25em]">{isSaved ? 'VAULT SECURED' : 'TRACK ASSET'}</span>
+                    <span className="whitespace-nowrap font-black tracking-[0.25em]">{isSaved ? 'SAVED' : 'SAVE BRAND'}</span>
                 </div>
             </button>
 
@@ -226,13 +224,13 @@ export default function FranchiseDetailPage() {
                 imageUrl={franchise.image_url}
                 profiles={franchise.profiles}
                 isVerified={franchise.is_verified}
-                backLabel="Back to Discovery"
+                backLabel="Back to Franchises"
                 actions={heroActions}
                 stats={heroStats}
             />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                {/* 1. INSTITUTIONAL FINANCIAL HUB (Optimized Layout) */}
+                {/* FINANCIAL SUMMARY */}
                 <div className="grid lg:grid-cols-2 gap-12 mb-16 items-start">
                     <div className="space-y-12">
                         <DetailMetrics metrics={franchiseMetrics} />
@@ -242,20 +240,20 @@ export default function FranchiseDetailPage() {
                             <div className="absolute top-0 right-0 w-64 h-64 bg-primary-600/10 blur-[80px] rounded-full -mr-32 -mt-32 transition-transform duration-1000 group-hover:scale-110" />
                             <h3 className="text-[11px] font-black text-white/40 uppercase tracking-[0.3em] mb-8 flex items-center gap-3 relative z-10">
                                 <span className="w-1.5 h-1.5 bg-primary-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
-                                Market Outlook
+                                Market Analysis
                             </h3>
                             <p className="text-lg font-medium text-white/90 leading-relaxed mb-8 relative z-10 pr-4">
-                                Sector demand for <span className="text-primary-400 font-bold">{franchise.category}</span> is projected to grow by <span className="text-emerald-400">12% YoY</span>. Historical ROI in Tier-1 cities remains consistent with <span className="text-white font-bold">standard growth models</span>.
+                                Demand for <span className="text-primary-400 font-bold">{franchise.category}</span> is projected to grow by <span className="text-emerald-400">12% YoY</span>. Business returns in major cities remain consistent with <span className="text-white font-bold">proven business models</span>.
                             </p>
                             <div className="grid grid-cols-2 gap-4 sm:gap-8 relative z-10 border-t border-white/5 pt-8">
                                 <div>
-                                    <div className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Market Strength</div>
+                                    <div className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Popularity</div>
                                     <div className="text-xl font-black text-white tracking-tight flex items-center gap-2">
-                                        Tier 1 Elite <span className="text-xs">🏆</span>
+                                        Top Rated <span className="text-xs">🏆</span>
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Verification Status</div>
+                                    <div className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Status</div>
                                     <div className="text-xl font-black text-emerald-500 tracking-tight">Verified Brand</div>
                                 </div>
                             </div>
@@ -283,12 +281,12 @@ export default function FranchiseDetailPage() {
                 </div>
 
                 <div className="grid lg:grid-cols-2 gap-16">
-                    {/* 2. STRATEGIC SIGNALS & CONTENT */}
+                    {/* 2. DETAILS & CONTENT */}
                     <div className="space-y-12">
                         {/* Core Identity */}
                         <div className={`bg-white rounded-[3rem] p-6 md:p-12 border border-charcoal-100 shadow-xl relative transition-all duration-700 ${isExpanded ? '' : 'max-h-[600px] overflow-hidden'}`}>
                             <h3 className="text-[11px] font-black text-charcoal-300 uppercase tracking-[0.4em] mb-10 flex items-center gap-3">
-                                🛸 Core Identity
+                                🛸 Business Overview
                             </h3>
 
                             <div className="space-y-8 mb-12 border-b border-charcoal-50 pb-12">
@@ -299,16 +297,16 @@ export default function FranchiseDetailPage() {
                                         <span className="text-xl font-black text-charcoal-900 uppercase tracking-tight">{franchise.name}</span>
                                     </div>
                                     <div className="flex flex-col gap-1">
-                                        <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest">Industry Classification</span>
+                                        <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest">Category</span>
                                         <span className="text-xl font-black text-charcoal-900 uppercase tracking-tight">{franchise.category}</span>
                                     </div>
                                     <div className="flex flex-col gap-1">
-                                        <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest">Expansion Protocol</span>
-                                        <span className="text-xl font-black text-primary-600 uppercase tracking-tight">{franchise.unit_model || 'FOCO / FOFO Configuration'}</span>
+                                        <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest">Business Model</span>
+                                        <span className="text-xl font-black text-primary-600 uppercase tracking-tight">{franchise.unit_model || 'Company / Franchise Managed'}</span>
                                     </div>
                                     <div className="flex flex-col gap-1">
-                                        <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest">Target Deployment</span>
-                                        <span className="text-lg font-bold text-charcoal-600 italic">"Tier 1 & Tier 2 Hubs (PAN India)"</span>
+                                        <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest">Target Locations</span>
+                                        <span className="text-lg font-bold text-charcoal-600 italic">"Tier 1 & Tier 2 Cities"</span>
                                     </div>
                                 </div>
                             </div>
@@ -327,7 +325,7 @@ export default function FranchiseDetailPage() {
                                 onClick={() => setIsExpanded(!isExpanded)}
                                 className="bg-charcoal-950 text-white px-8 py-4 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl hover:bg-primary-600 transition-all flex items-center gap-3 group"
                             >
-                                {isExpanded ? 'Collapse Architecture' : 'Read Full Blueprint'}
+                                {isExpanded ? 'Show Less' : 'Read Full Description'}
                                 <span className={`text-lg transition-transform duration-500 ${isExpanded ? 'rotate-180' : 'group-hover:translate-y-1'}`}>↓</span>
                             </button>
                         </div>
@@ -355,7 +353,7 @@ export default function FranchiseDetailPage() {
                                     className="bg-charcoal-50 p-6 md:p-8 rounded-[2rem] text-center border border-charcoal-100 hover:bg-white hover:shadow-xl hover:border-emerald-100 transition-all group flex flex-col items-center justify-center gap-1"
                                 >
                                     <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em] group-hover:text-emerald-600 transition-colors">Contact</div>
-                                    <div className="text-[8px] font-bold text-charcoal-300 truncate max-w-full italic">Reveal Details</div>
+                                    <div className="text-[8px] font-bold text-charcoal-300 truncate max-w-full italic">View Details</div>
                                 </button>
                             ) : (
                                 <div className="bg-charcoal-50/50 p-6 md:p-8 rounded-[2rem] text-center border border-charcoal-50 cursor-not-allowed opacity-50">
@@ -382,7 +380,7 @@ export default function FranchiseDetailPage() {
                         {/* Business Analysis Card */}
                         <div className="bg-white rounded-[3rem] p-6 md:p-10 border border-charcoal-100 shadow-xl space-y-8">
                             <h3 className="text-[11px] font-black text-charcoal-300 uppercase tracking-[0.4em] flex items-center gap-3">
-                                📊 Business Analysis
+                                📊 Analysis
                             </h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-6">
                                 <div className="space-y-1">
@@ -402,11 +400,11 @@ export default function FranchiseDetailPage() {
                                     <span className="text-sm font-bold text-blue-600">{franchise.risk_level || franchise.risk_profile || 'Low Risk'}</span>
                                 </div>
                                 <div className="space-y-1">
-                                    <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest block">Retention Rate</span>
+                                    <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest block">Success Rate</span>
                                     <span className="text-sm font-bold text-emerald-600">{franchise.operator_retention || '95'}%</span>
                                 </div>
                                 <div className="space-y-1">
-                                    <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest block">Asset Grade</span>
+                                    <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest block">Rating</span>
                                     <span className="text-sm font-bold text-primary-600">{franchise.asset_grade || 'AAA+'}</span>
                                 </div>
                             </div>
@@ -415,7 +413,7 @@ export default function FranchiseDetailPage() {
                         {/* Operational Logistics Card */}
                         <div className="bg-white rounded-[3rem] p-6 md:p-10 border border-charcoal-100 shadow-xl space-y-8">
                             <h3 className="text-[11px] font-black text-charcoal-300 uppercase tracking-[0.4em] flex items-center gap-3">
-                                ⚙️ Operational Logistics
+                                ⚙️ Operations
                             </h3>
                             <div className="space-y-6">
                                 <div className="space-y-1">
@@ -423,16 +421,16 @@ export default function FranchiseDetailPage() {
                                     <span className="text-sm font-bold text-charcoal-800 leading-relaxed block">{franchise.supply_chain || 'Centralized Procurement Systems'}</span>
                                 </div>
                                 <div className="space-y-1">
-                                    <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest block">Staffing Model</span>
-                                    <span className="text-sm font-bold text-charcoal-800 leading-relaxed block">{franchise.staffing_model || 'Certified Modular Teams'}</span>
+                                    <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest block">Staffing</span>
+                                    <span className="text-sm font-bold text-charcoal-800 leading-relaxed block">{franchise.staffing_model || 'Certified Teams'}</span>
                                 </div>
                                 <div className="space-y-1">
                                     <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest block">Tech Stack</span>
                                     <span className="text-sm font-bold text-charcoal-800 leading-relaxed block">{franchise.tech_stack || 'Integrated CRM & Inventory ERP'}</span>
                                 </div>
                                 <div className="space-y-1">
-                                    <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest block">Support Ecosystem</span>
-                                    <span className="text-sm font-bold text-charcoal-800 leading-relaxed block">{franchise.marketing_support || franchise.corporate_support || 'Full Marketing & Operational Guardrails'}</span>
+                                    <span className="text-[9px] font-black text-charcoal-300 uppercase tracking-widest block">Training & Support</span>
+                                    <span className="text-sm font-bold text-charcoal-800 leading-relaxed block">{franchise.marketing_support || franchise.corporate_support || 'Full Marketing & Support'}</span>
                                 </div>
                             </div>
                         </div>
@@ -445,7 +443,7 @@ export default function FranchiseDetailPage() {
                                 <h3 className="text-lg font-black mb-2 uppercase tracking-tight">Login for Full Access</h3>
                                 <p className="text-xs font-medium text-white/80 leading-relaxed mb-6">Create an account to track this brand, save financial projections, and contribute to official reviews.</p>
                                 <Link to="/signup" className="inline-flex h-12 px-8 bg-white text-primary-600 rounded-xl text-[10px] font-black uppercase tracking-widest items-center hover:bg-cream-50 transition-all">
-                                    Secure Full Access
+                                    Sign Up Now
                                 </Link>
                             </div>
                         )}

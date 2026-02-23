@@ -7,14 +7,13 @@ import ImageUpload from '../components/ImageUpload';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
- * AddIdeaPage: The institutional gateway for deploying new passive income blueprints.
+ * AddIdeaPage: The main page for adding new business ideas.
  * 
  * DESIGN SPECIFICATIONS:
- * - Multi-Step Orchestration: Guides curators through Foundation, Strategy, Financials, and SEO phases.
- * - Intelligence-Led SEO: Automatically generates optimized metadata by stripping UI formatting.
- * - Real-Time Validation: Enforces data integrity for slugs, categories, and financial projections.
- * - Media Deployment: Integrated handling for institutional asset imagery.
- * 
+ * - Step-by-step guide: Guides through Basic Info, Details, Financials, and SEO phases.
+ * - Automatic SEO: Automatically generates optimized metadata.
+ * - Real-Time Validation: Checks for missing info in each step.
+ * - Image upload: Integrated handling for idea images.
  * @component
  */
 export default function AddIdeaPage() {
@@ -129,11 +128,11 @@ export default function AddIdeaPage() {
 
     const nextStep = () => {
         if (step === 1 && (!formData.title || !formData.category_id || !formData.short_description)) {
-            setError('Foundational intelligence required (Title, Category, Summary).');
+            setError('Basic information required (Title, Category, Summary).');
             return;
         }
         if (step === 2 && (!formData.full_description || !formData.initial_investment_min || !formData.monthly_income_min)) {
-            setError('Full Intelligence required (Guide, Investment, Income).');
+            setError('Detailed information required (Guide, Investment, Income).');
             return;
         }
         setError('');
@@ -157,7 +156,7 @@ export default function AddIdeaPage() {
 
         // Final Validation Check
         if (!formData.full_description || !formData.initial_investment_min || !formData.monthly_income_min) {
-            setError('Incomplete Blueprint: Investment metrics and Operational Guide are required.');
+            setError('Incomplete info: Investment metrics and Guide are required.');
             return;
         }
 
@@ -218,17 +217,17 @@ export default function AddIdeaPage() {
 
     return (
         <div className="min-h-screen bg-cream-50 pt-20 md:pt-32 pb-20 px-4 sm:px-6 lg:px-8">
-            <SEO title="Forge New Income Blueprint" />
+            <SEO title="Add New Idea" />
             <div className="max-w-4xl mx-auto">
                 <div className="mb-12">
-                    <BackButton label="Abort Mission" className="mb-8" />
+                    <BackButton label="Back" className="mb-8" />
                     <div className="flex justify-between items-end mb-4">
                         <div>
                             <h1 className="text-4xl md:text-5xl font-black text-charcoal-950 mb-2 tracking-tighter">
-                                Deploy <span className="text-primary-600">Blueprint</span>
+                                Add <span className="text-primary-600">Idea</span>
                             </h1>
                             <p className="text-charcoal-500 font-bold uppercase text-[10px] tracking-[0.3em]">
-                                Step {step} of 3 • {step === 1 ? 'Foundation' : step === 2 ? 'Full Intelligence' : 'SEO & Controls'}
+                                Step {step} of 3 • {step === 1 ? 'Basic Info' : step === 2 ? 'Detailed Info' : 'SEO & Settings'}
                             </p>
                         </div>
                         <div className="flex gap-1 mb-2">
@@ -244,7 +243,7 @@ export default function AddIdeaPage() {
 
                     {error && (
                         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-8 bg-red-50 border border-red-100 text-red-600 p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3">
-                            <span>🚫 SYSTEM ERROR:</span> {error}
+                            <span>🚫 ERROR:</span> {error}
                         </motion.div>
                     )}
 
@@ -254,13 +253,13 @@ export default function AddIdeaPage() {
                                 <div className="grid md:grid-cols-2 gap-8">
                                     <div className="space-y-8">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Strategic Title</label>
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Title</label>
                                             <input type="text" value={formData.title} onChange={handleTitleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 focus:bg-white outline-none font-bold text-charcoal-900 transition-all" placeholder="e.g. Semi-Auto Kiosk Brand" />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Sector Classification</label>
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Category</label>
                                             <select name="category_id" value={formData.category_id} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-bold text-charcoal-900 transition-all appearance-none">
-                                                <option value="">Select Category Matrix</option>
+                                                <option value="">Select Category</option>
                                                 {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
                                             </select>
                                         </div>
@@ -268,8 +267,8 @@ export default function AddIdeaPage() {
                                     <ImageUpload label="Hero Visualization" onUpload={(url) => setFormData(prev => ({ ...prev, image_url: url }))} currentUrl={formData.image_url} />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Intelligence Summary</label>
-                                    <textarea name="short_description" rows={2} value={formData.short_description} onChange={handleShortDescChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-medium text-charcoal-700 transition-all" placeholder="2-line executive summary..." />
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Short Description</label>
+                                    <textarea name="short_description" rows={2} value={formData.short_description} onChange={handleShortDescChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-medium text-charcoal-700 transition-all" placeholder="2-line summary..." />
                                 </div>
                             </motion.div>
                         )}
@@ -280,7 +279,7 @@ export default function AddIdeaPage() {
                                 <div className="space-y-8 pb-8 border-b border-charcoal-50">
                                     <div className="flex items-center gap-3">
                                         <span className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm">💰</span>
-                                        <h2 className="text-[10px] font-black uppercase tracking-widest text-charcoal-950">Financial matrix</h2>
+                                        <h2 className="text-[10px] font-black uppercase tracking-widest text-charcoal-950">Financials</h2>
                                     </div>
                                     <div className="grid md:grid-cols-2 gap-8">
                                         <div className="space-y-6">
@@ -307,7 +306,7 @@ export default function AddIdeaPage() {
                                         </div>
                                         <div className="space-y-6">
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Risk Exposure</label>
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Risk Level</label>
                                                 <select name="risk_level" value={formData.risk_level} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-bold text-charcoal-900 appearance-none">
                                                     <option value="low">Low Risk</option>
                                                     <option value="medium">Medium Risk</option>
@@ -315,7 +314,7 @@ export default function AddIdeaPage() {
                                                 </select>
                                             </div>
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Deployment Effort</label>
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Effort Level</label>
                                                 <select name="effort_level" value={formData.effort_level} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-bold text-charcoal-900 appearance-none">
                                                     <option value="passive">Autonomous (Passive)</option>
                                                     <option value="semi-passive">Monitoring (Semi-Passive)</option>
@@ -330,23 +329,23 @@ export default function AddIdeaPage() {
                                 <div className="space-y-6">
                                     <div className="flex items-center gap-3">
                                         <span className="w-8 h-8 rounded-lg bg-primary-50 text-primary-600 flex items-center justify-center text-sm">📖</span>
-                                        <h2 className="text-[10px] font-black uppercase tracking-widest text-charcoal-950">Operational Guide</h2>
+                                        <h2 className="text-[10px] font-black uppercase tracking-widest text-charcoal-950">Details</h2>
                                     </div>
                                     <div className="space-y-2">
                                         <div className="flex justify-between items-center mb-1 pr-1">
-                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Execution Workflow (Deep Intel)</label>
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">How it Works (Full Description)</label>
                                             <div className="text-[8px] font-bold text-primary-600/60 uppercase tracking-widest">
                                                 **bold** • - list • {">"} quote • # header
                                             </div>
                                         </div>
-                                        <textarea required name="full_description" rows={10} value={formData.full_description} onChange={handleFullDescChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-medium text-charcoal-700 transition-all min-h-[250px] research-editor resize-y" placeholder="Explain the mechanics of this wealth engine step-by-step..." />
+                                        <textarea required name="full_description" rows={10} value={formData.full_description} onChange={handleFullDescChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-medium text-charcoal-700 transition-all min-h-[250px] research-editor resize-y" placeholder="Explain how this works step-by-step..." />
                                     </div>
                                     <div className="grid md:grid-cols-2 gap-8">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Reality Protocol (Boundaries & Risks)</label>
-                                            <textarea required name="reality_check" rows={6} value={formData.reality_check} onChange={handleChange} className="w-full px-5 py-4 bg-amber-50/50 border border-amber-100 rounded-2xl outline-none font-medium text-amber-900 transition-all research-editor resize-y" placeholder="Be brutally honest about the market risks..." />
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Expert Review</label>
+                                            <textarea required name="reality_check" rows={6} value={formData.reality_check} onChange={handleChange} className="w-full px-5 py-4 bg-amber-50/50 border border-amber-100 rounded-2xl outline-none font-medium text-amber-900 transition-all research-editor resize-y" placeholder="Be honest about the risks..." />
                                         </div>
-                                        <ImageUpload label="Verification Proof (Confidential)" bucket="proofs" onUpload={(url) => setFormData(prev => ({ ...prev, proof_url: url }))} currentUrl={formData.proof_url} />
+                                        <ImageUpload label="Verification Proof" bucket="proofs" onUpload={(url) => setFormData(prev => ({ ...prev, proof_url: url }))} currentUrl={formData.proof_url} />
                                     </div>
                                     <div className="grid md:grid-cols-3 gap-8">
                                         <div className="space-y-2">
@@ -363,8 +362,8 @@ export default function AddIdeaPage() {
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Required Expertise (Comma Separated)</label>
-                                        <input type="text" name="skills_required" value={formData.skills_required} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-bold text-charcoal-900 transition-all" placeholder="e.g. Digital Marketing, Basic Spreadsheet Skills" />
+                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Required Expertise</label>
+                                        <input type="text" name="skills_required" value={formData.skills_required} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-bold text-charcoal-900 transition-all" placeholder="e.g. Marketing, Basic Computer Skills" />
                                     </div>
                                 </div>
                             </motion.div>
@@ -376,7 +375,7 @@ export default function AddIdeaPage() {
                                 <div className="space-y-8">
                                     <div className="flex items-center gap-3">
                                         <span className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm">🌐</span>
-                                        <h2 className="text-[10px] font-black uppercase tracking-widest text-charcoal-950">Deployment Controls</h2>
+                                        <h2 className="text-[10px] font-black uppercase tracking-widest text-charcoal-950">Settings</h2>
                                     </div>
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                         <label className="flex items-center gap-3 p-4 bg-charcoal-50 rounded-2xl border border-charcoal-100 cursor-pointer hover:bg-white hover:shadow-lg transition-all">
@@ -410,7 +409,7 @@ export default function AddIdeaPage() {
                                 <div className="space-y-8">
                                     <div className="flex items-center gap-3">
                                         <span className="w-8 h-8 rounded-lg bg-primary-50 text-primary-600 flex items-center justify-center text-sm">🔍</span>
-                                        <h2 className="text-[10px] font-black uppercase tracking-widest text-charcoal-950">Signal Presence (SEO)</h2>
+                                        <h2 className="text-[10px] font-black uppercase tracking-widest text-charcoal-950">Search Engine Info (SEO)</h2>
                                     </div>
                                     <div className="space-y-6">
                                         <div className="space-y-2">
@@ -432,7 +431,7 @@ export default function AddIdeaPage() {
                                                 value={formData.meta_description}
                                                 onChange={handleChange}
                                                 className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl outline-none font-medium text-charcoal-700 transition-all"
-                                                placeholder="Executive summary for search engine snippet..."
+                                                placeholder="Executive summary for search engines..."
                                             />
                                         </div>
                                     </div>
@@ -449,11 +448,11 @@ export default function AddIdeaPage() {
                         )}
                         {step < 3 ? (
                             <button type="button" onClick={nextStep} className="flex-1 py-5 bg-charcoal-900 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-primary-600 transition-all shadow-xl shadow-charcoal-100">
-                                Proceed to {step === 1 ? 'Full Intelligence' : 'SEO & Controls'}
+                                Proceed to {step === 1 ? 'Detailed Info' : 'SEO & Settings'}
                             </button>
                         ) : (
                             <button type="submit" disabled={loading} className="flex-1 py-5 bg-primary-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-emerald-600 transition-all shadow-xl shadow-primary-200">
-                                {loading ? 'Transmitting...' : '🚀 Finalize Deployment'}
+                                {loading ? 'Saving...' : '🚀 Save Idea'}
                             </button>
                         )}
                     </div>

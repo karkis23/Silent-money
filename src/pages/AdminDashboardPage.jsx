@@ -11,18 +11,17 @@ import DeleteConfirmModal from '../components/DeleteConfirmModal';
 import CategoryModal from '../components/CategoryModal';
 
 /**
- * AdminDashboardPage: The primary intelligence and command terminal for the Silent Money platform.
+ * AdminDashboardPage: The main management dashboard for the Silent Money platform.
  * 
  * DESIGN PHILOSOPHY:
- * This component follows a "High-Density HUD" aesthetic, designed for maximum operational velocity.
- * It utilizes a multi-tier state management system to handle hundreds of assets across different
- * lifecycle stages (Pending, Approved, Archived) without performance degradation.
+ * This component is designed for easy and efficient platform management.
+ * It utilizes a multi-tier state management system to handle hundreds of ideas and franchises.
  * 
  * CORE ARCHITECTURAL PILLARS:
- * 1. REAL-TIME MODERATION: Uses Supabase Realtime (Channels) to update the UI instantly when users submit new assets.
- * 2. TRANSACTIONAL AUDITING: Every action (Approve, Ban, Feature) is logged in the `admin_logs` table for institutional accountability.
- * 3. HIERARCHICAL SECURITY: Implements a multi-level admin role system (Moderator, Admin, Super Admin, Owner) with strict safety gates.
- * 4. DATABASE INTEGRITY: Handles soft-deletion via `deleted_at` and permanent reclamation through storage purging protocols.
+ * 1. LIVE UPDATES: Updates the UI instantly when users submit new ideas.
+ * 2. ACTION LOGGING: Every action (Approve, Block, Feature) is saved for transparency.
+ * 3. ACCESS CONTROL: Implements a multi-level role system with strict security.
+ * 4. SYSTEM CLEANUP: Handles safe deletion of files and database cleanup.
  */
 export default function AdminDashboardPage() {
     const { user, profile } = useAuth();
@@ -52,6 +51,7 @@ export default function AdminDashboardPage() {
     const [allUsers, setAllUsers] = useState([]);
     const [allCategories, setAllCategories] = useState([]);
     const [maintenanceQueue, setMaintenanceQueue] = useState([]);
+    const [selectedLog, setSelectedLog] = useState(null);
     const location = useLocation();
 
     // Category Modal State
@@ -230,7 +230,7 @@ export default function AdminDashboardPage() {
                     target_id: log.target_id || '',
                     created_at: log.created_at,
                     profiles: log.profiles,
-                    details: log.details
+                    details: log.details ? (typeof log.details === 'object' ? JSON.stringify(log.details) : String(log.details)) : null
                 }));
 
                 const normalizedAssetLogs = astLogs.map(log => ({
@@ -240,7 +240,7 @@ export default function AdminDashboardPage() {
                     target_id: log.asset_id || '',
                     created_at: log.created_at,
                     profiles: log.profiles,
-                    details: log.feedback
+                    details: log.feedback ? (typeof log.feedback === 'object' ? JSON.stringify(log.feedback) : String(log.feedback)) : null
                 }));
 
                 const combinedLogs = [...normalizedAdminLogs, ...normalizedAssetLogs]
@@ -499,7 +499,7 @@ export default function AdminDashboardPage() {
         setConfirmConfig({
             isOpen: true,
             title: "Unban Investor User?",
-            message: "Are you sure you want to restore access for this user? They will be able to log in and use all institutional features again.",
+            message: "Are you sure you want to restore access for this user? They will be able to log in and use the platform again.",
             type: "success",
             confirmText: "Unban User",
             onConfirm: async () => {
@@ -512,7 +512,7 @@ export default function AdminDashboardPage() {
                         action_type: 'unban',
                         target_type: 'user',
                         target_id: userId,
-                        details: { reason: 'Manual Admin Unban' }
+                        details: { reason: 'Restored Access' }
                     }]);
                     setAllUsers(prev => prev.map(u => u.id === userId ? { ...u, is_banned: false } : u));
                 } else {
@@ -531,8 +531,8 @@ export default function AdminDashboardPage() {
             isOpen: true,
             title: "Ban User?",
             message: isTargetAdmin
-                ? "⚠️ This user is an administrator. Banning will automatically revoke their admin privileges and they will lose access to all institutional features immediately."
-                : "Are you sure you want to ban this user? They will lose access to all institutional features immediately.",
+                ? "⚠️ This user is an administrator. Banning will remove their admin access and logout them immediately."
+                : "Are you sure you want to ban this user? They will lose access to their account immediately.",
             type: "danger",
             confirmText: "Ban User",
             onConfirm: async () => {
@@ -559,7 +559,7 @@ export default function AdminDashboardPage() {
                         target_type: 'user',
                         target_id: userId,
                         details: {
-                            reason: 'Manual Admin Ban',
+                            reason: 'Blocked Access',
                             admin_revoked: isTargetAdmin
                         }
                     }]);
@@ -898,7 +898,7 @@ export default function AdminDashboardPage() {
         setConfirmConfig({
             isOpen: true,
             title: `Archive ${type === 'idea' ? 'Blueprint' : 'Brand'}?`,
-            message: `Are you sure you want to archive this ${type}? It will be removed from community circulation but retained in the institutional database.`,
+            message: `Are you sure you want to archive this ${type}? It will be hidden from the community but stay in our database.`,
             onConfirm: async () => {
                 const table = type === 'idea' ? 'income_ideas' : 'franchises';
                 const { error } = await supabase
@@ -1020,13 +1020,13 @@ export default function AdminDashboardPage() {
     };
 
     /**
-     * Institutional Verification Handler:
+     * Official Verification Handler:
      * Marks an asset as officially audited and updates the last verified timestamp.
      */
     const handleInstitutionalVerify = (id, type) => {
         setConfirmConfig({
             isOpen: true,
-            title: 'Authorize Institutional Audit?',
+            title: 'Confirm Official Verification?',
             message: 'Attesting to the current validity of this asset will update its "Last Verified" timestamp and notify the community of its active status.',
             type: 'success',
             confirmText: 'Verify Market Data',
@@ -1042,7 +1042,7 @@ export default function AdminDashboardPage() {
 
                 if (!error) {
                     toast.success('Asset verified and timestamped.');
-                    await logAssetAction(id, type, 'INSTITUTIONAL_AUDIT', 'active', 'verified', 'Official Market Data Sync Performed');
+                    await logAssetAction(id, type, 'OFFICIAL_VERIFICATION', 'active', 'verified', 'Market data verified by admin');
 
                     // Update local state across all relevant lists
                     const updater = (prev) => prev.map(item =>
@@ -1067,10 +1067,10 @@ export default function AdminDashboardPage() {
         if (status === 'completed') {
             setActionConfig({
                 isOpen: true,
-                title: 'Finalize Expert Verification',
-                message: 'Provide a comprehensive assessment and link to the official verification report.',
+                title: 'Finalize Verification',
+                message: 'Provide a summary and link to the final report.',
                 inputType: 'audit',
-                confirmText: 'Approve & Send Report',
+                confirmText: 'Approve & Save Report',
                 onConfirm: async (feedback, reportUrl) => {
                     executeAuditUpdate(id, status, feedback, reportUrl);
                 }
@@ -1082,9 +1082,8 @@ export default function AdminDashboardPage() {
     };
 
     /**
-     * Expert Audit Processor:
-     * Manages the finalization of high-budget investment audits, including
-     * the transmission of institutional PDF reports and expert feedback.
+     * Process Verification:
+     * Finalizes investment verifications by saving reports and feedback.
      */
     const executeAuditUpdate = async (id, status, feedback, reportUrl) => {
         const { error } = await supabase
@@ -1103,10 +1102,10 @@ export default function AdminDashboardPage() {
             if (audit && audit.user_id) {
                 await supabase.from('notifications').insert([{
                     user_id: audit.user_id,
-                    title: status === 'completed' ? 'Expert Verification Complete 🚀' : 'Verification In-Review 🔍',
+                    title: status === 'completed' ? 'Verification Complete 🚀' : 'Verification Under Review 🔍',
                     message: status === 'completed'
-                        ? `Expert analysis for "${audit.brand_name}" is ready: ${feedback.slice(0, 50)}...`
-                        : `Your verification for "${audit.brand_name}" has moved to In-Review status.`,
+                        ? `Final review for "${audit.brand_name}" is ready: ${feedback.slice(0, 50)}...`
+                        : `Your verification for "${audit.brand_name}" is now being reviewed.`,
                     type: 'system',
                     link: '/dashboard'
                 }]);
@@ -1126,8 +1125,8 @@ export default function AdminDashboardPage() {
     const handlePurgeStorage = async () => {
         setConfirmConfig({
             isOpen: true,
-            title: '☢️ AUTHORIZE SYSTEM PURGE',
-            message: `You are about to permanently delete ${maintenanceQueue.length} orphaned assets from Supabase Storage clusters. This action is IRREVERSIBLE. Do you wish to proceed with the reclamation protocol?`,
+            title: '⚠️ CLEAN UP FILES',
+            message: `You are about to permanently delete ${maintenanceQueue.length} files from storage. This action cannot be undone. Do you wish to proceed with the system cleanup?`,
             type: 'danger',
             onConfirm: async () => {
                 const results = { success: 0, failed: 0 };
@@ -1152,26 +1151,82 @@ export default function AdminDashboardPage() {
         });
     };
 
+    const downloadUsersCSV = () => {
+        const headers = ['ID', 'Full Name', 'Membership', 'Is Admin', 'Is Banned', 'Created At'];
+        const rows = allUsers.map(u => [
+            u.id,
+            u.full_name || 'Anonymous',
+            u.membership_tier || 'Basic',
+            u.is_admin ? 'Yes' : 'No',
+            u.is_banned ? 'Yes' : 'No',
+            new Date(u.created_at).toLocaleString()
+        ]);
+
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `silent_money_users_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success('User database exported to CSV');
+    };
+
+    const growthMetrics = (() => {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        const recentUsers = allUsers.filter(u => new Date(u.created_at) > thirtyDaysAgo).length;
+        const recentIdeas = allIdeas.filter(i => new Date(i.created_at) > thirtyDaysAgo).length;
+        const recentFranchises = allFranchises.filter(f => new Date(f.created_at) > thirtyDaysAgo).length;
+
+        return {
+            userGrowth: allUsers.length > 0 ? ((recentUsers / Math.max(1, allUsers.length - recentUsers)) * 100).toFixed(1) : 0,
+            assetGrowth: (stats.ideas + stats.franchises) > 0 ? (((recentIdeas + recentFranchises) / Math.max(1, (stats.ideas + stats.franchises) - (recentIdeas + recentFranchises))) * 100).toFixed(1) : 0,
+            recentUsers,
+            recentAssets: recentIdeas + recentFranchises
+        };
+    })();
+
     if (!profile?.is_admin) return null;
 
     return (
         <div className="min-h-screen bg-charcoal-50 pt-32 pb-20 px-4">
-            <SEO title="Admin Moderation Terminal | Silent Money" />
+            <SEO title="Admin Dashboard | Silent Money" />
 
             <div className="max-w-7xl mx-auto">
                 <header className="mb-12">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10">
                         <div>
-                            <div className="text-[10px] font-black text-primary-600 uppercase tracking-[0.3em] mb-2">Institutional Platform Terminal</div>
+                            <div className="text-[10px] font-black text-primary-600 uppercase tracking-[0.3em] mb-2">Admin Control Panel</div>
                             <h1 className="text-4xl font-black text-charcoal-900 tracking-tighter">Admin <span className="text-charcoal-400">Dashboard</span></h1>
                         </div>
-                        <div className="hidden lg:flex items-center gap-3 px-4 py-2 bg-white rounded-2xl border border-charcoal-100 shadow-sm text-[10px] font-black text-charcoal-600 uppercase tracking-widest">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                            System: Operational
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => fetchAll()}
+                                className="p-2.5 bg-white rounded-xl border border-charcoal-100 shadow-sm text-charcoal-400 hover:text-primary-600 hover:border-primary-100 transition-all active:scale-95"
+                                title="Refresh Dashboard Data"
+                                disabled={loading}
+                            >
+                                <svg className={`w-4 h-4 ${(loading || pageLoading) ? 'animate-spin text-primary-600' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            </button>
+                            <div className="hidden lg:flex items-center gap-3 px-4 py-2 bg-white rounded-2xl border border-charcoal-100 shadow-sm text-[10px] font-black text-charcoal-600 uppercase tracking-widest">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                                System: Operational
+                            </div>
                         </div>
                     </div>
 
-                    {/* Highly Engineered Persistent Tab Bar */}
+                    {/* Navigation Menu */}
                     <div className="w-full bg-white p-1.5 rounded-[1.5rem] border border-charcoal-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)]">
                         <div className="w-full overflow-x-auto hide-scrollbar scroll-smooth">
                             <div className="flex items-center gap-1.5 min-w-max md:min-w-full md:justify-between px-0.5">
@@ -1232,7 +1287,7 @@ export default function AdminDashboardPage() {
                                     onClick={() => setActiveTab('categories')}
                                     className={`px-4 py-3 rounded-[1.15rem] text-[10px] font-black uppercase tracking-[0.1em] transition-all flex items-center gap-3 whitespace-nowrap flex-1 justify-center ${activeTab === 'categories' ? 'bg-charcoal-950 text-white shadow-xl translate-y-[-1px]' : 'text-charcoal-400 hover:text-charcoal-900 hover:bg-charcoal-50'}`}
                                 >
-                                    <span>Taxonomy</span>
+                                    <span>Categories</span>
                                     <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black ${activeTab === 'categories' ? 'bg-white/10 text-white' : 'bg-charcoal-100 text-charcoal-400'}`}>{allCategories.length}</span>
                                 </button>
 
@@ -1241,13 +1296,14 @@ export default function AdminDashboardPage() {
                                     className={`px-4 py-3 rounded-[1.15rem] text-[10px] font-black uppercase tracking-[0.1em] transition-all flex items-center gap-3 whitespace-nowrap flex-1 justify-center ${activeTab === 'logs' ? 'bg-charcoal-950 text-white shadow-xl translate-y-[-1px]' : 'text-charcoal-400 hover:text-charcoal-900 hover:bg-charcoal-50'}`}
                                 >
                                     <span>Logs</span>
+                                    <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black ${activeTab === 'logs' ? 'bg-white/10 text-white' : 'bg-charcoal-100 text-charcoal-400'}`}>{adminLogs.length}</span>
                                 </button>
 
                                 <button
                                     onClick={() => setActiveTab('performance')}
                                     className={`px-4 py-3 rounded-[1.15rem] text-[10px] font-black uppercase tracking-[0.1em] transition-all flex items-center gap-3 whitespace-nowrap flex-1 justify-center ${activeTab === 'performance' ? 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-xl translate-y-[-1px]' : 'text-charcoal-400 hover:text-emerald-600 hover:bg-emerald-50'}`}
                                 >
-                                    <span>Growth</span>
+                                    <span>Stats</span>
                                 </button>
 
                                 <button
@@ -1282,7 +1338,7 @@ export default function AdminDashboardPage() {
                         )}
                     </div>
 
-                    {/* Premium Institutional Pagination Command Bar */}
+                    {/* Pagination Controls */}
                     {activeTab === 'all' && (
                         <div className="flex items-center bg-white p-1 rounded-2xl border border-charcoal-100 shadow-sm self-stretch md:self-auto h-12">
                             <button
@@ -1345,134 +1401,245 @@ export default function AdminDashboardPage() {
                 {/* ACTIVITY LOGS TAB CONTENT */}
                 {activeTab === 'logs' && (
                     <div className="card bg-white border-none shadow-xl p-8">
-                        <h2 className="text-xl font-black text-charcoal-900 uppercase tracking-tighter mb-6">System Activity Logs</h2>
-                        <div className="space-y-4">
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-black text-charcoal-900 uppercase tracking-tighter">System Activity Logs</h2>
+                            <span className="text-[10px] font-black text-charcoal-400 bg-charcoal-50 px-3 py-1.5 rounded-full uppercase tracking-widest">
+                                {adminLogs.length} Events
+                            </span>
+                        </div>
+                        <div className="space-y-2">
                             {adminLogs.length === 0 ? (
                                 <div className="py-20 text-center text-charcoal-400 font-medium italic">
                                     No activity logs recorded yet.
                                 </div>
                             ) : (
-                                adminLogs.map(log => (
-                                    <div key={log.id} className="flex items-center gap-4 p-4 bg-charcoal-50 rounded-xl border border-charcoal-100 group hover:border-primary-200 transition-all">
-                                        <div className="w-10 h-10 rounded-full bg-white border border-charcoal-100 flex items-center justify-center text-lg shadow-sm group-hover:scale-110 transition-transform">
-                                            {log.action_type?.includes('approve') || log.action_type === 'AUTHORIZATION' ? '✅' :
-                                                log.action_type?.includes('ban') ? '🚫' :
-                                                    log.action_type?.includes('REVISION') ? '📝' :
-                                                        log.action_type?.includes('RESTORE') ? '♻️' :
-                                                            log.action_type?.includes('DECOMMISSION') || log.action_type?.includes('archive') ? '📁' :
-                                                                log.action_type?.includes('DELETE') ? '🗑️' : '⚙️'}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="text-xs font-black text-charcoal-900 uppercase tracking-wide flex items-center gap-2">
-                                                {log.profiles?.full_name || 'System Admin'}
-                                                <span className="text-charcoal-300">•</span>
-                                                <span className="text-primary-600">{log.action_type?.replace(/_/g, ' ')}</span>
-                                            </div>
-                                            <div className="text-[10px] font-mono text-charcoal-500 mt-1 flex items-center gap-2">
-                                                <span className="px-1.5 py-0.5 bg-charcoal-100 rounded text-[8px] font-black uppercase tracking-widest">{log.target_type}</span>
-                                                <span className="truncate">{log.target_id}</span>
-                                            </div>
-                                            {log.details && (
-                                                <div className="mt-2 text-[10px] text-charcoal-600 italic leading-relaxed border-l-2 border-charcoal-200 pl-3">
-                                                    "{log.details}"
+                                adminLogs.map(log => {
+                                    const isExpanded = selectedLog === log.id;
+                                    const icon = String(log.action_type ?? '').includes('approve') || log.action_type === 'AUTHORIZATION' ? '✅' :
+                                        String(log.action_type ?? '').includes('ban') ? '🚫' :
+                                            String(log.action_type ?? '').includes('REVISION') ? '📝' :
+                                                String(log.action_type ?? '').includes('RESTORE') ? '♻️' :
+                                                    String(log.action_type ?? '').includes('DECOMMISSION') || String(log.action_type ?? '').includes('archive') ? '📁' :
+                                                        String(log.action_type ?? '').includes('DELETE') ? '🗑️' :
+                                                            String(log.action_type ?? '').includes('REVOKE') ? '⚡' :
+                                                                String(log.action_type ?? '').includes('ADMIN') ? '👑' : '⚙️';
+
+                                    let parsedDetails = null;
+                                    if (log.details) {
+                                        try {
+                                            parsedDetails = typeof log.details === 'string' ? JSON.parse(log.details) : log.details;
+                                        } catch {
+                                            parsedDetails = log.details;
+                                        }
+                                    }
+
+                                    return (
+                                        <div key={log.id}>
+                                            {/* Collapsed Row */}
+                                            <div
+                                                onClick={() => setSelectedLog(isExpanded ? null : log.id)}
+                                                className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${isExpanded
+                                                    ? 'bg-charcoal-900 border-charcoal-700 rounded-b-none'
+                                                    : 'bg-charcoal-50 border-charcoal-100 hover:border-primary-200 hover:bg-white'
+                                                    }`}
+                                            >
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm flex-shrink-0 transition-all ${isExpanded ? 'bg-white/10 border border-white/20' : 'bg-white border border-charcoal-100'}`}>
+                                                    {icon}
                                                 </div>
-                                            )}
+                                                <div className="flex-1 min-w-0">
+                                                    <div className={`text-xs font-black uppercase tracking-wide flex items-center gap-2 flex-wrap ${isExpanded ? 'text-white' : 'text-charcoal-900'}`}>
+                                                        {log.profiles?.full_name || 'System Admin'}
+                                                        <span className={isExpanded ? 'text-white/30' : 'text-charcoal-300'}>•</span>
+                                                        <span className={`px-2 py-0.5 rounded-md text-[9px] font-black tracking-widest ${isExpanded ? 'bg-primary-500 text-white' : 'bg-primary-50 text-primary-600'}`}>
+                                                            {String(log.action_type ?? '').replace(/_/g, ' ')}
+                                                        </span>
+                                                    </div>
+                                                    <div className={`text-[10px] font-mono mt-1 flex items-center gap-2 ${isExpanded ? 'text-white/50' : 'text-charcoal-500'}`}>
+                                                        <span className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${isExpanded ? 'bg-white/10 text-white/60' : 'bg-charcoal-100 text-charcoal-500'}`}>
+                                                            {typeof log.target_type === 'object' ? JSON.stringify(log.target_type) : (log.target_type ?? '')}
+                                                        </span>
+                                                        <span className="truncate max-w-[200px]">
+                                                            {typeof log.target_id === 'object' ? JSON.stringify(log.target_id) : (log.target_id ?? '')}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-3 flex-shrink-0">
+                                                    <div className={`text-[10px] font-bold whitespace-nowrap ${isExpanded ? 'text-white/40' : 'text-charcoal-400'}`}>
+                                                        {log.created_at ? new Date(log.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : ''}
+                                                    </div>
+                                                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black transition-transform ${isExpanded ? 'bg-white/10 text-white rotate-180' : 'bg-charcoal-100 text-charcoal-400'}`}>
+                                                        ▼
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Expanded Detail Panel */}
+                                            <AnimatePresence>
+                                                {isExpanded && (
+                                                    <motion.div
+                                                        initial={{ height: 0, opacity: 0 }}
+                                                        animate={{ height: "auto", opacity: 1 }}
+                                                        exit={{ height: 0, opacity: 0 }}
+                                                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                                                        className="overflow-hidden"
+                                                    >
+                                                        <div className="bg-charcoal-950 rounded-b-xl border border-t-0 border-charcoal-700 p-6 space-y-4">
+                                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                                <div className="bg-white/5 rounded-xl p-3">
+                                                                    <div className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Performed By</div>
+                                                                    <div className="text-xs font-black text-white">{log.profiles?.full_name || 'System Admin'}</div>
+                                                                </div>
+                                                                <div className="bg-white/5 rounded-xl p-3">
+                                                                    <div className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Action Type</div>
+                                                                    <div className="text-xs font-black text-primary-400">{String(log.action_type ?? '')}</div>
+                                                                </div>
+                                                                <div className="bg-white/5 rounded-xl p-3">
+                                                                    <div className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Target Type</div>
+                                                                    <div className="text-xs font-black text-white uppercase">{typeof log.target_type === 'object' ? JSON.stringify(log.target_type) : (log.target_type ?? 'N/A')}</div>
+                                                                </div>
+                                                                <div className="bg-white/5 rounded-xl p-3">
+                                                                    <div className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Timestamp</div>
+                                                                    <div className="text-xs font-black text-white">{log.created_at ? new Date(log.created_at).toLocaleString() : 'N/A'}</div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="bg-white/5 rounded-xl p-3">
+                                                                <div className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Target ID</div>
+                                                                <div className="text-xs font-mono text-emerald-400 break-all">
+                                                                    {typeof log.target_id === 'object' ? JSON.stringify(log.target_id) : (log.target_id || 'N/A')}
+                                                                </div>
+                                                            </div>
+
+                                                            {parsedDetails && (
+                                                                <div className="bg-black/30 rounded-xl p-4 border border-white/5">
+                                                                    <div className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-3">Event Details / Metadata</div>
+                                                                    {typeof parsedDetails === 'object' ? (
+                                                                        <div className="space-y-2">
+                                                                            {Object.entries(parsedDetails).map(([key, val]) => (
+                                                                                <div key={key} className="flex items-start gap-3">
+                                                                                    <span className="text-[9px] font-black text-white/40 uppercase tracking-widest min-w-[100px] pt-0.5">{key.replace(/_/g, ' ')}</span>
+                                                                                    <span className="text-xs font-mono text-amber-300 break-all">{String(val)}</span>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <pre className="text-xs font-mono text-amber-300 whitespace-pre-wrap break-all">{String(parsedDetails)}</pre>
+                                                                    )}
+                                                                </div>
+                                                            )}
+
+                                                            <div className="flex justify-end pt-2">
+                                                                <button
+                                                                    onClick={() => setSelectedLog(null)}
+                                                                    className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-[9px] font-black uppercase tracking-widest rounded-lg transition-all"
+                                                                >
+                                                                    Close Details
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
                                         </div>
-                                        <div className="text-[10px] font-bold text-charcoal-400 whitespace-nowrap">
-                                            {log.created_at ? new Date(log.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : ''}
-                                        </div>
-                                    </div>
-                                ))
+                                    );
+                                })
                             )}
                         </div>
                     </div>
                 )}
 
                 {activeTab === 'audits' && (
-                    <div className="mt-8">
+                    <div className="mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <section className="card bg-white border-none shadow-xl p-8">
-                            <div className="flex justify-between items-center mb-8 border-b border-charcoal-50 pb-4">
-                                <h2 className="text-base font-black text-charcoal-900 uppercase tracking-widest flex items-center gap-3">
-                                    <span>🔍</span> Verification Requests
-                                </h2>
-                                <span className="text-[10px] font-black text-primary-600 bg-primary-50 px-3 py-1.5 rounded-full uppercase tracking-widest">
-                                    {auditRequests.length} Total Requests
+                            <div className="flex justify-between items-center mb-10 border-b border-charcoal-50 pb-6">
+                                <div>
+                                    <h2 className="text-xl font-black text-charcoal-900 uppercase tracking-tighter flex items-center gap-3">
+                                        <span>🔍</span> Verification Requests
+                                    </h2>
+                                    <p className="text-[10px] text-charcoal-400 font-bold uppercase tracking-widest mt-1">Pending reviews from investors</p>
+                                </div>
+                                <span className="text-[11px] font-black text-white bg-primary-600 px-4 py-2 rounded-xl uppercase tracking-[0.2em] shadow-lg shadow-primary-200">
+                                    {auditRequests.filter(a => a.status === 'pending').length} Requests
                                 </span>
                             </div>
 
-                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {auditRequests.length === 0 ? (
-                                    <div className="col-span-full py-20 text-center text-charcoal-400 font-medium italic">
-                                        No verification requests received yet.
-                                    </div>
-                                ) : (
-                                    auditRequests.map(audit => (
-                                        <div key={audit.id} className="p-6 bg-charcoal-50 rounded-[2rem] border border-charcoal-100 flex flex-col h-full relative group">
-                                            <div className="flex justify-between items-start mb-4">
-                                                <div>
-                                                    <h3 className="text-xl font-black text-charcoal-950 uppercase tracking-tight">{audit.brand_name}</h3>
-                                                    <p className="text-[10px] font-black text-primary-600 uppercase tracking-widest font-mono">{audit.brand_sector}</p>
-                                                </div>
-                                                <select
-                                                    value={audit.status}
-                                                    onChange={(e) => handleUpdateAuditStatus(audit.id, e.target.value)}
-                                                    className={`text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg appearance-none cursor-pointer border shadow-sm ${audit.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                                                        audit.status === 'in-review' ? 'bg-blue-50 text-blue-600 border-blue-100' :
-                                                            audit.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                                                                'bg-gray-100 text-gray-500 border-gray-200'
-                                                        }`}
-                                                >
-                                                    <option value="pending">PENDING</option>
-                                                    <option value="in-review">IN-REVIEW</option>
-                                                    <option value="completed">COMPLETED</option>
-                                                    <option value="cancelled">CANCELLED</option>
-                                                </select>
-                                            </div>
-
-                                            <div className="space-y-4 mb-6 flex-1">
-                                                <div className="p-3 bg-white rounded-xl border border-charcoal-100/50">
-                                                    <div className="text-[8px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Target Budget</div>
-                                                    <div className="text-xs font-bold text-charcoal-900 font-mono">₹{audit.investment_budget ?? 'N/A'}</div>
-                                                </div>
-                                                <div className="p-3 bg-white rounded-xl border border-charcoal-100/50">
-                                                    <div className="text-[8px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Location</div>
-                                                    <div className="text-xs font-bold text-charcoal-900">{audit.location_target || 'N/A'}</div>
-                                                </div>
-                                                {audit.additional_notes && (
-                                                    <div className="p-3 bg-white rounded-xl border border-charcoal-100/50">
-                                                        <div className="text-[8px] font-black text-charcoal-400 uppercase tracking-widest mb-1">User Notes</div>
-                                                        <p className="text-[10px] text-charcoal-600 font-medium leading-relaxed italic line-clamp-3">"{audit.additional_notes}"</p>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            <div className="pt-4 border-t border-charcoal-200/50 mt-auto">
-                                                {audit.admin_feedback && (
-                                                    <div className="mb-4 p-3 bg-primary-50 rounded-xl border border-primary-100">
-                                                        <div className="text-[8px] font-black text-primary-600 uppercase tracking-widest mb-1">Admin Response</div>
-                                                        <p className="text-[10px] text-charcoal-700 font-medium leading-relaxed italic line-clamp-2">"{audit.admin_feedback}"</p>
-                                                        {audit.report_url && (
-                                                            <a
-                                                                href={audit.report_url}
-                                                                target="_blank"
-                                                                rel="noreferrer"
-                                                                className="mt-2 inline-flex items-center gap-2 text-[8px] font-black text-primary-600 uppercase tracking-widest hover:underline"
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead>
+                                        <tr className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] border-b border-charcoal-50">
+                                            <th className="pb-4 pl-4">Business / Individual</th>
+                                            <th className="pb-4">Requirements</th>
+                                            <th className="pb-4 text-center">Status</th>
+                                            <th className="pb-4 text-right pr-4">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-charcoal-50">
+                                        {auditRequests.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="4" className="py-20 text-center text-charcoal-400 font-medium italic">
+                                                    No verification requests in the current cycle.
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            auditRequests.map(audit => (
+                                                <tr key={audit.id} className="group hover:bg-charcoal-50 transition-colors">
+                                                    <td className="py-6 pl-4">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="w-12 h-12 rounded-2xl bg-primary-50 flex items-center justify-center text-xl border border-primary-100">
+                                                                🏢
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-sm font-black text-charcoal-900">{audit.brand_name}</div>
+                                                                <div className="text-[10px] font-bold text-primary-600 uppercase tracking-widest">
+                                                                    By {audit.profiles?.full_name || 'Anonymous User'}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-6">
+                                                        <div className="space-y-1">
+                                                            <div className="text-[10px] font-black text-charcoal-900 uppercase tracking-tight">
+                                                                Sector: <span className="text-charcoal-500">{audit.brand_sector || 'General'}</span>
+                                                            </div>
+                                                            <div className="text-[10px] font-black text-charcoal-900 uppercase tracking-tight">
+                                                                Budget: <span className="text-emerald-600">{audit.investment_budget || 'N/A'}</span>
+                                                            </div>
+                                                            <div className="text-[10px] font-black text-charcoal-900 uppercase tracking-tight">
+                                                                Target: <span className="text-charcoal-500">{audit.location_target || 'N/A'}</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-6 text-center">
+                                                        <span className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm ${audit.status === 'completed'
+                                                            ? 'bg-emerald-100 text-emerald-700'
+                                                            : audit.status === 'in-review'
+                                                                ? 'bg-amber-100 text-amber-700'
+                                                                : 'bg-charcoal-100 text-charcoal-400'
+                                                            }`}>
+                                                            {audit.status?.replace('-', ' ') || 'PENDING'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-6 text-right pr-4">
+                                                        <div className="flex gap-2 justify-end">
+                                                            <button
+                                                                onClick={() => handleUpdateAuditStatus(audit.id, 'completed')}
+                                                                className="px-3 py-1.5 bg-charcoal-900 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-primary-600 transition-all shadow-md"
                                                             >
-                                                                <span>🗂️</span> View Uploaded Report
-                                                            </a>
-                                                        )}
-                                                    </div>
-                                                )}
-
-                                                <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-charcoal-400">
-                                                    <span>User ID: {audit.user_id?.slice(0, 8) ?? 'N/A'}...</span>
-                                                    <span>{audit.created_at ? new Date(audit.created_at).toLocaleDateString() : 'N/A'}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))
-                                )}
-
+                                                                Complete
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleUpdateAuditStatus(audit.id, 'in-review', 'Review process started.')}
+                                                                className="px-3 py-1.5 bg-white border border-charcoal-200 text-charcoal-600 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-charcoal-50 transition-all"
+                                                            >
+                                                                Review
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
                             </div>
                         </section>
                     </div>
@@ -1833,11 +2000,19 @@ export default function AdminDashboardPage() {
                                     <h2 className="text-xl font-black text-charcoal-900 uppercase tracking-tighter flex items-center gap-3">
                                         <span>👤</span> Users
                                     </h2>
-                                    <p className="text-[10px] text-charcoal-400 font-bold uppercase tracking-widest mt-1">Platform members</p>
+                                    <p className="text-[10px] text-charcoal-400 font-bold uppercase tracking-widest mt-1">{allUsers.length} Active Profiles</p>
                                 </div>
-                                <span className="text-[11px] font-black text-white bg-charcoal-900 px-4 py-2 rounded-xl uppercase tracking-[0.2em] shadow-lg shadow-charcoal-200">
-                                    {allUsers.length} Active Profiles
-                                </span>
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        onClick={downloadUsersCSV}
+                                        className="px-4 py-2 bg-white border border-charcoal-200 text-charcoal-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-charcoal-50 flex items-center gap-2 transition-all shadow-sm"
+                                    >
+                                        <span>📥</span> Export CSV
+                                    </button>
+                                    <span className="text-[11px] font-black text-white bg-charcoal-900 px-4 py-2 rounded-xl uppercase tracking-[0.2em] shadow-lg shadow-charcoal-200">
+                                        Active Nodes
+                                    </span>
+                                </div>
                             </div>
 
                             <div className="overflow-x-auto">
@@ -1947,8 +2122,8 @@ export default function AdminDashboardPage() {
                         <section className="card bg-white border-none shadow-xl p-8 mb-10 overflow-hidden relative">
                             <div className="flex items-center justify-between mb-8">
                                 <div>
-                                    <h2 className="text-xl font-black text-charcoal-900 uppercase tracking-tighter">Taxonomy Management</h2>
-                                    <p className="text-[10px] font-bold text-charcoal-400 uppercase tracking-widest mt-1">Configure global asset classification silos</p>
+                                    <h2 className="text-xl font-black text-charcoal-900 uppercase tracking-tighter">Category Management</h2>
+                                    <p className="text-[10px] font-bold text-charcoal-400 uppercase tracking-widest mt-1">Manage all business categories and tags</p>
                                 </div>
                                 <button
                                     onClick={() => setCategoryModal({ isOpen: true, category: null })}
@@ -2014,23 +2189,28 @@ export default function AdminDashboardPage() {
                                 <h3 className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] mb-4">User Adoption</h3>
                                 <div className="text-4xl font-black text-charcoal-950 mb-2">{allUsers.length} <span className="text-emerald-500 text-sm">Active</span></div>
                                 <div className="w-full h-1 bg-charcoal-50 rounded-full mt-4 overflow-hidden">
-                                    <div className="h-full bg-emerald-500 rounded-full w-[65%]" />
+                                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${Math.min(100, Math.max(10, (allUsers.length / 500) * 100))}%` }} />
                                 </div>
-                                <p className="text-[10px] text-charcoal-400 font-bold mt-4 uppercase tracking-widest">Growth Velocity: High</p>
+                                <p className="text-[10px] text-charcoal-400 font-bold mt-4 uppercase tracking-widest">Growth: +{growthMetrics.userGrowth}% (30d)</p>
                             </div>
 
                             <div className="bg-charcoal-950 p-8 rounded-[2rem] text-white shadow-2xl shadow-charcoal-950/20 relative group">
                                 <div className="absolute top-0 right-0 p-4 opacity-20">💎</div>
-                                <h3 className="text-[10px] font-black text-primary-400 uppercase tracking-[0.2em] mb-4">Asset Inventory</h3>
-                                <div className="text-4xl font-black mb-2">{stats.ideas + stats.franchises} <span className="text-primary-400/50 text-sm">Silos</span></div>
-                                <div className="flex gap-1 mt-6">
-                                    {[30, 45, 25, 60, 40, 75, 90].map((h, i) => (
-                                        <div key={i} className="flex-1 bg-primary-600/20 rounded-t-sm relative group/bar" style={{ height: '40px' }}>
-                                            <div className="absolute bottom-0 left-0 w-full bg-primary-500 rounded-t-sm transition-all duration-1000" style={{ height: `${h}%` }} />
+                                <h3 className="text-[10px] font-black text-primary-400 uppercase tracking-[0.2em] mb-4">Total Items</h3>
+                                <div className="text-4xl font-black mb-2">{stats.ideas + stats.franchises} <span className="text-primary-400/50 text-sm">Listed</span></div>
+                                <div className="flex gap-1 mt-6 items-end h-10">
+                                    {[30, 45, 25, 60, 40, 75, 90, 65, 80, 55, 40, 30].map((h, i) => (
+                                        <div key={i} className="flex-1 bg-primary-600/20 rounded-t-sm relative group/bar" style={{ height: '100%' }}>
+                                            <motion.div
+                                                initial={{ height: 0 }}
+                                                animate={{ height: `${h}%` }}
+                                                transition={{ duration: 1, delay: i * 0.05 }}
+                                                className="absolute bottom-0 left-0 w-full bg-primary-500 rounded-t-sm"
+                                            />
                                         </div>
                                     ))}
                                 </div>
-                                <p className="text-[10px] text-white/30 font-bold mt-4 uppercase tracking-widest">Submissions: +12% WoW</p>
+                                <p className="text-[10px] text-white/30 font-bold mt-4 uppercase tracking-widest">Velocity: +{growthMetrics.assetGrowth}% (30d)</p>
                             </div>
 
                             <div className="bg-white p-8 rounded-[2rem] border border-charcoal-50 shadow-xl shadow-charcoal-900/5">
@@ -2059,15 +2239,15 @@ export default function AdminDashboardPage() {
                                         +{allUsers.length - 5}
                                     </div>
                                 </div>
-                                <p className="text-[10px] text-white/60 font-bold mt-4 uppercase tracking-widest">Institutional Coverage</p>
+                                <p className="text-[10px] text-white/60 font-bold mt-4 uppercase tracking-widest">Platform Reach</p>
                             </div>
                         </section>
 
                         <div className="grid lg:grid-cols-2 gap-8">
                             <section className="bg-white p-10 rounded-[2.5rem] border border-charcoal-50 shadow-xl">
                                 <div className="flex justify-between items-center mb-10">
-                                    <h2 className="text-xl font-black text-charcoal-950 uppercase tracking-tighter">Sector Distribution</h2>
-                                    <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Macro Overview</span>
+                                    <h2 className="text-xl font-black text-charcoal-950 uppercase tracking-tighter">Growth by Category</h2>
+                                    <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Market Stats</span>
                                 </div>
                                 <div className="space-y-6">
                                     {allCategories.slice(0, 6).map((cat, i) => {
@@ -2134,15 +2314,15 @@ export default function AdminDashboardPage() {
                         <section className="card bg-white border-none shadow-xl p-10 overflow-hidden relative">
                             <div className="flex items-center justify-between mb-12">
                                 <div>
-                                    <h2 className="text-2xl font-black text-charcoal-900 uppercase tracking-tighter">System Reclamation HUD</h2>
-                                    <p className="text-[10px] font-bold text-charcoal-400 uppercase tracking-widest mt-1">Orphaned storage identification and mass purge protocol</p>
+                                    <h2 className="text-2xl font-black text-charcoal-900 uppercase tracking-tighter">System Storage</h2>
+                                    <p className="text-[10px] font-bold text-charcoal-400 uppercase tracking-widest mt-1">Clean up unused files and optimize platform storage</p>
                                 </div>
                                 <button
                                     onClick={handlePurgeStorage}
                                     disabled={maintenanceQueue.length === 0}
                                     className="px-8 py-3.5 bg-red-600 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-700 shadow-xl shadow-red-200 transition-all flex items-center gap-3 disabled:opacity-30 disabled:grayscale"
                                 >
-                                    <span>☢️</span> Purge Orphaned Assets
+                                    <span>☢️</span> Delete Unused Files
                                 </button>
                             </div>
 
@@ -2157,10 +2337,10 @@ export default function AdminDashboardPage() {
                                     <table className="w-full text-left">
                                         <thead>
                                             <tr className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] border-b border-charcoal-50">
-                                                <th className="pb-4 pl-4">Asset Type</th>
-                                                <th className="pb-4">Source Path</th>
-                                                <th className="pb-4">Bucket</th>
-                                                <th className="pb-4 text-right pr-4">Identified On</th>
+                                                <th className="pb-4 pl-4">File Type</th>
+                                                <th className="pb-4">File Path</th>
+                                                <th className="pb-4">Storage Bucket</th>
+                                                <th className="pb-4 text-right pr-4">Added On</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-charcoal-50">
@@ -2194,14 +2374,14 @@ export default function AdminDashboardPage() {
                         <div className="grid md:grid-cols-2 gap-6">
                             <div className="bg-charcoal-900 rounded-[2rem] p-8 text-white relative overflow-hidden group">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-[40px] rounded-full -mr-16 -mt-16 group-hover:bg-white/10 transition-all duration-700" />
-                                <h4 className="text-[10px] font-black text-primary-400 uppercase tracking-[0.3em] mb-4">Total Debt Clearance</h4>
-                                <div className="text-4xl font-black mb-2">{maintenanceQueue.length} <span className="text-white/30">Assets</span></div>
-                                <p className="text-[11px] text-white/50 leading-relaxed font-medium">Accumulated orphaned files awaiting hard-deletion from Supabase storage clusters.</p>
+                                <h4 className="text-[10px] font-black text-primary-400 uppercase tracking-[0.3em] mb-4">Cleanup Queue</h4>
+                                <div className="text-4xl font-black mb-2">{maintenanceQueue.length} <span className="text-white/30">Files</span></div>
+                                <p className="text-[11px] text-white/50 leading-relaxed font-medium">Unused images ready to be permanently deleted.</p>
                             </div>
                             <div className="bg-white rounded-[2rem] p-8 border border-charcoal-100 shadow-xl group">
-                                <h4 className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-4">Storage Integrity</h4>
+                                <h4 className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-4">Storage Status</h4>
                                 <div className="text-4xl font-black text-charcoal-900 mb-2">99.9%</div>
-                                <p className="text-[11px] text-charcoal-500 leading-relaxed font-medium">Current database-to-storage synchronization status. Automated triggers are operational.</p>
+                                <p className="text-[11px] text-charcoal-500 leading-relaxed font-medium">All systems running normally. Automatic cleanup is active.</p>
                             </div>
                         </div>
                     </div>

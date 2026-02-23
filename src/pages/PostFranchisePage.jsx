@@ -8,14 +8,14 @@ import ImageUpload from '../components/ImageUpload';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
- * PostFranchisePage: The institutional terminal for onboarding new franchise brands.
+ * PostFranchisePage: The page for adding new franchise brands.
  * 
  * OPERATIONAL PHASES:
- * 1. FOUNDATION: Core brand identity, category alignment, and asset imagery.
- * 2. STRATEGY: Investment tiers, ROI windows, and space requirements.
- * 3. OPERATIONS: Profit yields and high-fidelity brand descriptions.
- * 4. CONNECTIVITY: Direct brand contact protocols and professional signals.
- * 5. SEO: Intelligence-led metadata generation for discovery optimization.
+ * 1. Brand Info: Core brand identity, category, and images.
+ * 2. Financials: Investment, ROI, and space requirements.
+ * 3. Details: Profit and brand descriptions.
+ * 4. Contact: Brand contact information.
+ * 5. SEO: Automatic SEO generation.
  * 
  * @component
  */
@@ -99,7 +99,7 @@ export default function PostFranchisePage() {
 
     const nextStep = () => {
         if (step === 1 && (!formData.name || !formData.category || !formData.image_url)) {
-            setError('Please complete the business foundation.');
+            setError('Please complete the brand information.');
             return;
         }
         if (step === 2 && (
@@ -108,7 +108,7 @@ export default function PostFranchisePage() {
             !formData.expected_profit_min ||
             !formData.description
         )) {
-            setError('Operational metrics, profit projections, and description are required.');
+            setError('Financial info, profit projections, and description are required.');
             return;
         }
         setError('');
@@ -132,7 +132,7 @@ export default function PostFranchisePage() {
 
         // Final Step Validation
         if (!formData.website_url || !formData.contact_email || !formData.meta_title || !formData.meta_description) {
-            setError('Connectivity and Search Optimization details are required.');
+            setError('Contact and Search info are required.');
             return;
         }
 
@@ -186,17 +186,17 @@ export default function PostFranchisePage() {
 
     return (
         <div className="min-h-screen bg-cream-50 pt-20 md:pt-32 pb-20 px-4">
-            <SEO title="Deploy Franchise Opportunity" />
+            <SEO title="Add Franchise" />
             <div className="max-w-4xl mx-auto">
                 <header className="mb-12">
-                    <BackButton label="Abort Deployment" className="mb-8" />
+                    <BackButton label="Back" className="mb-8" />
                     <div className="flex justify-between items-end">
                         <div>
                             <h1 className="text-4xl md:text-5xl font-black text-charcoal-950 mb-2 tracking-tighter">
-                                List <span className="text-primary-600">Franchise</span>
+                                Add <span className="text-primary-600">Franchise</span>
                             </h1>
                             <p className="text-charcoal-400 font-bold uppercase text-[10px] tracking-[0.3em]">
-                                Phase {step} of 3 • {step === 1 ? 'Business Foundation' : step === 2 ? 'Operational Metrics' : 'SEO & Connectivity'}
+                                Phase {step} of 3 • {step === 1 ? 'Brand Info' : step === 2 ? 'Financials' : 'SEO & Contact'}
                             </p>
                         </div>
                         <div className="flex gap-1 mb-2">
@@ -214,7 +214,7 @@ export default function PostFranchisePage() {
 
                     {error && (
                         <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="mb-8 p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-3">
-                            <span>⚠️ CORE ERROR:</span> {error}
+                            <span>⚠️ ERROR:</span> {error}
                         </motion.div>
                     )}
 
@@ -224,17 +224,17 @@ export default function PostFranchisePage() {
                                 <div className="grid md:grid-cols-2 gap-8">
                                     <div className="space-y-8">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Brand Identity</label>
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Brand Name</label>
                                             <input required name="name" value={formData.name} onChange={handleNameChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-bold" placeholder="e.g. Chai Point Express" />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Sector Classification</label>
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Category</label>
                                             <select name="category" value={formData.category} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-bold appearance-none">
                                                 {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                                             </select>
                                         </div>
                                     </div>
-                                    <ImageUpload label="Brand Key Visual" onUpload={(url) => setFormData(prev => ({ ...prev, image_url: url }))} currentUrl={formData.image_url} />
+                                    <ImageUpload label="Brand Logo / Image" onUpload={(url) => setFormData(prev => ({ ...prev, image_url: url }))} currentUrl={formData.image_url} />
                                 </div>
                             </motion.div>
                         )}
@@ -245,17 +245,17 @@ export default function PostFranchisePage() {
                                     <div className="space-y-6">
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Min Cap (₹)</label>
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Min Investment (₹)</label>
                                                 <input type="number" name="investment_min" value={formData.investment_min} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl font-bold" />
                                             </div>
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Max Cap (₹)</label>
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Max Investment (₹)</label>
                                                 <input type="number" name="investment_max" value={formData.investment_max} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl font-bold" />
                                             </div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Payback (Mo)</label>
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">ROI Timeline (Months)</label>
                                                 <input required type="number" name="roi_months_min" value={formData.roi_months_min} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl font-bold" />
                                             </div>
                                             <div className="space-y-2">
@@ -278,7 +278,7 @@ export default function PostFranchisePage() {
                                 </div>
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-center mb-1 pr-1">
-                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Operational Analytics & Description</label>
+                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Business Description</label>
                                         <div className="text-[8px] font-bold text-primary-600/60 uppercase tracking-widest">
                                             **bold** • - list • {">"} quote • # header
                                         </div>
@@ -290,7 +290,7 @@ export default function PostFranchisePage() {
                                 <div className="space-y-8 pt-8 border-t border-charcoal-100">
                                     {/* Business Intelligence */}
                                     <div className="space-y-4">
-                                        <h3 className="text-sm font-black text-charcoal-900 uppercase tracking-widest pl-1 border-l-4 border-primary-600 ml-1">Business Intelligence</h3>
+                                        <h3 className="text-sm font-black text-charcoal-900 uppercase tracking-widest pl-1 border-l-4 border-primary-600 ml-1">Business Analysis</h3>
                                         <div className="grid md:grid-cols-3 gap-6">
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Unit Model</label>
@@ -309,18 +309,18 @@ export default function PostFranchisePage() {
 
                                     {/* Market Strength */}
                                     <div className="space-y-4">
-                                        <h3 className="text-sm font-black text-charcoal-900 uppercase tracking-widest pl-1 border-l-4 border-emerald-500 ml-1">Market Strength</h3>
+                                        <h3 className="text-sm font-black text-charcoal-900 uppercase tracking-widest pl-1 border-l-4 border-emerald-500 ml-1">Popularity</h3>
                                         <div className="grid md:grid-cols-4 gap-6">
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Retention (%)</label>
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Success Rate (%)</label>
                                                 <input type="number" name="operator_retention" value={formData.operator_retention} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-bold" max="100" />
                                             </div>
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Density (%)</label>
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Network Strength (%)</label>
                                                 <input type="number" name="network_density" value={formData.network_density} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-bold" max="100" />
                                             </div>
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Asset Grade</label>
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Rating</label>
                                                 <select name="asset_grade" value={formData.asset_grade} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-bold">
                                                     <option value="AAA+">AAA+</option>
                                                     <option value="AA">AA</option>
@@ -330,7 +330,7 @@ export default function PostFranchisePage() {
                                                 </select>
                                             </div>
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Risk Profile</label>
+                                                <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Risk Level</label>
                                                 <select name="risk_profile" value={formData.risk_profile} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-bold">
                                                     <option value="Low">Low</option>
                                                     <option value="Medium">Medium</option>
@@ -342,7 +342,7 @@ export default function PostFranchisePage() {
 
                                     {/* Operational Logistics */}
                                     <div className="space-y-4">
-                                        <h3 className="text-sm font-black text-charcoal-900 uppercase tracking-widest pl-1 border-l-4 border-amber-500 ml-1">Operational Logistics</h3>
+                                        <h3 className="text-sm font-black text-charcoal-900 uppercase tracking-widest pl-1 border-l-4 border-amber-500 ml-1">Operations</h3>
                                         <div className="grid md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Supply Chain</label>
@@ -370,16 +370,16 @@ export default function PostFranchisePage() {
                             <motion.div key="fstep3" variants={stepVariants} initial="hidden" animate="visible" exit="exit" className="space-y-10">
                                 <div className="space-y-8">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Official Digital Hub (URL)</label>
+                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Website URL</label>
                                         <input required type="url" name="website_url" value={formData.website_url} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl font-bold" placeholder="https://brand.com" />
                                     </div>
                                     <div className="grid md:grid-cols-2 gap-8">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Intelligence Relay (Email)</label>
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Contact Email</label>
                                             <input required type="email" name="contact_email" value={formData.contact_email} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl font-bold" placeholder="inquiry@brand.com" />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Operations Comm (Phone)</label>
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Contact Phone</label>
                                             <input type="tel" name="contact_phone" value={formData.contact_phone} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl font-bold" placeholder="+91 XXXXX XXXXX" />
                                         </div>
                                     </div>
@@ -389,11 +389,11 @@ export default function PostFranchisePage() {
                                 <div className="space-y-8 pt-8 border-t border-charcoal-100">
                                     <div className="flex items-center gap-3">
                                         <span className="w-8 h-8 rounded-lg bg-primary-50 text-primary-600 flex items-center justify-center text-sm">🔍</span>
-                                        <h2 className="text-[10px] font-black uppercase tracking-widest text-charcoal-950">Signal Presence (SEO)</h2>
+                                        <h2 className="text-[10px] font-black uppercase tracking-widest text-charcoal-950">Search Engine Info (SEO)</h2>
                                     </div>
                                     <div className="space-y-6">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Meta Title (Signal Header)</label>
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Meta Title</label>
                                             <input
                                                 required
                                                 type="text"
@@ -405,7 +405,7 @@ export default function PostFranchisePage() {
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Meta Description (Signal Summary)</label>
+                                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Meta Description</label>
                                             <textarea
                                                 required
                                                 name="meta_description"
@@ -439,7 +439,7 @@ export default function PostFranchisePage() {
                             disabled={loading}
                             className={`flex-1 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all shadow-xl disabled:opacity-50 ${step < 3 ? 'bg-charcoal-900 text-white hover:bg-primary-600' : 'bg-primary-600 text-white hover:bg-emerald-600 shadow-primary-200'}`}
                         >
-                            {loading ? 'Transmitting...' : step < 3 ? `Proceed to ${step === 1 ? 'Operational Metrics' : 'SEO & Connectivity'}` : '🚀 Finalize Brand Listing'}
+                            {loading ? 'Adding...' : step < 3 ? `Proceed to ${step === 1 ? 'Financials' : 'SEO & Contact'}` : '🚀 Save Franchise'}
                         </button>
                     </div>
                 </form>

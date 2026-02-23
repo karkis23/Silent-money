@@ -53,7 +53,7 @@ export default function Navbar() {
                                 Silent Money
                             </span>
                             <span className="bg-charcoal-100 text-charcoal-500 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest border border-charcoal-200/50">
-                                Beta 2.1
+                                Beta 2.3
                             </span>
                         </div>
                     </Link>
@@ -89,7 +89,7 @@ export default function Navbar() {
                                 to="/admin"
                                 className={`text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-lg border-2 border-primary-600/20 text-primary-600 hover:bg-primary-600 hover:text-white transition-all`}
                             >
-                                MODERATE
+                                ADMIN
                             </Link>
                         )}
 

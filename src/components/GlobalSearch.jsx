@@ -112,7 +112,7 @@ export default function GlobalSearch() {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <span className="text-xs font-bold mr-4">Search Knowledge...</span>
+                <span className="text-xs font-bold mr-4">Search...</span>
                 <span className="text-[10px] font-black opacity-40 bg-white px-1.5 py-0.5 rounded border border-charcoal-200">⌘K</span>
             </button>
 
@@ -139,7 +139,7 @@ export default function GlobalSearch() {
                                 <input
                                     autoFocus
                                     type="text"
-                                    placeholder="Find your next wealth engine..."
+                                    placeholder="Search for ideas or brands..."
                                     className="w-full text-xl font-bold bg-transparent border-none focus:ring-0 text-charcoal-900 placeholder:text-charcoal-300"
                                     value={query}
                                     onChange={(e) => setQuery(e.target.value)}
@@ -148,14 +148,14 @@ export default function GlobalSearch() {
 
                             <div className="max-h-[400px] overflow-y-auto p-2">
                                 {loading && (
-                                    <div className="p-8 text-center text-charcoal-400 font-bold animate-pulse">Scanning Neural Network...</div>
+                                    <div className="p-8 text-center text-charcoal-400 font-bold animate-pulse">Searching...</div>
                                 )}
                                 {!loading && query && results.length === 0 && (
-                                    <div className="p-8 text-center text-charcoal-400 font-medium">No intelligence found for "{query}"</div>
+                                    <div className="p-8 text-center text-charcoal-400 font-medium">No results found for "{query}"</div>
                                 )}
                                 {!query && (
                                     <div className="p-8 text-charcoal-400">
-                                        <div className="text-[10px] font-black uppercase tracking-widest mb-4">Trending Intelligence</div>
+                                        <div className="text-[10px] font-black uppercase tracking-widest mb-4">Popular Searches</div>
                                         <div className="grid grid-cols-2 gap-3">
                                             {['Amul', 'Ecommerce', 'Software', 'Tata EV'].map(t => (
                                                 <button key={t} onClick={() => setQuery(t)} className="text-left px-4 py-2 bg-charcoal-50 rounded-xl hover:bg-primary-50 text-sm font-bold text-charcoal-700 transition-all transition-all">{t}</button>
@@ -171,11 +171,11 @@ export default function GlobalSearch() {
                                     >
                                         <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 bg-charcoal-50 rounded-xl flex items-center justify-center group-hover:bg-primary-50 transition-all">
-                                                {res.type === 'blueprint' ? '💡' : '🏢'}
+                                                {res.type === 'blueprint' || res.type === 'idea' ? '💡' : '🏢'}
                                             </div>
                                             <div className="text-left">
                                                 <div className="text-sm font-black text-charcoal-900">{res.name}</div>
-                                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">{res.type}</div>
+                                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">{res.type === 'blueprint' ? 'Idea' : res.type}</div>
                                             </div>
                                         </div>
                                         <div className="text-charcoal-300 group-hover:text-primary-600">→</div>

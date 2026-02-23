@@ -7,19 +7,19 @@ import SEO from '../components/SEO';
 import toast from 'react-hot-toast';
 
 /**
- * Institutional Command Hub & Public Landing Page
+ * Main Landing Page & Admin Overview
  * 
  * DESIGN PHILOSOPHY:
- * This component acts as a high-authority gateway. For standard investors, it serves as 
- * a premium marketing portal. For authenticated administrators (is_admin: true), it 
- * transforms into an "Operational Console" for real-time platform monitoring and deployment.
+ * This component acts as the main entry point for the platform. For standard users, it 
+ * serves as a premium marketing portal. For administrators, it shows a quick summary
+ * for platform monitoring.
  */
 export default function LandingPage() {
     const { user, profile } = useAuth();
     const location = useLocation();
     const banToastShown = useRef(false);
 
-    // Administrative logic gate - transforms the UI into a Command HUD if the user has admin clearance
+    // Administrative logic gate - transforms the UI into an Admin view if the user has admin access
     const isAdmin = profile?.is_admin === true;
 
     // Check for banned parameter (only show once)
@@ -43,8 +43,8 @@ export default function LandingPage() {
     }, [location]);
 
     /**
-     * Platform-wide diagnostic statistics (Admin Only)
-     * Fetched via parallel HEAD requests for maximum operational speed.
+     * Platform stats (Admin Only)
+     * Fetched via parallel requests for speed.
      */
     const [adminStats, setAdminStats] = useState({
         totalIdeas: 0,
@@ -168,7 +168,7 @@ export default function LandingPage() {
     if (isAdmin) {
         return (
             <div className="min-h-screen bg-[#FBFBFD] pt-24 md:pt-32 pb-20 px-4">
-                <SEO title="Admin Command HUD | Silent Money" />
+                <SEO title="Admin Overview | Silent Money" />
 
                 <div className="max-w-7xl mx-auto">
                     {/* Admin Hero */}
@@ -182,7 +182,7 @@ export default function LandingPage() {
                             <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Admin Access</span>
                         </motion.div>
                         <h1 className="text-4xl md:text-7xl font-black text-charcoal-950 tracking-tightest leading-tight mb-4">
-                            Admin <span className="text-primary-600">Dashboard.</span>
+                            Admin <span className="text-primary-600">Panel.</span>
                         </h1>
                         <p className="text-lg md:text-xl text-charcoal-500 font-medium max-w-2xl">
                             Welcome back. Manage your platform, approve new ideas, and moderate user content here.
@@ -219,7 +219,7 @@ export default function LandingPage() {
                                         </div>
                                     </div>
                                     <div className="mt-4 pt-4 border-t border-charcoal-50 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <span className="text-[9px] font-black text-primary-600 uppercase tracking-widest">Manage Sector</span>
+                                        <span className="text-[9px] font-black text-primary-600 uppercase tracking-widest">Go to Tab</span>
                                         <span className="text-primary-600">→</span>
                                     </div>
                                     {stat.alert && (
@@ -235,17 +235,17 @@ export default function LandingPage() {
                         <div className="lg:col-span-2">
                             <div className="bg-charcoal-950 rounded-[3rem] p-10 text-white relative overflow-hidden h-full">
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary-600/20 blur-[100px]" />
-                                <h3 className="text-xs font-black text-white/40 uppercase tracking-[0.3em] mb-8">System Controls</h3>
+                                <h3 className="text-xs font-black text-white/40 uppercase tracking-[0.3em] mb-8">Admin Controls</h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <Link to="/admin" className="p-6 bg-white/5 border border-white/10 rounded-3xl hover:bg-white/10 transition-all group">
                                         <div className="text-[11px] font-black text-primary-400 uppercase tracking-widest mb-2">Platform Management</div>
                                         <div className="text-xl font-black mb-4">Admin Dashboard</div>
-                                        <div className="text-[9px] text-white/50 leading-relaxed">Manage ideas, franchises, and user requests.</div>
+                                        <div className="text-[9px] text-white/50 leading-relaxed">Manage ideas, franchises, and users.</div>
                                     </Link>
                                     <Link to="/post-franchise" className="p-6 bg-white/5 border border-white/10 rounded-3xl hover:bg-white/10 transition-all group">
                                         <div className="text-[11px] font-black text-accent uppercase tracking-widest mb-2">Growth</div>
                                         <div className="text-xl font-black mb-4">Post New Opportunity</div>
-                                        <div className="text-[9px] text-white/50 leading-relaxed">Instantly add new franchises or blueprints to the platform.</div>
+                                        <div className="text-[9px] text-white/50 leading-relaxed">Instantly add new franchises or ideas to the platform.</div>
                                     </Link>
                                 </div>
                             </div>
@@ -270,7 +270,7 @@ export default function LandingPage() {
                                     ))}
                                 </div>
                                 <div className="pt-8 mt-8 border-t border-charcoal-50">
-                                    <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-[0.2em] italic">Institutional Grade Security Active</div>
+                                    <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-[0.2em] italic">Industry Standard Security Active</div>
                                 </div>
                             </div>
                         </div>
@@ -425,7 +425,7 @@ export default function LandingPage() {
 
                                 <div className="absolute -top-8 -right-8 bg-primary-600 text-white p-7 rounded-3xl shadow-2xl shadow-primary-200/50 max-w-[200px] animate-pulse-slow border-4 border-white">
                                     <div className="font-black text-2xl leading-none mb-1 text-white">{sourcesFound}</div>
-                                    <div className="text-[9px] font-black uppercase tracking-widest text-primary-100">Verified Blueprints Found</div>
+                                    <div className="text-[9px] font-black uppercase tracking-widest text-primary-100">Verified Ideas Found</div>
                                 </div>
                             </div>
                             {/* Glow effect behind image */}
@@ -442,13 +442,13 @@ export default function LandingPage() {
                         <div>
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="w-2 h-2 rounded-full bg-primary-600"></span>
-                                <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em]">Market Alpha</span>
+                                <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em]">Top Rated</span>
                             </div>
                             <h2 className="text-3xl md:text-5xl font-black text-charcoal-950 tracking-tighter">
-                                Institutional <span className="text-primary-600">Favorites</span>
+                                Our Best <span className="text-primary-600">Ideas</span>
                             </h2>
                         </div>
-                        <Link to="/ideas" className="btn-secondary py-3 text-[10px] uppercase font-black tracking-widest w-full md:w-auto text-center font-mono">View All Blueprints →</Link>
+                        <Link to="/ideas" className="btn-secondary py-3 text-[10px] uppercase font-black tracking-widest w-full md:w-auto text-center font-mono">View All Ideas →</Link>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-8">
@@ -500,7 +500,7 @@ export default function LandingPage() {
                                     </p>
                                     <div className="flex items-center justify-between pt-6 border-t border-charcoal-50 mt-auto">
                                         <div>
-                                            <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Target Yield</div>
+                                            <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Expected Income</div>
                                             <div className="text-lg font-black text-charcoal-900 leading-none">
                                                 ₹{(idea.monthly_income_min / 1000).toFixed(0)}k<span className="text-xs text-charcoal-400 pl-0.5">/mo</span>
                                             </div>
@@ -515,7 +515,7 @@ export default function LandingPage() {
                                                     }`}
                                             >
                                                 <span className="text-[10px] font-bold leading-none">{idea.upvotes_count || 0}</span>
-                                                <span className="text-[7px] font-black uppercase tracking-tighter">{idea.hasVoted ? 'Voted' : 'Impact'}</span>
+                                                <span className="text-[7px] font-black uppercase tracking-tighter">{idea.hasVoted ? 'Voted' : 'Like'}</span>
                                             </button>
 
                                             <Link to={`/ideas/${idea.slug}`} className="w-12 h-12 rounded-2xl bg-charcoal-950 flex items-center justify-center text-white group-hover:bg-primary-600 transition-all shadow-xl shrink-0">

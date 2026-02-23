@@ -9,14 +9,14 @@ import EmptyState from '../components/EmptyState';
 import ExpertAuditModal from '../components/ExpertAuditModal';
 
 /**
- * FranchisePage: The institutional marketplace for verified franchise brands in India.
+ * FranchisePage: The main marketplace for verified franchise brands in India.
  * 
  * CORE FEATURES:
- * - Vetted ROI Analytics: Filters and displays brands based on proven investment windows.
- * - Multi-Channel Search: Optimized for brand name, utility, and sector-based discovery.
- * - Institutional Favorites: A curated ticker of top-performing high-density brands.
- * - Strategic Auditing: Direct integration with the expert audit request pipeline.
- * - Personalized Discovery: Smart Match filters that align brand requirements with user capital profiles.
+ * - Investment & Return analysis: Filters and displays brands based on expected timelines.
+ * - Advanced search: Search by brand name, category, or business type.
+ * - Popular Brands: A curated list of top-performing brands.
+ * - Expert Verifications: Direct verification of business numbers.
+ * - Smart matching: Matches brands with your budget.
  * 
  * @component
  */
@@ -152,7 +152,7 @@ export default function FranchisePage() {
                         <div>
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="w-2 h-2 rounded-full bg-primary-600 animate-pulse"></span>
-                                <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em]">Verified Franchise List</span>
+                                <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em]">Verified Franchise Directory</span>
                             </div>
                             <h1 className="text-3xl md:text-5xl font-black text-charcoal-950 tracking-tightest leading-none">
                                 Franchise <span className="text-primary-600">Business.</span>
@@ -161,7 +161,7 @@ export default function FranchisePage() {
 
                         <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
                             <Link to="/post-franchise" className="w-full md:w-auto px-8 py-4 bg-charcoal-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-primary-600 transition-all shadow-xl shadow-charcoal-100 text-center">
-                                + Deploy Brand
+                                + Add Brand
                             </Link>
                         </div>
                     </div>
@@ -174,7 +174,7 @@ export default function FranchisePage() {
                             <span className="absolute left-6 top-1/2 -translate-y-1/2 text-charcoal-400">🔍</span>
                             <input
                                 type="text"
-                                placeholder="Search blueprints..."
+                                placeholder="Search brands..."
                                 value={searchQuery}
                                 aria-label="Search franchises"
                                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -207,7 +207,7 @@ export default function FranchisePage() {
                                         ? 'bg-charcoal-900 text-white border-charcoal-900 shadow-lg shadow-charcoal-900/20'
                                         : 'bg-white text-charcoal-500 border-charcoal-100 hover:border-charcoal-300 hover:text-charcoal-900'}`}
                                 >
-                                    {cat === 'all' ? 'All Sectors' : cat}
+                                    {cat === 'all' ? 'All Categories' : cat}
                                 </button>
                             ))}
                         </div>
@@ -252,7 +252,7 @@ export default function FranchisePage() {
                 {/* 3. TRENDING TICKER (Redesigned) */}
                 <div className="mb-8">
                     <div className="flex border-b border-charcoal-50 pb-2 mb-4 overflow-x-auto hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
-                        <h3 className="text-[8px] font-black text-charcoal-400 uppercase tracking-[0.4em] mb-4 pl-1 whitespace-nowrap">Institutional Favorites</h3>
+                        <h3 className="text-[8px] font-black text-charcoal-400 uppercase tracking-[0.4em] mb-4 pl-1 whitespace-nowrap">Popular Brands</h3>
                     </div>
                     <div className="flex gap-2 overflow-x-auto pb-4 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
                         {['Amul', 'Tata EV', 'Lenskart', 'Zudio', 'FirstCry'].map(brand => (
@@ -367,7 +367,7 @@ export default function FranchisePage() {
                                                     {f.description}
                                                 </p>
 
-                                                {/* Strategic Metrics */}
+                                                {/* Key Stats */}
                                                 <div className="grid grid-cols-2 gap-4 md:gap-6 py-5 md:py-6 border-y border-charcoal-50 mb-6 bg-charcoal-50/20 -mx-5 md:-mx-8 px-5 md:px-8">
                                                     <div>
                                                         <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest mb-1.5 font-mono">Investment</div>
@@ -376,7 +376,7 @@ export default function FranchisePage() {
                                                         </div>
                                                     </div>
                                                     <div className="border-l border-charcoal-100 pl-6">
-                                                        <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest mb-1.5 font-mono">ROI Window</div>
+                                                        <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest mb-1.5 font-mono">ROI Timeline</div>
                                                         <div className="text-xl font-black text-emerald-600 font-mono tracking-tighter">
                                                             {f.roi_months_min}-{f.roi_months_max}
                                                             <span className="text-[10px] text-charcoal-400 ml-1 tracking-normal font-sans uppercase">mo</span>
@@ -386,7 +386,7 @@ export default function FranchisePage() {
 
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Monthly Yield</div>
+                                                        <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Monthly Income</div>
                                                         <div className="text-lg font-black text-primary-600">{formatCurrencyShort(f.expected_profit_min)}<span className="text-[10px] text-charcoal-400 pl-0.5 tracking-normal lowercase">/mo</span></div>
                                                     </div>
                                                     {/* Personality Match Tag */}
@@ -417,13 +417,13 @@ export default function FranchisePage() {
                     <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 blur-[80px] rounded-full -mr-32 -mt-32" />
                     <h2 className="text-3xl font-black mb-4 tracking-tight leading-tight relative z-10">Need Detailed Analysis?</h2>
                     <p className="text-gray-400 text-base font-medium max-w-xl mb-8 relative z-10">
-                        Request a full business audit for any Indian brand. Our analysts provide a detailed feasibility report within 48 hours.
+                        Request a full business verification for any Indian brand. Our analysts provide a detailed report within 48 hours.
                     </p>
                     <button
                         onClick={() => setIsAuditModalOpen(true)}
                         className="px-10 py-5 bg-white text-gray-950 rounded-2xl text-xs font-black uppercase tracking-[0.2em] relative z-10 hover:bg-blue-500 hover:text-white transition-all shadow-2xl"
                     >
-                        Request Expert Audit
+                        Request Expert Verification
                     </button>
                 </motion.div>
             </div>

@@ -14,15 +14,14 @@ import DetailMetrics from '../components/details/DetailMetrics';
 import { motion } from 'framer-motion';
 
 /**
- * IdeaDetailPage: The technical "Opportunity Blueprint" for a specific income-generating asset.
+ * IdeaDetailPage: The detailed business plan for a specific income-generating idea.
  * 
  * CORE FEATURES:
- * - Reality Check HUB: Honest, analyst-driven assessments of effort and risk.
- * - Intelligence Signal HUB: Visualizes blueprint-specific KPIs (Yield, Risk, Setup Time).
- * - ROI Simulation: Dynamic financial projecting tools for custom implementation.
- * - Progress Tracking: Visual status management for 'Vaulted' opportunities.
- * - Institutional Documentation: Comprehensive Markdown-driven implementation guides.
- * 
+ * - Expert Review: Honest assessments of effort and risk.
+ * - Key Metrics: Shows important numbers like income, risk, and setup time.
+ * - Calculator: Tools to help you project your potential earnings.
+ * - Progress Tracking: Track your journey from researching to live.
+ * - Full Guide: Comprehensive step-by-step guides.
  * @component
  */
 export default function IdeaDetailPage() {
@@ -57,7 +56,7 @@ export default function IdeaDetailPage() {
 
             if (error) {
                 console.error('Error fetching idea:', error);
-                setError('Blueprint not found in current database shard.');
+                setError('Idea not found.');
             } else {
                 setIdea(data);
                 setVoteCount(data.upvotes_count || 0);
@@ -164,7 +163,7 @@ export default function IdeaDetailPage() {
         if (error) {
             setUpdateMessage('❌ Failed to save changes.');
         } else {
-            setUpdateMessage('✅ Progress saved to vault!');
+            setUpdateMessage('✅ Progress saved!');
             setTimeout(() => setUpdateMessage(''), 3000);
         }
         setUpdateLoading(false);
@@ -194,7 +193,6 @@ export default function IdeaDetailPage() {
     const ideaMetrics = [
         { label: 'Initial Investment', value: formatCurrency(idea.initial_investment_min) },
         { label: 'Time to First ₹', value: `${idea.time_to_first_income_days || 0} Days`, variant: 'success' },
-        { label: 'Failure Rate', value: `${idea.failure_rate_percentage || 15}%`, unit: 'OPERATIONAL RISK', variant: 'danger' },
         { label: 'Projected Profit', value: formatCurrency(idea.monthly_income_min || 0), unit: '/mo', variant: 'primary', highlight: true }
     ];
 
@@ -215,8 +213,8 @@ export default function IdeaDetailPage() {
     };
 
     const heroStats = [
-        { label: 'Network Risk', value: idea.risk_level?.toUpperCase() || 'LOW' },
-        { label: 'Expert Grade', value: 'AAA+' }
+        { label: 'Risk Level', value: idea.risk_level?.toUpperCase() || 'LOW' },
+        { label: 'Rating', value: 'AAA+' }
     ];
 
     const heroActions = (
@@ -238,7 +236,7 @@ export default function IdeaDetailPage() {
                             <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
                         </svg>
                     )}
-                    <span className="whitespace-nowrap font-black tracking-[0.25em]">{isSaved ? 'VAULT SECURED' : 'SAVE BLUEPRINT'}</span>
+                    <span className="whitespace-nowrap font-black tracking-[0.25em]">{isSaved ? 'SAVED' : 'SAVE IDEA'}</span>
                 </div>
             </button>
 
@@ -254,7 +252,7 @@ export default function IdeaDetailPage() {
                         {isVoted ? '🔥' : '⚡'}
                     </span>
                     <span className="whitespace-nowrap font-black tracking-[0.25em]">
-                        {voteCount} IMPACT
+                        {voteCount} LIKES
                     </span>
                 </div>
             </button>
@@ -272,15 +270,15 @@ export default function IdeaDetailPage() {
 
             <DetailHero
                 title={idea.title}
-                category="blueprint"
+                category="idea"
                 shortDescription={idea.short_description}
                 imageUrl={idea.image_url}
                 profiles={idea.profiles}
                 isVerified={true}
                 isPremium={idea.is_premium}
                 isFeatured={idea.is_featured}
-                assetGrade="AAA+ Grade"
-                backLabel="Back to Discovery"
+                assetGrade="Trusted Idea"
+                backLabel="Back to Ideas"
                 actions={heroActions}
                 stats={heroStats}
             />
@@ -299,7 +297,7 @@ export default function IdeaDetailPage() {
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
                                 </span>
-                                Reality Check
+                                Expert Review
                             </h3>
                             <div className="prose prose-amber max-w-none prose-p:text-amber-900 prose-p:font-medium text-sm leading-relaxed relative z-10">
                                 <ReactMarkdown>{idea.reality_check}</ReactMarkdown>
@@ -391,8 +389,8 @@ export default function IdeaDetailPage() {
                         {!user && (
                             <div className="bg-primary-600 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-3xl rounded-full" />
-                                <h3 className="text-lg font-black mb-2 uppercase tracking-tight">Login for Full Access</h3>
-                                <p className="text-xs font-medium text-white/80 leading-relaxed mb-6">Create an account to track this asset, save financial projections, and contribute to community reviews.</p>
+                                <h3 className="text-lg font-black mb-2 uppercase tracking-tight">Login to Save Information</h3>
+                                <p className="text-xs font-medium text-white/80 leading-relaxed mb-6">Create an account to track this idea, save financial projections, and share your reviews.</p>
                                 <Link to="/signup" className="inline-flex h-12 px-8 bg-white text-primary-600 rounded-xl text-[10px] font-black uppercase tracking-widest items-center hover:bg-cream-50 transition-all">
                                     Get Started
                                 </Link>
@@ -432,7 +430,7 @@ export default function IdeaDetailPage() {
                                         disabled={updateLoading}
                                         className="w-full py-5 bg-charcoal-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-xl"
                                     >
-                                        {updateLoading ? 'Synchronizing...' : 'Save Strategy'}
+                                        {updateLoading ? 'Saving...' : 'Save Changes'}
                                     </button>
                                     {updateMessage && (
                                         <div className="text-center text-[10px] font-black text-emerald-600 uppercase tracking-widest animate-pulse">

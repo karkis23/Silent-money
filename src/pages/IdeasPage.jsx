@@ -8,15 +8,13 @@ import SEO from '../components/SEO';
 import EmptyState from '../components/EmptyState';
 
 /**
- * IdeasPage: The primary intelligence engine for passive income blueprints.
+ * IdeasPage: The main directory for business ideas.
  * 
  * CORE ARCHITECTURE:
- * - Dynamic intelligence filtering (Risk, Effort, Income, Category).
- * - Personality Alignment: 'Smart Match' logic that cross-references user profile data 
- *   (budget, risk tolerance) with asset metadata.
- * - Reactive Sorting: Implements high-velocity sorting via Supabase query optimization.
- * - Discovery Feed: A responsive 3-column grid designed for rapid cognitive processing of opportunities.
- * 
+ * - Advanced filtering (Risk, Effort, Income, Category).
+ * - Matching logic: Matches user profile data (budget, risk level) with ideas.
+ * - Fast sorting.
+ * - Discovery Feed: A responsive grid for easy browsing of opportunities.
  * @component
  */
 export default function IdeasPage() {
@@ -174,8 +172,8 @@ export default function IdeasPage() {
     return (
         <div className="min-h-screen bg-cream-50 pb-20 pt-20 md:pt-32 transition-all duration-300">
             <SEO
-                title={`Top ${ideas.length > 50 ? '50+' : ideas.length}+ Passive Income Blueprints in India [${new Date().toLocaleString('default', { month: 'short' })} ${new Date().getFullYear()}]`}
-                description="Explore a curated list of high-yield passive income blueprints for India. Filter by investment, risk, and category."
+                title={`Top ${ideas.length > 50 ? '50+' : ideas.length}+ Passive Income Ideas in India [${new Date().toLocaleString('default', { month: 'short' })} ${new Date().getFullYear()}]`}
+                description="Explore a curated list of high-yield business ideas for India. Filter by investment, risk, and category."
             />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -185,7 +183,7 @@ export default function IdeasPage() {
                         <div>
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="w-2 h-2 rounded-full bg-primary-600 animate-pulse"></span>
-                                <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em]">Verified Business Ideas</span>
+                                <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em]">Verified Ideas</span>
                             </div>
                             <h1 className="text-3xl md:text-5xl font-black text-charcoal-950 tracking-tightest leading-none">
                                 Browse <span className="text-primary-600">Ideas.</span>
@@ -194,8 +192,8 @@ export default function IdeasPage() {
 
                         <div className="flex items-center gap-4">
                             <div className="text-right">
-                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Market Sentiment</div>
-                                <div className="text-sm font-black text-charcoal-950">100+ BLUEPRINTS LIVE</div>
+                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Platform Status</div>
+                                <div className="text-sm font-black text-charcoal-950">100+ IDEAS LIVE</div>
                             </div>
                         </div>
                     </div>
@@ -209,7 +207,7 @@ export default function IdeasPage() {
                             <span className="absolute left-6 top-1/2 -translate-y-1/2 text-charcoal-400">🔍</span>
                             <input
                                 type="text"
-                                placeholder="Search blueprints..."
+                                placeholder="Search ideas..."
                                 value={searchQuery}
                                 aria-label="Search income ideas"
                                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -228,7 +226,7 @@ export default function IdeasPage() {
                         <div className="flex">
                             <div className="px-6 py-3.5 border-r border-charcoal-50 hidden lg:block">
                                 <div className="flex items-center gap-4">
-                                    <span className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest">Min Monthly Income</span>
+                                    <span className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest">Monthly Income</span>
                                     <input
                                         type="range"
                                         min="0"
@@ -319,7 +317,7 @@ export default function IdeasPage() {
                                     ? 'bg-charcoal-900 text-white border-charcoal-900 shadow-lg shadow-charcoal-900/20'
                                     : 'bg-white text-charcoal-500 border-charcoal-100 hover:border-charcoal-300 hover:text-charcoal-900'}`}
                             >
-                                All Sectors
+                                All Categories
                             </button>
                             {categories.map((category) => (
                                 <button
@@ -436,9 +434,9 @@ export default function IdeasPage() {
                                                 {/* Impact Metric */}
                                                 <div className="flex justify-between items-center mb-4">
                                                     <div className="flex flex-col items-start gap-0.5">
-                                                        <div className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Global Rank</div>
+                                                        <div className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Popularity</div>
                                                         <div className="text-sm font-black text-gray-950 uppercase tracking-tighter">
-                                                            #{index + 1} Strategic Asset
+                                                            #{index + 1} Best Idea
                                                         </div>
                                                     </div>
                                                     <button
@@ -449,7 +447,7 @@ export default function IdeasPage() {
                                                             }`}
                                                     >
                                                         <span className="text-[10px] font-bold leading-none">{idea.upvotes_count || 0}</span>
-                                                        <span className="text-[7px] font-black uppercase tracking-tighter">{idea.hasVoted ? 'Voted' : 'Impact'}</span>
+                                                        <span className="text-[7px] font-black uppercase tracking-tighter">{idea.hasVoted ? 'Voted' : 'Like'}</span>
                                                     </button>
                                                 </div>
 
@@ -496,7 +494,7 @@ export default function IdeasPage() {
                                                         {idea.effort_level}
                                                     </span>
                                                     <span className="text-xs font-black text-gray-950 group-hover:text-blue-600 flex items-center gap-2 transition-all">
-                                                        Blueprint <span className="group-hover:translate-x-1 transition-transform">→</span>
+                                                        View Idea <span className="group-hover:translate-x-1 transition-transform">→</span>
                                                     </span>
                                                 </div>
                                             </div>

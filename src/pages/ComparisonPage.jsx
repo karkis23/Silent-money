@@ -8,20 +8,20 @@ import SEO from '../components/SEO';
 import BackButton from '../components/BackButton';
 
 /**
- * Universal Asset Comparator (Financial Battle Engine)
+ * Comparison Tool
  * 
  * DESIGN PHILOSOPHY:
- * Transposes disparate wealth-generation assets (Income Ideas vs. Franchises) 
- * into a high-fidelity side-by-side analysis matrix. 
+ * Shows different income ideas and franchises 
+ * in a side-by-side comparison. 
  */
 /**
- * ComparisonPage: The high-fidelity financial contrast engine.
+ * ComparisonPage: A simple side-by-side comparison tool.
  * 
  * ARCHITECTURAL STACK:
- * - Data Stitching: Normalizes disparate schemas from 'income_ideas' and 'franchises' into a unified asset model.
- * - Selection Engine: Manages an institutional-grade selection state (1-5 slots) with real-time feedback.
+ * - Data Matching: Combines different data from 'income_ideas' and 'franchises' into a unified model.
+ * - Selection Tool: Manages the selection process (1-5 slots) with real-time feedback.
  * - Unified Scroll: Implements a single-container scroll wrapper for mobile to maintain row synchronization.
- * - Intelligence Logic: Automatically identifies top-tier performers (e.g., 'Highest Yield') within the active set.
+ * - Intelligence Logic: Automatically identifies top performers (e.g., 'Highest Yield') within the active set.
  */
 export default function ComparisonPage() {
     const { user } = useAuth();
@@ -74,16 +74,16 @@ export default function ComparisonPage() {
                 .eq('user_id', user.id);
 
             /**
-             * UNIFIED DATA STITCHING:
-             * Normalizes disparate data structures from 'income_ideas' and 'franchises'
-             * into a high-authority unified object for the comparison engine.
+             * UNIFIED DATA MATCHING:
+             * Combines different data structures from 'income_ideas' and 'franchises'
+             * into a unified object for the comparison engine.
              */
             const unifiedAssets = [
                 ...(ideasData || []).filter(item => item.income_ideas).map(item => ({
                     ...item.income_ideas,
                     id: `idea-${item.income_ideas.id}`,
                     realId: item.income_ideas.id,
-                    type: 'blueprint',
+                    type: 'Idea',
                     displayTitle: item.income_ideas.title,
                     icon: item.income_ideas.categories?.icon || '💡',
                     categoryName: item.income_ideas.categories?.name,
@@ -100,7 +100,7 @@ export default function ComparisonPage() {
                     ...item.franchises,
                     id: `franchise-${item.franchises.id}`,
                     realId: item.franchises.id,
-                    type: 'franchise',
+                    type: 'Franchise',
                     displayTitle: item.franchises.name,
                     icon: '🏢',
                     categoryName: item.franchises.category,
@@ -124,15 +124,15 @@ export default function ComparisonPage() {
 
     /**
      * TOGGLE SELECTION:
-     * Manages the active comparison set with a strategic cap of 5 items.
-     * Triggers institutional toast alerts when the bandwidth limit is hit.
+     * Manages the active comparison set with a cap of 5 items.
+     * Triggers alerts when the limit is hit.
      */
     const toggleSelection = (id) => {
         if (selectedIds.includes(id)) {
             setSelectedIds(prev => prev.filter(item => item !== id));
         } else {
             if (selectedIds.length >= 5) {
-                toast.error('Strategic Limit Reached: Max 5 assets for high-fidelity comparison', {
+                toast.error('Limit Reached: Max 5 items for comparison', {
                     style: { background: '#111827', color: '#fff', fontSize: '10px', fontWeight: 'bold' }
                 });
                 return;
@@ -145,8 +145,8 @@ export default function ComparisonPage() {
     const comparedItems = savedAssets.filter(asset => selectedIds.includes(asset.id));
 
     /**
-     * INSTITUTIONAL CURRENCY FORMATTER:
-     * Scales large figures into readable denominations (k, L, Cr) for rapid cognitive processing.
+     * CURRENCY FORMATTER:
+     * Scales large figures into readable numbers (k, L, Cr).
      */
     const formatCurrency = (amount) => {
         if (amount === undefined || amount === null) return 'N/A';
@@ -191,7 +191,7 @@ export default function ComparisonPage() {
                 </header>
 
                 <div className="flex flex-col lg:grid lg:grid-cols-4 gap-8">
-                    {/* Top/Left: Asset Selector */}
+                    {/* Top/Left: Item Selector */}
                     <div className="lg:col-span-1">
                         <div className="sticky top-20 md:top-32 space-y-6 z-30">
                             <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-charcoal-100 p-4 md:p-6 shadow-xl shadow-charcoal-200/20">
@@ -488,7 +488,7 @@ export default function ComparisonPage() {
                                                                     to={item.link}
                                                                     className="w-full inline-flex h-10 items-center justify-center bg-charcoal-950 text-white rounded-xl text-[8px] font-black uppercase tracking-widest"
                                                                 >
-                                                                    Dossier
+                                                                    Details
                                                                 </Link>
                                                                 <button
                                                                     onClick={() => toggleSelection(item.id)}

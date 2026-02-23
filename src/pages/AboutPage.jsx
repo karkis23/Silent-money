@@ -17,7 +17,7 @@ export default function AboutPage() {
         {
             stage: "01",
             title: "Expert Review",
-            desc: "Every asset submission is reviewed by our team to verify legality and market viability within the Indian regulatory framework.",
+            desc: "Every idea submission is reviewed by our team to verify legality and market viability within the Indian regulatory framework.",
             icon: "🔭"
         },
         {
@@ -35,7 +35,7 @@ export default function AboutPage() {
         {
             stage: "04",
             title: "Platform Access",
-            desc: "Once specialized, the idea is added to our database and made available for you to explore.",
+            desc: "Once verified, the idea is added to our database and made available for you to explore.",
             icon: "🔄"
         }
     ];
@@ -44,7 +44,7 @@ export default function AboutPage() {
         <div className="min-h-screen bg-cream-50 pt-32 pb-20 px-4">
             <SEO
                 title="About Us | Silent Money"
-                description="Silent Money is the trusted platform for vetted, data-backed passive income roadmaps in India."
+                description="Silent Money is the trusted platform for vetted, data-backed passive income plans in India."
             />
 
             <div className="max-w-6xl mx-auto">
@@ -116,8 +116,8 @@ export default function AboutPage() {
                         <ul className="space-y-6">
                             {[
                                 "Detailed ROI calculations with 98% data accuracy.",
-                                "India-specific blueprints (GST, local demand, logistics).",
-                                "Transparent operational tracking for every saved asset.",
+                                "India-specific ideas (GST, local demand, logistics).",
+                                "Transparent operational tracking for every saved idea.",
                                 "Zero-gatekeeping policy: Professional insights for the masses."
                             ].map((item, i) => (
                                 <li key={i} className="flex gap-4 text-primary-400 font-medium">
@@ -157,7 +157,7 @@ export default function AboutPage() {
                     </div>
                 </section>
 
-                {/* Institutional Metrics Hub */}
+                {/* Platform Statistics */}
                 <section className="mb-32">
                     <div className="card bg-charcoal-900 border-none p-12 overflow-hidden relative">
                         <div className="absolute inset-0 bg-mesh-gradient opacity-20" />
@@ -189,7 +189,7 @@ export default function AboutPage() {
                             Ready to join the <span className="text-primary-600">silent revolution?</span>
                         </h2>
                         <p className="text-lg text-charcoal-500 font-medium leading-relaxed">
-                            Stop chasing flashy screenshots. Start exploring proven assets. Silent Money is more than a directory; it&apos;s your partner for financial freedom.
+                            Stop chasing flashy screenshots. Start exploring proven ideas. Silent Money is more than a directory; it&apos;s your partner for financial freedom.
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                             <motion.button
