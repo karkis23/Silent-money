@@ -205,6 +205,23 @@ export default function FranchiseDetailPage() {
 
             <div className="w-px h-8 bg-charcoal-100 shrink-0 hidden sm:block" />
 
+            <button
+                onClick={() => setIsAuditModalOpen(true)}
+                disabled={hasPendingAudit}
+                className={`h-14 px-8 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 w-full sm:w-auto min-w-[190px] shrink-0 group border shadow-2xl relative overflow-hidden ${hasPendingAudit
+                    ? 'bg-charcoal-50 text-charcoal-300 border-charcoal-100 cursor-not-allowed'
+                    : 'bg-white text-charcoal-900 border-charcoal-100 hover:bg-charcoal-50 hover:border-charcoal-300 shadow-charcoal-900/5'
+                    }`}
+            >
+                <div className="relative z-10 flex items-center gap-3">
+                    <span className="text-base group-hover:rotate-12 transition-transform">
+                        {hasPendingAudit ? '⏳' : '🛡️'}
+                    </span>
+                    <span className="whitespace-nowrap font-black tracking-[0.25em]">
+                        {hasPendingAudit ? 'AUDIT PENDING' : 'REQUEST AUDIT'}
+                    </span>
+                </div>
+            </button>
         </>
     );
 

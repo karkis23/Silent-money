@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Layout from '../components/Layout';
 import ProtectedRoute from '../components/ProtectedRoute';
+import AdminRoute from '../components/AdminRoute';
 import ScrollToTop from '../components/ScrollToTop';
 
 // Lazy load pages
@@ -166,9 +167,9 @@ const router = createBrowserRouter([
             {
                 path: 'admin',
                 element: (
-                    <ProtectedRoute>
+                    <AdminRoute>
                         <AdminDashboardPage />
-                    </ProtectedRoute>
+                    </AdminRoute>
                 ),
             },
         ],

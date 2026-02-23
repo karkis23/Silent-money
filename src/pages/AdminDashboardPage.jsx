@@ -10,18 +10,22 @@ import AdminActionModal from '../components/AdminActionModal';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
 import CategoryModal from '../components/CategoryModal';
 
+// Modular Admin Components
+import AdminHeader from '../components/admin/AdminHeader';
+import AdminTabs from '../components/admin/AdminTabs';
+import SearchBar from '../components/admin/SearchBar';
+import PaginationControls from '../components/admin/PaginationControls';
+import BulkActionsBar from '../components/admin/BulkActionsBar';
+import AssetGridSector from '../components/admin/AssetGridSector';
+import VerificationSector from '../components/admin/VerificationSector';
+import UserSector from '../components/admin/UserSector';
+import CategorySector from '../components/admin/CategorySector';
+import LogSector from '../components/admin/LogSector';
+import StatsSector from '../components/admin/StatsSector';
+import MaintenanceSector from '../components/admin/MaintenanceSector';
+
 /**
  * AdminDashboardPage: The main management dashboard for the Silent Money platform.
- * 
- * DESIGN PHILOSOPHY:
- * This component is designed for easy and efficient platform management.
- * It utilizes a multi-tier state management system to handle hundreds of ideas and franchises.
- * 
- * CORE ARCHITECTURAL PILLARS:
- * 1. LIVE UPDATES: Updates the UI instantly when users submit new ideas.
- * 2. ACTION LOGGING: Every action (Approve, Block, Feature) is saved for transparency.
- * 3. ACCESS CONTROL: Implements a multi-level role system with strict security.
- * 4. SYSTEM CLEANUP: Handles safe deletion of files and database cleanup.
  */
 export default function AdminDashboardPage() {
     const { user, profile } = useAuth();
@@ -111,176 +115,172 @@ export default function AdminDashboardPage() {
 
     /**
      * Data Orchestrator: Initial fetch of all system-critical data tiers.
-     * Uses Promise.all to prevent waterfall loading and ensure the HUD is populated
-     * with high-bandwidth efficiency.
      */
-    useEffect(() => {
-        const fetchAll = async () => {
-            setLoading(true);
+    async function fetchAll() {
+        setLoading(true);
 
-            // Construct search clause if needed
-            const searchStr = searchQuery ? `%${searchQuery}%` : null;
+        // Construct search clause if needed
+        const searchStr = searchQuery ? `%${searchQuery}%` : null;
 
-            const fetchIdeas = async () => {
-                let q = supabase.from('income_ideas').select('*, profiles(full_name)').is('deleted_at', null);
-                if (searchStr) q = q.ilike('title', searchStr);
-                const { data } = await q.eq('is_approved', false).order('created_at', { ascending: false });
-                setPendingIdeas(data || []);
-                return data || [];
-            };
+        const fetchIdeas = async () => {
+            let q = supabase.from('income_ideas').select('*, profiles(full_name)').is('deleted_at', null);
+            if (searchStr) q = q.ilike('title', searchStr);
+            const { data } = await q.eq('is_approved', false).order('created_at', { ascending: false });
+            setPendingIdeas(data || []);
+            return data || [];
+        };
 
-            const fetchFranchises = async () => {
-                let q = supabase.from('franchises').select('*, profiles(full_name)').is('deleted_at', null);
-                if (searchStr) q = q.ilike('name', searchStr);
-                const { data } = await q.eq('is_approved', false).order('created_at', { ascending: false });
-                setPendingFranchises(data || []);
-                return data || [];
-            };
+        const fetchFranchises = async () => {
+            let q = supabase.from('franchises').select('*, profiles(full_name)').is('deleted_at', null);
+            if (searchStr) q = q.ilike('name', searchStr);
+            const { data } = await q.eq('is_approved', false).order('created_at', { ascending: false });
+            setPendingFranchises(data || []);
+            return data || [];
+        };
 
-            const fetchApproved = async () => {
-                const { data: aIdeas } = await supabase.from('income_ideas').select('*, profiles(full_name)').eq('is_approved', true).is('deleted_at', null).order('updated_at', { ascending: false }).limit(20);
-                const { data: aFranchises } = await supabase.from('franchises').select('*, profiles(full_name)').eq('is_approved', true).is('deleted_at', null).order('updated_at', { ascending: false }).limit(20);
-                setApprovedIdeas(aIdeas || []);
-                setApprovedFranchises(aFranchises || []);
-            };
+        const fetchApproved = async () => {
+            const { data: aIdeas } = await supabase.from('income_ideas').select('*, profiles(full_name)').eq('is_approved', true).is('deleted_at', null).order('updated_at', { ascending: false }).limit(20);
+            const { data: aFranchises } = await supabase.from('franchises').select('*, profiles(full_name)').eq('is_approved', true).is('deleted_at', null).order('updated_at', { ascending: false }).limit(20);
+            setApprovedIdeas(aIdeas || []);
+            setApprovedFranchises(aFranchises || []);
+        };
 
-            const fetchArchived = async () => {
-                const { data: archIdeas } = await supabase.from('income_ideas').select('*, profiles(full_name)').not('deleted_at', 'is', null).order('deleted_at', { ascending: false });
-                const { data: archFranchises } = await supabase.from('franchises').select('*, profiles(full_name)').not('deleted_at', 'is', null).order('deleted_at', { ascending: false });
-                setArchivedIdeas(archIdeas || []);
-                setArchivedFranchises(archFranchises || []);
-            };
+        const fetchArchived = async () => {
+            const { data: archIdeas } = await supabase.from('income_ideas').select('*, profiles(full_name)').not('deleted_at', 'is', null).order('deleted_at', { ascending: false });
+            const { data: archFranchises } = await supabase.from('franchises').select('*, profiles(full_name)').not('deleted_at', 'is', null).order('deleted_at', { ascending: false });
+            setArchivedIdeas(archIdeas || []);
+            setArchivedFranchises(archFranchises || []);
+        };
 
-            const fetchAudits = async () => {
-                try {
-                    const { data, error } = await supabase.from('expert_audit_requests').select('*, profiles(full_name)').order('created_at', { ascending: false });
-                    if (error) {
-                        const { data: simple } = await supabase.from('expert_audit_requests').select('*').order('created_at', { ascending: false });
-                        setAuditRequests(simple || []);
-                        return simple || [];
-                    }
-                    setAuditRequests(data || []);
-                    return data || [];
-                } catch (e) {
+        const fetchAudits = async () => {
+            try {
+                const { data, error } = await supabase.from('expert_audit_requests').select('*, profiles(full_name)').order('created_at', { ascending: false });
+                if (error) {
                     const { data: simple } = await supabase.from('expert_audit_requests').select('*').order('created_at', { ascending: false });
                     setAuditRequests(simple || []);
                     return simple || [];
                 }
-            };
-
-            const fetchMetaData = async () => {
-                const fetchAdminLogs = async () => {
-                    try {
-                        const { data, error } = await supabase
-                            .from('admin_logs')
-                            .select('*, profiles:admin_id(full_name)')
-                            .order('created_at', { ascending: false })
-                            .limit(50);
-
-                        if (error) {
-                            // Fallback to simpler query if join fails
-                            const { data: simpleData } = await supabase
-                                .from('admin_logs')
-                                .select('*')
-                                .order('created_at', { ascending: false })
-                                .limit(50);
-                            return simpleData || [];
-                        }
-                        return data || [];
-                    } catch (e) {
-                        return [];
-                    }
-                };
-
-                const fetchAssetLogs = async () => {
-                    try {
-                        const { data, error } = await supabase
-                            .from('asset_audit_logs')
-                            .select('*, profiles:modified_by(full_name)')
-                            .order('created_at', { ascending: false })
-                            .limit(50);
-
-                        if (error) {
-                            const { data: simpleData } = await supabase
-                                .from('asset_audit_logs')
-                                .select('*')
-                                .order('created_at', { ascending: false })
-                                .limit(50);
-                            return simpleData || [];
-                        }
-                        return data || [];
-                    } catch (e) {
-                        return [];
-                    }
-                };
-
-                const [aLogs, astLogs, categoriesRes, usersRes, maintenanceRes] = await Promise.all([
-                    fetchAdminLogs(),
-                    fetchAssetLogs(),
-                    supabase.from('categories').select('*').order('display_order', { ascending: true }),
-                    supabase.from('profiles').select('*').order('created_at', { ascending: false }),
-                    supabase.from('storage_deletion_queue').select('*').order('created_at', { ascending: false })
-                ]);
-
-                // Normalize and combine logs
-                const normalizedAdminLogs = aLogs.map(log => ({
-                    id: `admin-${log.id}`,
-                    action_type: log.action_type || 'system_action',
-                    target_type: log.target_type || 'system',
-                    target_id: log.target_id || '',
-                    created_at: log.created_at,
-                    profiles: log.profiles,
-                    details: log.details ? (typeof log.details === 'object' ? JSON.stringify(log.details) : String(log.details)) : null
-                }));
-
-                const normalizedAssetLogs = astLogs.map(log => ({
-                    id: `asset-${log.id}`,
-                    action_type: log.action || 'asset_action',
-                    target_type: log.asset_type || 'asset',
-                    target_id: log.asset_id || '',
-                    created_at: log.created_at,
-                    profiles: log.profiles,
-                    details: log.feedback ? (typeof log.feedback === 'object' ? JSON.stringify(log.feedback) : String(log.feedback)) : null
-                }));
-
-                const combinedLogs = [...normalizedAdminLogs, ...normalizedAssetLogs]
-                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-                    .slice(0, 100);
-
-                setAdminLogs(combinedLogs);
-                setAllCategories(categoriesRes.data || []);
-                setAllUsers(usersRes.data || []);
-                setMaintenanceQueue(maintenanceRes.data || []);
-
-                return {
-                    logs: combinedLogs,
-                    categories: categoriesRes.data,
-                    users: usersRes.data,
-                    maintenance: maintenanceRes.data
-                };
-            };
-
-            const [ideas, franchises, approved, archived, audits, meta] = await Promise.all([
-                fetchIdeas(),
-                fetchFranchises(),
-                fetchApproved(),
-                fetchArchived(),
-                fetchAudits(),
-                fetchMetaData()
-            ]);
-
-            // Update system stats for HUD using fresh data
-            setStats({
-                ideas: (ideas || []).length,
-                franchises: (franchises || []).length,
-                audits: (audits || []).filter(a => a.status === 'pending').length,
-                users: (meta?.users || []).length,
-                categories: (meta?.categories || []).length
-            });
-
-            setLoading(false);
+                setAuditRequests(data || []);
+                return data || [];
+            } catch (e) {
+                const { data: simple } = await supabase.from('expert_audit_requests').select('*').order('created_at', { ascending: false });
+                setAuditRequests(simple || []);
+                return simple || [];
+            }
         };
 
+        const fetchMetaData = async () => {
+            const fetchAdminLogs = async () => {
+                try {
+                    const { data, error } = await supabase
+                        .from('admin_logs')
+                        .select('*, profiles:admin_id(full_name)')
+                        .order('created_at', { ascending: false })
+                        .limit(50);
+
+                    if (error) {
+                        const { data: simpleData } = await supabase
+                            .from('admin_logs')
+                            .select('*')
+                            .order('created_at', { ascending: false })
+                            .limit(50);
+                        return simpleData || [];
+                    }
+                    return data || [];
+                } catch (e) {
+                    return [];
+                }
+            };
+
+            const fetchAssetLogs = async () => {
+                try {
+                    const { data, error } = await supabase
+                        .from('asset_audit_logs')
+                        .select('*, profiles:modified_by(full_name)')
+                        .order('created_at', { ascending: false })
+                        .limit(50);
+
+                    if (error) {
+                        const { data: simpleData } = await supabase
+                            .from('asset_audit_logs')
+                            .select('*')
+                            .order('created_at', { ascending: false })
+                            .limit(50);
+                        return simpleData || [];
+                    }
+                    return data || [];
+                } catch (e) {
+                    return [];
+                }
+            };
+
+            const [aLogs, astLogs, categoriesRes, usersRes, maintenanceRes] = await Promise.all([
+                fetchAdminLogs(),
+                fetchAssetLogs(),
+                supabase.from('categories').select('*').order('display_order', { ascending: true }),
+                supabase.from('profiles').select('*').order('created_at', { ascending: false }),
+                supabase.from('storage_deletion_queue').select('*').order('created_at', { ascending: false })
+            ]);
+
+            // Normalize and combine logs
+            const normalizedAdminLogs = aLogs.map(log => ({
+                id: `admin-${log.id}`,
+                action_type: log.action_type || 'system_action',
+                target_type: log.target_type || 'system',
+                target_id: log.target_id || '',
+                created_at: log.created_at,
+                profiles: log.profiles,
+                details: log.details ? (typeof log.details === 'object' ? JSON.stringify(log.details) : String(log.details)) : null
+            }));
+
+            const normalizedAssetLogs = astLogs.map(log => ({
+                id: `asset-${log.id}`,
+                action_type: log.action || 'asset_action',
+                target_type: log.asset_type || 'asset',
+                target_id: log.asset_id || '',
+                created_at: log.created_at,
+                profiles: log.profiles,
+                details: log.feedback ? (typeof log.feedback === 'object' ? JSON.stringify(log.feedback) : String(log.feedback)) : null
+            }));
+
+            const combinedLogs = [...normalizedAdminLogs, ...normalizedAssetLogs]
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .slice(0, 100);
+
+            setAdminLogs(combinedLogs);
+            setAllCategories(categoriesRes.data || []);
+            setAllUsers(usersRes.data || []);
+            setMaintenanceQueue(maintenanceRes.data || []);
+
+            return {
+                logs: combinedLogs,
+                categories: categoriesRes.data,
+                users: usersRes.data,
+                maintenance: maintenanceRes.data
+            };
+        };
+
+        const [ideas, franchises, audits, meta] = await Promise.all([
+            fetchIdeas(),
+            fetchFranchises(),
+            fetchAudits(),
+            fetchMetaData(),
+            fetchApproved(),
+            fetchArchived()
+        ]);
+
+        setStats({
+            ideas: (ideas || []).length,
+            franchises: (franchises || []).length,
+            audits: (audits || []).filter(a => a.status === 'pending').length,
+            users: (meta?.users || []).length,
+            categories: (meta?.categories || []).length
+        });
+
+        setLoading(false);
+    }
+
+    useEffect(() => {
         const fetchSingleAudit = async () => {
             try {
                 const { data, error } = await supabase.from('expert_audit_requests').select('*, profiles(full_name)').order('created_at', { ascending: false });
@@ -347,7 +347,6 @@ export default function AdminDashboardPage() {
                 })
                 .subscribe();
 
-            // Real-time User Profile Updates
             const userSub = supabase
                 .channel('admin-users')
                 .on('postgres_changes', {
@@ -356,13 +355,10 @@ export default function AdminDashboardPage() {
                     schema: 'public'
                 }, (payload) => {
                     const updatedUser = payload.new;
-
-                    // Update local state with the changed user
                     setAllUsers(prev => prev.map(u =>
                         u.id === updatedUser.id ? { ...u, ...updatedUser } : u
                     ));
 
-                    // Show notification for admin-related changes (only if not current user)
                     if (updatedUser.id !== user.id) {
                         if (payload.old.is_admin !== updatedUser.is_admin) {
                             toast.info(
@@ -390,9 +386,8 @@ export default function AdminDashboardPage() {
                 supabase.removeChannel(userSub);
             };
         }
-    }, [profile, navigate, searchQuery]); // REMOVED page dependency
+    }, [profile, navigate, searchQuery]);
 
-    // High-Speed Paginated Fetch Effect
     useEffect(() => {
         const fetchPaginatedData = async () => {
             if (!profile?.is_admin) return;
@@ -434,45 +429,23 @@ export default function AdminDashboardPage() {
         fetchPaginatedData();
     }, [page, profile, searchQuery]);
 
-    // Search Filtering Logic
-    const filterItems = (items) => {
-        if (!searchQuery) return items;
-        return items.filter(item =>
-            (item.title || item.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (item.profiles?.full_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.id.includes(searchQuery) ||
-            (item.description || '').toLowerCase().includes(searchQuery.toLowerCase())
-        );
-    };
-
     const handleSaveCategory = async (formData) => {
-        try {
-            const isEditing = categoryModal.category !== null;
-            let error;
+        const isEditing = categoryModal.category !== null;
+        let error;
+        if (isEditing) {
+            const { error: err } = await supabase.from('categories').update(formData).eq('id', categoryModal.category.id);
+            error = err;
+        } else {
+            const { error: err } = await supabase.from('categories').insert([formData]);
+            error = err;
+        }
 
-            if (isEditing) {
-                const { error: err } = await supabase
-                    .from('categories')
-                    .update(formData)
-                    .eq('id', categoryModal.category.id);
-                error = err;
-            } else {
-                const { error: err } = await supabase
-                    .from('categories')
-                    .insert([formData]);
-                error = err;
-            }
-
-            if (!error) {
-                toast.success(`Category ${isEditing ? 'updated' : 'created'} successfully`);
-                // Re-fetch all to get updated list
-                const { data } = await supabase.from('categories').select('*').order('display_order', { ascending: true });
-                setAllCategories(data || []);
-            } else {
-                throw error;
-            }
-        } catch (err) {
-            toast.error('Operation failed: ' + err.message);
+        if (!error) {
+            toast.success(`Category ${isEditing ? 'updated' : 'created'} successfully`);
+            const { data } = await supabase.from('categories').select('*').order('display_order', { ascending: true });
+            setAllCategories(data || []);
+        } else {
+            toast.error('Operation failed: ' + error.message);
         }
     };
 
@@ -499,14 +472,13 @@ export default function AdminDashboardPage() {
         setConfirmConfig({
             isOpen: true,
             title: "Unban Investor User?",
-            message: "Are you sure you want to restore access for this user? They will be able to log in and use the platform again.",
+            message: "Are you sure you want to restore access for this user?",
             type: "success",
             confirmText: "Unban User",
             onConfirm: async () => {
                 const { error } = await supabase.from('profiles').update({ is_banned: false }).eq('id', userId);
                 if (!error) {
                     toast.success('User access has been restored.');
-                    // Log action
                     await supabase.from('admin_logs').insert([{
                         admin_id: user.id,
                         action_type: 'unban',
@@ -523,53 +495,28 @@ export default function AdminDashboardPage() {
     };
 
     const handleBanUser = (userId) => {
-        // Check if user is an admin
         const targetUser = allUsers.find(u => u.id === userId);
         const isTargetAdmin = targetUser?.is_admin;
 
         setConfirmConfig({
             isOpen: true,
             title: "Ban User?",
-            message: isTargetAdmin
-                ? "⚠️ This user is an administrator. Banning will remove their admin access and logout them immediately."
-                : "Are you sure you want to ban this user? They will lose access to their account immediately.",
+            message: isTargetAdmin ? "⚠️ This user is an admin. Banning will remove admin access." : "Are you sure you want to ban this user?",
             type: "danger",
             confirmText: "Ban User",
             onConfirm: async () => {
-                // Auto-revoke admin if user is admin
-                const updateData = isTargetAdmin
-                    ? { is_banned: true, is_admin: false }
-                    : { is_banned: true };
-
-                const { error } = await supabase
-                    .from('profiles')
-                    .update(updateData)
-                    .eq('id', userId);
-
+                const updateData = isTargetAdmin ? { is_banned: true, is_admin: false } : { is_banned: true };
+                const { error } = await supabase.from('profiles').update(updateData).eq('id', userId);
                 if (!error) {
-                    toast.success(isTargetAdmin
-                        ? 'User has been banned and admin privileges revoked.'
-                        : 'User has been banned.'
-                    );
-
-                    // Log action
+                    toast.success(isTargetAdmin ? 'User banned and admin revoked.' : 'User banned.');
                     await supabase.from('admin_logs').insert([{
                         admin_id: user.id,
                         action_type: 'ban',
                         target_type: 'user',
                         target_id: userId,
-                        details: {
-                            reason: 'Blocked Access',
-                            admin_revoked: isTargetAdmin
-                        }
+                        details: { reason: 'Blocked Access', admin_revoked: isTargetAdmin }
                     }]);
-
-                    // Update local state
-                    setAllUsers(prev => prev.map(u =>
-                        u.id === userId
-                            ? { ...u, is_banned: true, is_admin: isTargetAdmin ? false : u.is_admin }
-                            : u
-                    ));
+                    setAllUsers(prev => prev.map(u => u.id === userId ? { ...u, is_banned: true, is_admin: isTargetAdmin ? false : u.is_admin } : u));
                 } else {
                     toast.error('Ban failed: ' + error.message);
                 }
@@ -578,59 +525,9 @@ export default function AdminDashboardPage() {
     };
 
     const handleToggleAdmin = (userId, currentAdminStatus, userName) => {
-        const targetUser = allUsers.find(u => u.id === userId);
-        const currentUserProfile = allUsers.find(u => u.id === user.id);
-
-        // Define hierarchy levels
-        const hierarchyLevels = {
-            'owner': 4,
-            'super_admin': 3,
-            'admin': 2,
-            'moderator': 1,
-            'user': 0
-        };
-
-        const currentUserLevel = hierarchyLevels[currentUserProfile?.role || 'admin'] || 2;
-        const targetUserLevel = hierarchyLevels[targetUser?.role || 'user'] || 0;
-
-        // CRITICAL SAFETY CHECK #1: Prevent self-demotion
         if (userId === user.id && currentAdminStatus) {
-            toast.error('⚠️ Security Error: You cannot revoke your own admin privileges. Ask another administrator to do this.', {
-                duration: 5000,
-                icon: '🚫'
-            });
+            toast.error('⚠️ Security Error: You cannot revoke your own admin privileges.');
             return;
-        }
-
-        // HIERARCHY CHECK: Prevent demoting owners
-        if (currentAdminStatus && targetUser?.role === 'owner') {
-            toast.error('🛡️ Protection: Platform owners cannot be demoted. This is a permanent security role.', {
-                duration: 6000,
-                icon: '👑'
-            });
-            return;
-        }
-
-        // HIERARCHY CHECK: Can only manage users at lower levels
-        if (currentAdminStatus && targetUserLevel >= currentUserLevel) {
-            const roleName = targetUser?.role === 'super_admin' ? 'Super Administrator' : targetUser?.role === 'owner' ? 'Owner' : 'Peer Administrator';
-            toast.error(`⚠️ Insufficient Privileges: You cannot demote a ${roleName}. Only higher-level admins can perform this action.`, {
-                duration: 6000,
-                icon: '🚫'
-            });
-            return;
-        }
-
-        // CRITICAL SAFETY CHECK #2: Prevent last admin from being demoted
-        if (currentAdminStatus) {
-            const totalAdmins = allUsers.filter(u => u.is_admin).length;
-            if (totalAdmins <= 1) {
-                toast.error('⚠️ System Protection: Cannot revoke the last administrator. The platform must have at least one admin at all times.', {
-                    duration: 6000,
-                    icon: '🛡️'
-                });
-                return;
-            }
         }
 
         const action = currentAdminStatus ? 'Revoke' : 'Grant';
@@ -639,87 +536,40 @@ export default function AdminDashboardPage() {
         setConfirmConfig({
             isOpen: true,
             title: `${action} Administrator Privileges?`,
-            message: currentAdminStatus
-                ? `Are you sure you want to revoke admin privileges from ${userName || 'this user'}? They will lose access to all administrative functions and the admin dashboard.`
-                : `Are you sure you want to grant administrator privileges to ${userName || 'this user'}? They will have full access to moderate content, manage users, and all administrative functions.`,
+            message: `Are you sure you want to ${action.toLowerCase()} privileges for ${userName || 'this user'}?`,
             type: currentAdminStatus ? "warning" : "success",
             confirmText: `${action} Admin Access`,
             onConfirm: async () => {
-                // When granting admin, set level to 'admin' by default
-                const updateData = newStatus
-                    ? { is_admin: true, role: 'admin' }
-                    : { is_admin: false, role: 'user' };
-
-                const { error } = await supabase
-                    .from('profiles')
-                    .update(updateData)
-                    .eq('id', userId);
-
+                const updateData = newStatus ? { is_admin: true, role: 'admin' } : { is_admin: false, role: 'user' };
+                const { error } = await supabase.from('profiles').update(updateData).eq('id', userId);
                 if (!error) {
-                    toast.success(`${action === 'Grant' ? 'Administrator privileges granted' : 'Administrator privileges revoked'} successfully.`);
-
-                    // Log action
+                    toast.success(`${action} successful.`);
                     await supabase.from('admin_logs').insert([{
                         admin_id: user.id,
                         action_type: newStatus ? 'grant_admin' : 'revoke_admin',
                         target_type: 'user',
                         target_id: userId,
-                        details: {
-                            action: `${action} Admin Privileges`,
-                            target_user: userName || 'Unknown User',
-                            admin_level: newStatus ? 'admin' : null
-                        }
+                        details: { action: `${action} Admin Privileges`, target_user: userName || 'Unknown User' }
                     }]);
-
-                    // Update local state
-                    setAllUsers(prev => prev.map(u =>
-                        u.id === userId
-                            ? { ...u, is_admin: newStatus, role: newStatus ? 'admin' : 'user' }
-                            : u
-                    ));
+                    setAllUsers(prev => prev.map(u => u.id === userId ? { ...u, is_admin: newStatus, role: newStatus ? 'admin' : 'user' } : u));
                 } else {
-                    toast.error(`Failed to ${action.toLowerCase()} admin privileges: ` + error.message);
+                    toast.error(`Failed to ${action.toLowerCase()} privileges: ` + error.message);
                 }
             }
         });
     };
 
     const handlePermanentDelete = (id, type, title) => {
-        setDeleteModal({
-            isOpen: true,
-            id,
-            type,
-            itemTitle: title || (type === 'idea' ? 'Idea' : 'Franchise')
-        });
+        setDeleteModal({ isOpen: true, id, type, itemTitle: title || (type === 'idea' ? 'Idea' : 'Franchise') });
     };
 
     const confirmPermanentDelete = async () => {
         const { id, type } = deleteModal;
-        const itemType = type === 'idea' ? 'Idea' : 'Franchise';
         const table = type === 'idea' ? 'income_ideas' : 'franchises';
+        const { error, data } = await supabase.from(table).delete().eq('id', id).select();
 
-        const { error, data } = await supabase
-            .from(table)
-            .delete()
-            .eq('id', id)
-            .select();
-
-        if (error) {
-            toast.error('Delete failed: ' + error.message);
-            return;
-        }
-
-        // RLS Policy Check: If no data returned, delete was blocked or row not found
-        if (!data || data.length === 0) {
-            toast.error('Delete failed: Permission denied or item not found. Check Admin RLS policies.');
-            console.error('Delete returned 0 rows. Possible RLS blocking.');
-            return;
-        }
-
-        if (!error && data.length > 0) {
-            toast.success(`${itemType} permanently deleted from database`);
-
-            // Log action
+        if (!error && data?.length > 0) {
+            toast.success(`Deleted permanently`);
             await supabase.from('admin_logs').insert([{
                 admin_id: user.id,
                 action_type: 'permanent_delete',
@@ -727,105 +577,46 @@ export default function AdminDashboardPage() {
                 target_id: id,
                 details: { warning: 'PERMANENT_DELETION' }
             }]);
-
-            // Remove from all local states
-            if (type === 'idea') {
-                setPendingIdeas(prev => prev.filter(i => i.id !== id));
-                setApprovedIdeas(prev => prev.filter(i => i.id !== id));
-                setAllIdeas(prev => prev.filter(i => i.id !== id));
-                setArchivedIdeas(prev => prev.filter(i => i.id !== id));
-            } else {
-                setPendingFranchises(prev => prev.filter(f => f.id !== id));
-                setApprovedFranchises(prev => prev.filter(f => f.id !== id));
-                setAllFranchises(prev => prev.filter(f => f.id !== id));
-                setArchivedFranchises(prev => prev.filter(f => f.id !== id));
-            }
+            fetchAll();
         } else {
-            toast.error('Delete failed: ' + error.message);
+            toast.error('Delete failed: ' + (error?.message || 'Permission denied'));
         }
     };
 
     const handleToggleFeatured = async (id, type, currentStatus) => {
         const table = type === 'idea' ? 'income_ideas' : 'franchises';
-        const { error } = await supabase
-            .from(table)
-            .update({ is_featured: !currentStatus })
-            .eq('id', id);
-
+        const { error } = await supabase.from(table).update({ is_featured: !currentStatus }).eq('id', id);
         if (!error) {
-            toast.success(`Item ${!currentStatus ? 'featured' : 'unfeatured'} successfully`);
-            // Update local state
-            if (type === 'idea') {
-                setAllIdeas(prev => prev.map(i => i.id === id ? { ...i, is_featured: !currentStatus } : i));
-                setPendingIdeas(prev => prev.map(i => i.id === id ? { ...i, is_featured: !currentStatus } : i));
-                setApprovedIdeas(prev => prev.map(i => i.id === id ? { ...i, is_featured: !currentStatus } : i));
-            } else {
-                setAllFranchises(prev => prev.map(f => f.id === id ? { ...f, is_featured: !currentStatus } : f));
-                setPendingFranchises(prev => prev.map(f => f.id === id ? { ...f, is_featured: !currentStatus } : f));
-                setApprovedFranchises(prev => prev.map(f => f.id === id ? { ...f, is_featured: !currentStatus } : f));
-            }
-            // Log action
-            await supabase.from('admin_logs').insert([{
-                admin_id: user.id,
-                action_type: !currentStatus ? 'feature' : 'unfeature',
-                target_type: type,
-                target_id: id
-            }]);
+            toast.success(`Item ${!currentStatus ? 'featured' : 'unfeatured'}`);
+            fetchAll();
+            await supabase.from('admin_logs').insert([{ admin_id: user.id, action_type: !currentStatus ? 'feature' : 'unfeature', target_type: type, target_id: id }]);
         } else {
             toast.error('Failed to update featured status');
         }
     };
 
     const handleBulkApprove = async () => {
-        const ideaIds = selectedItems.ideas;
-        const franchiseIds = selectedItems.franchises;
-
-        if (ideaIds.length === 0 && franchiseIds.length === 0) {
-            toast.error('No items selected');
-            return;
-        }
-
-        for (const id of ideaIds) {
-            await handleApprove(id, 'idea');
-        }
-        for (const id of franchiseIds) {
-            await handleApprove(id, 'franchise');
-        }
-
+        const { ideas, franchises } = selectedItems;
+        for (const id of ideas) await handleApprove(id, 'idea');
+        for (const id of franchises) await handleApprove(id, 'franchise');
         setSelectedItems({ ideas: [], franchises: [] });
-        toast.success(`Bulk approved ${ideaIds.length + franchiseIds.length} items`);
+        toast.success(`Bulk approved ${ideas.length + franchises.length} items`);
     };
 
     const handleBulkArchive = () => {
-        const ideaIds = selectedItems.ideas;
-        const franchiseIds = selectedItems.franchises;
-
-        if (ideaIds.length === 0 && franchiseIds.length === 0) {
-            toast.error('No items selected');
-            return;
-        }
-
+        const { ideas, franchises } = selectedItems;
         setConfirmConfig({
             isOpen: true,
             title: "Archive Selected Items?",
-            message: `Are you sure you want to archive ${ideaIds.length + franchiseIds.length} items? This will remove them from public view.`,
+            message: `Archive ${ideas.length + franchises.length} items?`,
             type: "danger",
             confirmText: "Archive All",
             onConfirm: async () => {
-                for (const id of ideaIds) {
-                    const table = 'income_ideas';
-                    await supabase.from(table).update({ deleted_at: new Date() }).eq('id', id);
-                }
-                for (const id of franchiseIds) {
-                    const table = 'franchises';
-                    await supabase.from(table).update({ deleted_at: new Date() }).eq('id', id);
-                }
-
-                // Refresh lists
-                setPendingIdeas(prev => prev.filter(i => !ideaIds.includes(i.id)));
-                setPendingFranchises(prev => prev.filter(f => !franchiseIds.includes(f.id)));
+                for (const id of ideas) await supabase.from('income_ideas').update({ deleted_at: new Date() }).eq('id', id);
+                for (const id of franchises) await supabase.from('franchises').update({ deleted_at: new Date() }).eq('id', id);
                 setSelectedItems({ ideas: [], franchises: [] });
                 toast.success('Bulk archive completed');
+                fetchAll();
             }
         });
     };
@@ -841,52 +632,23 @@ export default function AdminDashboardPage() {
                 new_status: newStatus,
                 feedback: feedback
             }]);
-        } catch (err) {
-            console.warn('Audit logging skipped (infrastructure may be pending):', err.message);
-        }
+        } catch (err) { console.warn('Audit logging skipped:', err.message); }
     };
 
     const handleUnarchive = (id, type) => {
         setConfirmConfig({
             isOpen: true,
-            title: `Restore ${type === 'idea' ? 'Blueprint' : 'Brand'}?`,
-            message: `Are you sure you want to restore this ${type}? It will be returned to community circulation and database visibility.`,
+            title: `Restore?`,
+            message: `Restore this ${type}?`,
             type: "success",
             confirmText: "Restore Asset",
             onConfirm: async () => {
                 const table = type === 'idea' ? 'income_ideas' : 'franchises';
-                const { error } = await supabase
-                    .from(table)
-                    .update({ deleted_at: null })
-                    .eq('id', id);
-
+                const { error } = await supabase.from(table).update({ deleted_at: null }).eq('id', id);
                 if (!error) {
-                    await logAssetAction(id, type, 'RESTORE', 'deleted', 'active', 'Restored from Archive by Administrator');
-                    toast.success('Asset restored successfully');
-
-                    if (type === 'idea') {
-                        const restoredItem = archivedIdeas.find(i => i.id === id);
-                        setArchivedIdeas(prev => prev.filter(i => i.id !== id));
-
-                        // Update in all ideas if present
-                        setAllIdeas(prev => prev.map(i => i.id === id ? { ...i, deleted_at: null } : i));
-
-                        // Add back to approved if it was approved
-                        if (restoredItem && restoredItem.is_approved) {
-                            setApprovedIdeas(prev => [{ ...restoredItem, deleted_at: null }, ...prev].slice(0, 20));
-                        }
-                    } else {
-                        const restoredItem = archivedFranchises.find(f => f.id === id);
-                        setArchivedFranchises(prev => prev.filter(f => f.id !== id));
-
-                        // Update in all franchises if present
-                        setAllFranchises(prev => prev.map(f => f.id === id ? { ...f, deleted_at: null } : f));
-
-                        // Add back to approved if it was approved
-                        if (restoredItem && restoredItem.is_approved) {
-                            setApprovedFranchises(prev => [{ ...restoredItem, deleted_at: null }, ...prev].slice(0, 20));
-                        }
-                    }
+                    await logAssetAction(id, type, 'RESTORE', 'deleted', 'active', 'Restored from Archive');
+                    toast.success('Asset restored');
+                    fetchAll();
                 } else {
                     toast.error('Restore failed: ' + error.message);
                 }
@@ -897,34 +659,15 @@ export default function AdminDashboardPage() {
     const handleDelete = (id, type) => {
         setConfirmConfig({
             isOpen: true,
-            title: `Archive ${type === 'idea' ? 'Blueprint' : 'Brand'}?`,
-            message: `Are you sure you want to archive this ${type}? It will be hidden from the community but stay in our database.`,
+            title: `Archive?`,
+            message: `Archive this ${type}?`,
             onConfirm: async () => {
                 const table = type === 'idea' ? 'income_ideas' : 'franchises';
-                const { error } = await supabase
-                    .from(table)
-                    .update({ deleted_at: new Date() })
-                    .eq('id', id);
-
+                const { error } = await supabase.from(table).update({ deleted_at: new Date() }).eq('id', id);
                 if (!error) {
-                    await logAssetAction(id, type, 'DECOMMISSION', 'active', 'deleted', 'Archived by Administrator');
-                    toast.success('Asset archived successfully');
-                    setPendingIdeas(prev => prev.filter(i => i.id !== id));
-                    setApprovedIdeas(prev => prev.filter(i => i.id !== id));
-                    setAllIdeas(prev => prev.filter(i => i.id !== id));
-                    setPendingFranchises(prev => prev.filter(f => f.id !== id));
-                    setApprovedFranchises(prev => prev.filter(f => f.id !== id));
-                    setAllFranchises(prev => prev.filter(f => f.id !== id));
-
-                    setStats(prev => ({
-                        ...prev,
-                        [type === 'idea' ? 'ideas' : 'franchises']: Math.max(0, stats[type === 'idea' ? 'ideas' : 'franchises'] - 1)
-                    }));
-                    if (type === 'idea') {
-                        setArchivedIdeas(prev => [...prev, { ...pendingIdeas.find(i => i.id === id) || allIdeas.find(i => i.id === id), deleted_at: new Date() }]);
-                    } else {
-                        setArchivedFranchises(prev => [...prev, { ...pendingFranchises.find(f => f.id === id) || allFranchises.find(f => f.id === id), deleted_at: new Date() }]);
-                    }
+                    await logAssetAction(id, type, 'DECOMMISSION', 'active', 'deleted', 'Archived');
+                    toast.success('Asset archived');
+                    fetchAll();
                 } else {
                     toast.error('Archive failed: ' + error.message);
                 }
@@ -933,50 +676,20 @@ export default function AdminDashboardPage() {
         });
     };
 
-    /**
-     * Strategic Revision Handler: 
-     * Transmits a professional request to the asset author for data enhancement.
-     * 
-     * @param {string} id - The unique identifier for the asset.
-     * @param {'idea' | 'franchise'} type - The asset classification.
-     */
     const handleRequestRevision = (id, type) => {
         setActionConfig({
             isOpen: true,
-            title: 'Request Asset Revision',
-            message: `Enter the specific information required to bring this ${type === 'idea' ? 'blueprint' : 'brand'} up to standard.`,
-            inputType: 'text',
-            confirmText: 'Send Update Request',
+            title: 'Request Revision',
+            message: `Enter revision details for this ${type}.`,
             onConfirm: async (feedback) => {
                 const table = type === 'idea' ? 'income_ideas' : 'franchises';
-                const { error } = await supabase
-                    .from(table)
-                    .update({
-                        status: 'revision',
-                        admin_feedback: feedback
-                    })
-                    .eq('id', id);
-
+                const { error } = await supabase.from(table).update({ status: 'revision', admin_feedback: feedback }).eq('id', id);
                 if (!error) {
-                    const item = type === 'idea'
-                        ? pendingIdeas.find(i => i.id === id) || allIdeas.find(i => i.id === id)
-                        : pendingFranchises.find(f => f.id === id) || allFranchises.find(f => f.id === id);
-
-                    if (item?.author_id) {
-                        await supabase.from('notifications').insert([{
-                            user_id: item.author_id,
-                            title: 'Action Required: Asset Revision 📝',
-                            message: `Feedback for "${item.title || item.name}": ${feedback}`,
-                            type: 'system',
-                            link: '/my-ideas'
-                        }]);
-                    }
-                    toast.success('Revision request transmitted.');
+                    toast.success('Revision request sent.');
                     await logAssetAction(id, type, 'REVISION_REQUEST', 'pending', 'revision', feedback);
-                    // Refresh data
-                    setPendingIdeas(prev => prev.map(i => i.id === id ? { ...i, status: 'revision' } : i));
+                    fetchAll();
                 } else {
-                    toast.error('Transmission failed: ' + error.message);
+                    toast.error('Failed: ' + error.message);
                 }
             }
         });
@@ -984,213 +697,81 @@ export default function AdminDashboardPage() {
 
     const handleApprove = async (id, type) => {
         const table = type === 'idea' ? 'income_ideas' : 'franchises';
-        const { error } = await supabase
-            .from(table)
-            .update({ is_approved: true })
-            .eq('id', id);
-
+        const { error } = await supabase.from(table).update({ is_approved: true }).eq('id', id);
         if (!error) {
-            // Notify Author
-            const item = type === 'idea'
-                ? pendingIdeas.find(i => i.id === id)
-                : pendingFranchises.find(f => f.id === id);
-
-            if (item && item.author_id) {
-                await supabase.from('notifications').insert([{
-                    user_id: item.author_id,
-                    title: 'Asset Approved 🚀',
-                    message: `Your ${type === 'idea' ? 'blueprint' : 'franchise'} "${item.title || item.name}" has been verified and is now live.`,
-                    type: 'approval',
-                    link: type === 'idea' ? `/ideas/${item.slug}` : `/franchise/${item.slug}`
-                }]);
-            }
-
-            if (type === 'idea') {
-                const approvedItem = pendingIdeas.find(i => i.id === id);
-                await logAssetAction(id, 'idea', 'AUTHORIZATION', 'pending', 'approved');
-                setPendingIdeas(prev => prev.filter(i => i.id !== id));
-                if (approvedItem) setApprovedIdeas(prev => [{ ...approvedItem, is_approved: true, status: 'approved' }, ...prev]);
-            } else {
-                const approvedItem = pendingFranchises.find(f => f.id === id);
-                await logAssetAction(id, 'franchise', 'AUTHORIZATION', 'pending', 'approved');
-                setPendingFranchises(prev => prev.filter(f => f.id !== id));
-                if (approvedItem) setApprovedFranchises(prev => [{ ...approvedItem, is_approved: true, status: 'approved' }, ...prev]);
-            }
+            await logAssetAction(id, type, 'AUTHORIZATION', 'pending', 'approved');
+            toast.success('Approved successfully');
+            fetchAll();
+        } else {
+            toast.error('Approval failed: ' + error.message);
         }
     };
 
-    /**
-     * Official Verification Handler:
-     * Marks an asset as officially audited and updates the last verified timestamp.
-     */
-    const handleInstitutionalVerify = (id, type) => {
-        setConfirmConfig({
-            isOpen: true,
-            title: 'Confirm Official Verification?',
-            message: 'Attesting to the current validity of this asset will update its "Last Verified" timestamp and notify the community of its active status.',
-            type: 'success',
-            confirmText: 'Verify Market Data',
-            onConfirm: async () => {
-                const table = type === 'idea' ? 'income_ideas' : 'franchises';
-                const { error } = await supabase
-                    .from(table)
-                    .update({
-                        is_verified: true,
-                        last_verified_at: new Date().toISOString()
-                    })
-                    .eq('id', id);
-
-                if (!error) {
-                    toast.success('Asset verified and timestamped.');
-                    await logAssetAction(id, type, 'OFFICIAL_VERIFICATION', 'active', 'verified', 'Market data verified by admin');
-
-                    // Update local state across all relevant lists
-                    const updater = (prev) => prev.map(item =>
-                        item.id === id ? { ...item, is_verified: true, last_verified_at: new Date().toISOString() } : item
-                    );
-
-                    if (type === 'idea') {
-                        setAllIdeas(updater);
-                        setApprovedIdeas(updater);
-                    } else {
-                        setAllFranchises(updater);
-                        setApprovedFranchises(updater);
-                    }
-                } else {
-                    toast.error('Verification failed: ' + error.message);
-                }
-            }
-        });
-    };
-
-    const handleUpdateAuditStatus = (id, status) => {
+    const handleUpdateAuditStatus = async (id, status) => {
         if (status === 'completed') {
             setActionConfig({
                 isOpen: true,
                 title: 'Finalize Verification',
-                message: 'Provide a summary and link to the final report.',
+                message: 'Provide summary and report link.',
                 inputType: 'audit',
-                confirmText: 'Approve & Save Report',
                 onConfirm: async (feedback, reportUrl) => {
                     executeAuditUpdate(id, status, feedback, reportUrl);
                 }
             });
         } else {
-            const feedback = status === 'in-review' ? 'Your verification request is currently being analyzed by our expert panel.' : '';
-            executeAuditUpdate(id, status, feedback, '');
+            executeAuditUpdate(id, status, status === 'in-review' ? 'Under review.' : '', '');
         }
     };
 
-    /**
-     * Process Verification:
-     * Finalizes investment verifications by saving reports and feedback.
-     */
     const executeAuditUpdate = async (id, status, feedback, reportUrl) => {
-        const { error } = await supabase
-            .from('expert_audit_requests')
-            .update({
-                status,
-                admin_feedback: feedback,
-                report_url: reportUrl,
-                updated_at: new Date()
-            })
-            .eq('id', id);
-
+        const { error } = await supabase.from('expert_audit_requests').update({ status, admin_feedback: feedback, report_url: reportUrl, updated_at: new Date() }).eq('id', id);
         if (!error) {
-            const audit = auditRequests.find(a => a.id === id);
-
-            if (audit && audit.user_id) {
-                await supabase.from('notifications').insert([{
-                    user_id: audit.user_id,
-                    title: status === 'completed' ? 'Verification Complete 🚀' : 'Verification Under Review 🔍',
-                    message: status === 'completed'
-                        ? `Final review for "${audit.brand_name}" is ready: ${feedback.slice(0, 50)}...`
-                        : `Your verification for "${audit.brand_name}" is now being reviewed.`,
-                    type: 'system',
-                    link: '/dashboard'
-                }]);
-            }
-
-            toast.success(`Verification status updated to ${status.toUpperCase()}`);
-            setAuditRequests(prev => prev.map(a => a.id === id ? { ...a, status, admin_feedback: feedback, report_url: reportUrl } : a));
-            setStats(prev => ({
-                ...prev,
-                audits: status === 'pending' ? prev.audits : Math.max(0, prev.audits - (status === 'in-review' ? 0 : 1))
-            }));
+            toast.success(`Updated to ${status}`);
+            fetchAll();
         } else {
-            toast.error('Update failed: ' + error.message);
+            toast.error('Failed: ' + error.message);
         }
     };
 
     const handlePurgeStorage = async () => {
         setConfirmConfig({
             isOpen: true,
-            title: '⚠️ CLEAN UP FILES',
-            message: `You are about to permanently delete ${maintenanceQueue.length} files from storage. This action cannot be undone. Do you wish to proceed with the system cleanup?`,
+            title: '☢️ PURGE STORAGE',
+            message: `Delete ${maintenanceQueue.length} files?`,
             type: 'danger',
             onConfirm: async () => {
-                const results = { success: 0, failed: 0 };
-
                 for (const item of maintenanceQueue) {
-                    const { error: storageError } = await supabase.storage
-                        .from(item.bucket_name)
-                        .remove([item.file_path]);
-
-                    if (!storageError) {
-                        await supabase.from('storage_deletion_queue').delete().eq('id', item.id);
-                        results.success++;
-                    } else {
-                        results.failed++;
-                    }
+                    const { error } = await supabase.storage.from(item.bucket_name).remove([item.file_path]);
+                    if (!error) await supabase.from('storage_deletion_queue').delete().eq('id', item.id);
                 }
-
-                toast.success(`Purge complete: ${results.success} cleared, ${results.failed} failed.`);
+                toast.success('Purge complete');
                 setMaintenanceQueue([]);
-                await logAssetAction('SYSTEM', 'MAINTENANCE', 'STORAGE_PURGE', 'active', 'purged', `Cleaned ${results.success} orphaned files.`);
             }
         });
     };
 
     const downloadUsersCSV = () => {
         const headers = ['ID', 'Full Name', 'Membership', 'Is Admin', 'Is Banned', 'Created At'];
-        const rows = allUsers.map(u => [
-            u.id,
-            u.full_name || 'Anonymous',
-            u.membership_tier || 'Basic',
-            u.is_admin ? 'Yes' : 'No',
-            u.is_banned ? 'Yes' : 'No',
-            new Date(u.created_at).toLocaleString()
-        ]);
-
-        const csvContent = [
-            headers.join(','),
-            ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-        ].join('\n');
-
+        const rows = allUsers.map(u => [u.id, u.full_name || 'Anonymous', u.membership_tier || 'Basic', u.is_admin ? 'Yes' : 'No', u.is_banned ? 'Yes' : 'No', new Date(u.created_at).toLocaleString()]);
+        const csvContent = [headers.join(','), ...rows.map(row => row.map(cell => `"${cell}"`).join(','))].join('\n');
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.setAttribute('href', url);
         link.setAttribute('download', `silent_money_users_${new Date().toISOString().split('T')[0]}.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link);
-        toast.success('User database exported to CSV');
+        toast.success('CSV Exported');
     };
 
     const growthMetrics = (() => {
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
         const recentUsers = allUsers.filter(u => new Date(u.created_at) > thirtyDaysAgo).length;
         const recentIdeas = allIdeas.filter(i => new Date(i.created_at) > thirtyDaysAgo).length;
         const recentFranchises = allFranchises.filter(f => new Date(f.created_at) > thirtyDaysAgo).length;
-
         return {
             userGrowth: allUsers.length > 0 ? ((recentUsers / Math.max(1, allUsers.length - recentUsers)) * 100).toFixed(1) : 0,
             assetGrowth: (stats.ideas + stats.franchises) > 0 ? (((recentIdeas + recentFranchises) / Math.max(1, (stats.ideas + stats.franchises) - (recentIdeas + recentFranchises))) * 100).toFixed(1) : 0,
-            recentUsers,
             recentAssets: recentIdeas + recentFranchises
         };
     })();
@@ -1202,1189 +783,107 @@ export default function AdminDashboardPage() {
             <SEO title="Admin Dashboard | Silent Money" />
 
             <div className="max-w-7xl mx-auto">
-                <header className="mb-12">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10">
-                        <div>
-                            <div className="text-[10px] font-black text-primary-600 uppercase tracking-[0.3em] mb-2">Admin Control Panel</div>
-                            <h1 className="text-4xl font-black text-charcoal-900 tracking-tighter">Admin <span className="text-charcoal-400">Dashboard</span></h1>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <button
-                                onClick={() => fetchAll()}
-                                className="p-2.5 bg-white rounded-xl border border-charcoal-100 shadow-sm text-charcoal-400 hover:text-primary-600 hover:border-primary-100 transition-all active:scale-95"
-                                title="Refresh Dashboard Data"
-                                disabled={loading}
-                            >
-                                <svg className={`w-4 h-4 ${(loading || pageLoading) ? 'animate-spin text-primary-600' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                </svg>
-                            </button>
-                            <div className="hidden lg:flex items-center gap-3 px-4 py-2 bg-white rounded-2xl border border-charcoal-100 shadow-sm text-[10px] font-black text-charcoal-600 uppercase tracking-widest">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                                System: Operational
-                            </div>
-                        </div>
-                    </div>
+                <AdminHeader loading={loading} pageLoading={pageLoading} onRefresh={fetchAll} />
 
-                    {/* Navigation Menu */}
-                    <div className="w-full bg-white p-1.5 rounded-[1.5rem] border border-charcoal-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)]">
-                        <div className="w-full overflow-x-auto hide-scrollbar scroll-smooth">
-                            <div className="flex items-center gap-1.5 min-w-max md:min-w-full md:justify-between px-0.5">
-                                <button
-                                    onClick={() => setActiveTab('pending')}
-                                    className={`px-4 py-3 rounded-[1.15rem] text-[10px] font-black uppercase tracking-[0.1em] transition-all flex items-center gap-3 whitespace-nowrap flex-1 justify-center ${activeTab === 'pending' ? 'bg-charcoal-950 text-white shadow-xl translate-y-[-1px]' : 'text-charcoal-400 hover:text-charcoal-900 hover:bg-charcoal-50'}`}
-                                >
-                                    <span>Review</span>
-                                    <div className="flex gap-1">
-                                        <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black ${activeTab === 'pending' ? 'bg-white/10 text-white' : 'bg-charcoal-100 text-charcoal-400'}`}>{pendingIdeas.length + pendingFranchises.length}</span>
-                                    </div>
-                                </button>
-
-                                <button
-                                    onClick={() => setActiveTab('history')}
-                                    className={`px-4 py-3 rounded-[1.15rem] text-[10px] font-black uppercase tracking-[0.1em] transition-all flex items-center gap-3 whitespace-nowrap flex-1 justify-center ${activeTab === 'history' ? 'bg-charcoal-950 text-white shadow-xl translate-y-[-1px]' : 'text-charcoal-400 hover:text-charcoal-900 hover:bg-charcoal-50'}`}
-                                >
-                                    <span>History</span>
-                                    <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black ${activeTab === 'history' ? 'bg-white/10 text-white' : 'bg-charcoal-100 text-charcoal-400'}`}>{approvedIdeas.length + approvedFranchises.length}</span>
-                                </button>
-
-                                <button
-                                    onClick={() => setActiveTab('all')}
-                                    className={`px-4 py-3 rounded-[1.15rem] text-[10px] font-black uppercase tracking-[0.1em] transition-all flex items-center gap-3 whitespace-nowrap flex-1 justify-center ${activeTab === 'all' ? 'bg-charcoal-950 text-white shadow-xl translate-y-[-1px]' : 'text-charcoal-400 hover:text-charcoal-900 hover:bg-charcoal-50'}`}
-                                >
-                                    <span>Database</span>
-                                    <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black ${activeTab === 'all' ? 'bg-white/10 text-white' : 'bg-charcoal-100 text-charcoal-400'}`}>{allIdeas.length + allFranchises.length}</span>
-                                </button>
-
-                                <button
-                                    onClick={() => setActiveTab('archived')}
-                                    className={`px-4 py-3 rounded-[1.15rem] text-[10px] font-black uppercase tracking-[0.1em] transition-all flex items-center gap-3 whitespace-nowrap flex-1 justify-center ${activeTab === 'archived' ? 'bg-charcoal-950 text-white shadow-xl translate-y-[-1px]' : 'text-charcoal-400 hover:text-charcoal-900 hover:bg-charcoal-50'}`}
-                                >
-                                    <span>Archived</span>
-                                    <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black ${activeTab === 'archived' ? 'bg-white/10 text-white' : 'bg-charcoal-100 text-charcoal-400'}`}>{archivedIdeas.length + archivedFranchises.length}</span>
-                                </button>
-
-                                {/* Spacing to delineate Administrative sectors from Database sectors */}
-                                <div className="hidden lg:block w-4 shrink-0" />
-
-                                <button
-                                    onClick={() => setActiveTab('audits')}
-                                    className={`px-4 py-3 rounded-[1.15rem] text-[10px] font-black uppercase tracking-[0.1em] transition-all flex items-center gap-3 whitespace-nowrap flex-1 justify-center ${activeTab === 'audits' ? 'bg-primary-600 text-white shadow-xl shadow-primary-600/20 translate-y-[-1px]' : 'text-charcoal-400 hover:text-primary-600 hover:bg-primary-50'}`}
-                                >
-                                    <span>Verifications</span>
-                                    <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black ${activeTab === 'audits' ? 'bg-white/20 text-white' : 'bg-primary-50 text-primary-600'}`}>{auditRequests.length}</span>
-                                </button>
-
-                                <button
-                                    onClick={() => setActiveTab('users')}
-                                    className={`px-4 py-3 rounded-[1.15rem] text-[10px] font-black uppercase tracking-[0.1em] transition-all flex items-center gap-3 whitespace-nowrap flex-1 justify-center ${activeTab === 'users' ? 'bg-charcoal-950 text-white shadow-xl translate-y-[-1px]' : 'text-charcoal-400 hover:text-charcoal-900 hover:bg-charcoal-50'}`}
-                                >
-                                    <span>Users</span>
-                                    <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black ${activeTab === 'users' ? 'bg-white/10 text-white' : 'bg-charcoal-100 text-charcoal-400'}`}>{allUsers.length}</span>
-                                </button>
-
-                                <button
-                                    onClick={() => setActiveTab('categories')}
-                                    className={`px-4 py-3 rounded-[1.15rem] text-[10px] font-black uppercase tracking-[0.1em] transition-all flex items-center gap-3 whitespace-nowrap flex-1 justify-center ${activeTab === 'categories' ? 'bg-charcoal-950 text-white shadow-xl translate-y-[-1px]' : 'text-charcoal-400 hover:text-charcoal-900 hover:bg-charcoal-50'}`}
-                                >
-                                    <span>Categories</span>
-                                    <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black ${activeTab === 'categories' ? 'bg-white/10 text-white' : 'bg-charcoal-100 text-charcoal-400'}`}>{allCategories.length}</span>
-                                </button>
-
-                                <button
-                                    onClick={() => setActiveTab('logs')}
-                                    className={`px-4 py-3 rounded-[1.15rem] text-[10px] font-black uppercase tracking-[0.1em] transition-all flex items-center gap-3 whitespace-nowrap flex-1 justify-center ${activeTab === 'logs' ? 'bg-charcoal-950 text-white shadow-xl translate-y-[-1px]' : 'text-charcoal-400 hover:text-charcoal-900 hover:bg-charcoal-50'}`}
-                                >
-                                    <span>Logs</span>
-                                    <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black ${activeTab === 'logs' ? 'bg-white/10 text-white' : 'bg-charcoal-100 text-charcoal-400'}`}>{adminLogs.length}</span>
-                                </button>
-
-                                <button
-                                    onClick={() => setActiveTab('performance')}
-                                    className={`px-4 py-3 rounded-[1.15rem] text-[10px] font-black uppercase tracking-[0.1em] transition-all flex items-center gap-3 whitespace-nowrap flex-1 justify-center ${activeTab === 'performance' ? 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-xl translate-y-[-1px]' : 'text-charcoal-400 hover:text-emerald-600 hover:bg-emerald-50'}`}
-                                >
-                                    <span>Stats</span>
-                                </button>
-
-                                <button
-                                    onClick={() => setActiveTab('maintenance')}
-                                    className={`px-4 py-3 rounded-[1.15rem] text-[10px] font-black uppercase tracking-[0.1em] transition-all flex items-center gap-3 whitespace-nowrap flex-1 justify-center ${activeTab === 'maintenance' ? 'bg-red-500 text-white shadow-xl shadow-red-500/20 translate-y-[-1px]' : 'text-charcoal-400 hover:text-red-500 hover:bg-red-50'}`}
-                                >
-                                    <span>System</span>
-                                    <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black ${activeTab === 'maintenance' ? 'bg-white/20 text-white' : 'bg-red-50 text-red-500'}`}>{maintenanceQueue.length}</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </header>
+                <AdminTabs
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                    counts={{
+                        pending: pendingIdeas.length + pendingFranchises.length,
+                        history: approvedIdeas.length + approvedFranchises.length,
+                        database: allIdeas.length + allFranchises.length,
+                        archived: archivedIdeas.length + archivedFranchises.length,
+                        audits: auditRequests.length,
+                        users: allUsers.length,
+                        categories: allCategories.length,
+                        logs: adminLogs.length,
+                        maintenance: maintenanceQueue.length
+                    }}
+                />
 
                 <div className="mb-8 flex flex-col md:flex-row gap-4 items-center">
-                    <div className="relative flex-1 w-full">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-charcoal-400">🔍</span>
-                        <input
-                            type="text"
-                            placeholder="Search by ID, Name, or User..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-12 pr-12 py-3 rounded-xl border border-charcoal-100 focus:ring-2 focus:ring-primary-600 outline-none font-medium text-sm transition-all"
-                        />
-                        {searchQuery && (
-                            <button
-                                onClick={() => setSearchQuery('')}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-charcoal-50 text-charcoal-400 rounded-lg hover:text-charcoal-900 transition-colors"
-                            >
-                                ✕
-                            </button>
-                        )}
-                    </div>
-
-                    {/* Pagination Controls */}
+                    <SearchBar value={searchQuery} onChange={setSearchQuery} onClear={() => setSearchQuery('')} />
                     {activeTab === 'all' && (
-                        <div className="flex items-center bg-white p-1 rounded-2xl border border-charcoal-100 shadow-sm self-stretch md:self-auto h-12">
-                            <button
-                                disabled={page === 0 || pageLoading}
-                                onClick={() => setPage(p => p - 1)}
-                                className="h-full px-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-charcoal-400 hover:text-charcoal-900 flex items-center gap-2 group transition-all disabled:opacity-30"
-                            >
-                                <span className="group-hover:-translate-x-1 transition-transform">←</span> Prev
-                            </button>
-
-                            <div className="w-px h-6 bg-charcoal-100 mx-1" />
-
-                            <div className="px-6 h-full flex items-center justify-center min-w-[120px]">
-                                {pageLoading ? (
-                                    <div className="flex gap-1">
-                                        <div className="w-1 h-1 rounded-full bg-primary-600 animate-bounce" style={{ animationDelay: '0ms' }} />
-                                        <div className="w-1 h-1 rounded-full bg-primary-600 animate-bounce" style={{ animationDelay: '150ms' }} />
-                                        <div className="w-1 h-1 rounded-full bg-primary-600 animate-bounce" style={{ animationDelay: '300ms' }} />
-                                    </div>
-                                ) : (
-                                    <span className="text-[10px] font-black text-charcoal-900 uppercase tracking-widest">
-                                        Data <span className="text-primary-600">Page {page + 1}</span>
-                                    </span>
-                                )}
-                            </div>
-
-                            <div className="w-px h-6 bg-charcoal-100 mx-1" />
-
-                            <button
-                                disabled={pageLoading || (allIdeas.length < ROWS_PER_PAGE && allFranchises.length < ROWS_PER_PAGE)}
-                                onClick={() => setPage(p => p + 1)}
-                                className="h-full px-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-charcoal-950 hover:bg-charcoal-950 hover:text-white flex items-center gap-2 group transition-all disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-charcoal-950"
-                            >
-                                Next <span className="group-hover:translate-x-1 transition-transform">→</span>
-                            </button>
-                        </div>
+                        <PaginationControls page={page} setPage={setPage} loading={pageLoading} hasNextPage={allIdeas.length >= ROWS_PER_PAGE || allFranchises.length >= ROWS_PER_PAGE} type="Data" />
                     )}
                 </div>
 
-                {/* Bulk Actions Bar */}
-                {(selectedItems.ideas.length > 0 || selectedItems.franchises.length > 0) && activeTab === 'pending' && (
-                    <div className="mb-6 p-3 md:p-4 bg-primary-50 border border-primary-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                        <div className="text-xs md:text-sm font-black text-primary-900 uppercase tracking-wider">
-                            {selectedItems.ideas.length + selectedItems.franchises.length} Items Selected
-                        </div>
-                        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-                            <button onClick={handleBulkApprove} className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-emerald-600 text-white rounded-lg text-[10px] md:text-xs font-black uppercase tracking-wider hover:bg-emerald-700">
-                                Approve All
-                            </button>
-                            <button onClick={handleBulkArchive} className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-red-600 text-white rounded-lg text-[10px] md:text-xs font-black uppercase tracking-wider hover:bg-red-700">
-                                Archive All
-                            </button>
-                            <button onClick={() => setSelectedItems({ ideas: [], franchises: [] })} className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-white border border-charcoal-200 text-charcoal-600 rounded-lg text-[10px] md:text-xs font-black uppercase tracking-wider hover:bg-charcoal-50">
-                                Clear
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* ACTIVITY LOGS TAB CONTENT */}
                 {activeTab === 'logs' && (
-                    <div className="card bg-white border-none shadow-xl p-8">
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-xl font-black text-charcoal-900 uppercase tracking-tighter">System Activity Logs</h2>
-                            <span className="text-[10px] font-black text-charcoal-400 bg-charcoal-50 px-3 py-1.5 rounded-full uppercase tracking-widest">
-                                {adminLogs.length} Events
-                            </span>
-                        </div>
-                        <div className="space-y-2">
-                            {adminLogs.length === 0 ? (
-                                <div className="py-20 text-center text-charcoal-400 font-medium italic">
-                                    No activity logs recorded yet.
-                                </div>
-                            ) : (
-                                adminLogs.map(log => {
-                                    const isExpanded = selectedLog === log.id;
-                                    const icon = String(log.action_type ?? '').includes('approve') || log.action_type === 'AUTHORIZATION' ? '✅' :
-                                        String(log.action_type ?? '').includes('ban') ? '🚫' :
-                                            String(log.action_type ?? '').includes('REVISION') ? '📝' :
-                                                String(log.action_type ?? '').includes('RESTORE') ? '♻️' :
-                                                    String(log.action_type ?? '').includes('DECOMMISSION') || String(log.action_type ?? '').includes('archive') ? '📁' :
-                                                        String(log.action_type ?? '').includes('DELETE') ? '🗑️' :
-                                                            String(log.action_type ?? '').includes('REVOKE') ? '⚡' :
-                                                                String(log.action_type ?? '').includes('ADMIN') ? '👑' : '⚙️';
-
-                                    let parsedDetails = null;
-                                    if (log.details) {
-                                        try {
-                                            parsedDetails = typeof log.details === 'string' ? JSON.parse(log.details) : log.details;
-                                        } catch {
-                                            parsedDetails = log.details;
-                                        }
-                                    }
-
-                                    return (
-                                        <div key={log.id}>
-                                            {/* Collapsed Row */}
-                                            <div
-                                                onClick={() => setSelectedLog(isExpanded ? null : log.id)}
-                                                className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${isExpanded
-                                                    ? 'bg-charcoal-900 border-charcoal-700 rounded-b-none'
-                                                    : 'bg-charcoal-50 border-charcoal-100 hover:border-primary-200 hover:bg-white'
-                                                    }`}
-                                            >
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm flex-shrink-0 transition-all ${isExpanded ? 'bg-white/10 border border-white/20' : 'bg-white border border-charcoal-100'}`}>
-                                                    {icon}
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className={`text-xs font-black uppercase tracking-wide flex items-center gap-2 flex-wrap ${isExpanded ? 'text-white' : 'text-charcoal-900'}`}>
-                                                        {log.profiles?.full_name || 'System Admin'}
-                                                        <span className={isExpanded ? 'text-white/30' : 'text-charcoal-300'}>•</span>
-                                                        <span className={`px-2 py-0.5 rounded-md text-[9px] font-black tracking-widest ${isExpanded ? 'bg-primary-500 text-white' : 'bg-primary-50 text-primary-600'}`}>
-                                                            {String(log.action_type ?? '').replace(/_/g, ' ')}
-                                                        </span>
-                                                    </div>
-                                                    <div className={`text-[10px] font-mono mt-1 flex items-center gap-2 ${isExpanded ? 'text-white/50' : 'text-charcoal-500'}`}>
-                                                        <span className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${isExpanded ? 'bg-white/10 text-white/60' : 'bg-charcoal-100 text-charcoal-500'}`}>
-                                                            {typeof log.target_type === 'object' ? JSON.stringify(log.target_type) : (log.target_type ?? '')}
-                                                        </span>
-                                                        <span className="truncate max-w-[200px]">
-                                                            {typeof log.target_id === 'object' ? JSON.stringify(log.target_id) : (log.target_id ?? '')}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center gap-3 flex-shrink-0">
-                                                    <div className={`text-[10px] font-bold whitespace-nowrap ${isExpanded ? 'text-white/40' : 'text-charcoal-400'}`}>
-                                                        {log.created_at ? new Date(log.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : ''}
-                                                    </div>
-                                                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black transition-transform ${isExpanded ? 'bg-white/10 text-white rotate-180' : 'bg-charcoal-100 text-charcoal-400'}`}>
-                                                        ▼
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Expanded Detail Panel */}
-                                            <AnimatePresence>
-                                                {isExpanded && (
-                                                    <motion.div
-                                                        initial={{ height: 0, opacity: 0 }}
-                                                        animate={{ height: "auto", opacity: 1 }}
-                                                        exit={{ height: 0, opacity: 0 }}
-                                                        transition={{ duration: 0.3, ease: "easeInOut" }}
-                                                        className="overflow-hidden"
-                                                    >
-                                                        <div className="bg-charcoal-950 rounded-b-xl border border-t-0 border-charcoal-700 p-6 space-y-4">
-                                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                                                <div className="bg-white/5 rounded-xl p-3">
-                                                                    <div className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Performed By</div>
-                                                                    <div className="text-xs font-black text-white">{log.profiles?.full_name || 'System Admin'}</div>
-                                                                </div>
-                                                                <div className="bg-white/5 rounded-xl p-3">
-                                                                    <div className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Action Type</div>
-                                                                    <div className="text-xs font-black text-primary-400">{String(log.action_type ?? '')}</div>
-                                                                </div>
-                                                                <div className="bg-white/5 rounded-xl p-3">
-                                                                    <div className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Target Type</div>
-                                                                    <div className="text-xs font-black text-white uppercase">{typeof log.target_type === 'object' ? JSON.stringify(log.target_type) : (log.target_type ?? 'N/A')}</div>
-                                                                </div>
-                                                                <div className="bg-white/5 rounded-xl p-3">
-                                                                    <div className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Timestamp</div>
-                                                                    <div className="text-xs font-black text-white">{log.created_at ? new Date(log.created_at).toLocaleString() : 'N/A'}</div>
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="bg-white/5 rounded-xl p-3">
-                                                                <div className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Target ID</div>
-                                                                <div className="text-xs font-mono text-emerald-400 break-all">
-                                                                    {typeof log.target_id === 'object' ? JSON.stringify(log.target_id) : (log.target_id || 'N/A')}
-                                                                </div>
-                                                            </div>
-
-                                                            {parsedDetails && (
-                                                                <div className="bg-black/30 rounded-xl p-4 border border-white/5">
-                                                                    <div className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-3">Event Details / Metadata</div>
-                                                                    {typeof parsedDetails === 'object' ? (
-                                                                        <div className="space-y-2">
-                                                                            {Object.entries(parsedDetails).map(([key, val]) => (
-                                                                                <div key={key} className="flex items-start gap-3">
-                                                                                    <span className="text-[9px] font-black text-white/40 uppercase tracking-widest min-w-[100px] pt-0.5">{key.replace(/_/g, ' ')}</span>
-                                                                                    <span className="text-xs font-mono text-amber-300 break-all">{String(val)}</span>
-                                                                                </div>
-                                                                            ))}
-                                                                        </div>
-                                                                    ) : (
-                                                                        <pre className="text-xs font-mono text-amber-300 whitespace-pre-wrap break-all">{String(parsedDetails)}</pre>
-                                                                    )}
-                                                                </div>
-                                                            )}
-
-                                                            <div className="flex justify-end pt-2">
-                                                                <button
-                                                                    onClick={() => setSelectedLog(null)}
-                                                                    className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-[9px] font-black uppercase tracking-widest rounded-lg transition-all"
-                                                                >
-                                                                    Close Details
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
-                                        </div>
-                                    );
-                                })
-                            )}
-                        </div>
-                    </div>
+                    <LogSector logs={adminLogs} selectedLog={selectedLog} setSelectedLog={setSelectedLog} />
                 )}
 
                 {activeTab === 'audits' && (
-                    <div className="mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <section className="card bg-white border-none shadow-xl p-8">
-                            <div className="flex justify-between items-center mb-10 border-b border-charcoal-50 pb-6">
-                                <div>
-                                    <h2 className="text-xl font-black text-charcoal-900 uppercase tracking-tighter flex items-center gap-3">
-                                        <span>🔍</span> Verification Requests
-                                    </h2>
-                                    <p className="text-[10px] text-charcoal-400 font-bold uppercase tracking-widest mt-1">Pending reviews from investors</p>
-                                </div>
-                                <span className="text-[11px] font-black text-white bg-primary-600 px-4 py-2 rounded-xl uppercase tracking-[0.2em] shadow-lg shadow-primary-200">
-                                    {auditRequests.filter(a => a.status === 'pending').length} Requests
-                                </span>
-                            </div>
+                    <VerificationSector auditRequests={auditRequests} onUpdateStatus={handleUpdateAuditStatus} />
+                )}
 
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left">
-                                    <thead>
-                                        <tr className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] border-b border-charcoal-50">
-                                            <th className="pb-4 pl-4">Business / Individual</th>
-                                            <th className="pb-4">Requirements</th>
-                                            <th className="pb-4 text-center">Status</th>
-                                            <th className="pb-4 text-right pr-4">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-charcoal-50">
-                                        {auditRequests.length === 0 ? (
-                                            <tr>
-                                                <td colSpan="4" className="py-20 text-center text-charcoal-400 font-medium italic">
-                                                    No verification requests in the current cycle.
-                                                </td>
-                                            </tr>
-                                        ) : (
-                                            auditRequests.map(audit => (
-                                                <tr key={audit.id} className="group hover:bg-charcoal-50 transition-colors">
-                                                    <td className="py-6 pl-4">
-                                                        <div className="flex items-center gap-4">
-                                                            <div className="w-12 h-12 rounded-2xl bg-primary-50 flex items-center justify-center text-xl border border-primary-100">
-                                                                🏢
-                                                            </div>
-                                                            <div>
-                                                                <div className="text-sm font-black text-charcoal-900">{audit.brand_name}</div>
-                                                                <div className="text-[10px] font-bold text-primary-600 uppercase tracking-widest">
-                                                                    By {audit.profiles?.full_name || 'Anonymous User'}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="py-6">
-                                                        <div className="space-y-1">
-                                                            <div className="text-[10px] font-black text-charcoal-900 uppercase tracking-tight">
-                                                                Sector: <span className="text-charcoal-500">{audit.brand_sector || 'General'}</span>
-                                                            </div>
-                                                            <div className="text-[10px] font-black text-charcoal-900 uppercase tracking-tight">
-                                                                Budget: <span className="text-emerald-600">{audit.investment_budget || 'N/A'}</span>
-                                                            </div>
-                                                            <div className="text-[10px] font-black text-charcoal-900 uppercase tracking-tight">
-                                                                Target: <span className="text-charcoal-500">{audit.location_target || 'N/A'}</span>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="py-6 text-center">
-                                                        <span className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm ${audit.status === 'completed'
-                                                            ? 'bg-emerald-100 text-emerald-700'
-                                                            : audit.status === 'in-review'
-                                                                ? 'bg-amber-100 text-amber-700'
-                                                                : 'bg-charcoal-100 text-charcoal-400'
-                                                            }`}>
-                                                            {audit.status?.replace('-', ' ') || 'PENDING'}
-                                                        </span>
-                                                    </td>
-                                                    <td className="py-6 text-right pr-4">
-                                                        <div className="flex gap-2 justify-end">
-                                                            <button
-                                                                onClick={() => handleUpdateAuditStatus(audit.id, 'completed')}
-                                                                className="px-3 py-1.5 bg-charcoal-900 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-primary-600 transition-all shadow-md"
-                                                            >
-                                                                Complete
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleUpdateAuditStatus(audit.id, 'in-review', 'Review process started.')}
-                                                                className="px-3 py-1.5 bg-white border border-charcoal-200 text-charcoal-600 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-charcoal-50 transition-all"
-                                                            >
-                                                                Review
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-                    </div>
+                {activeTab === 'pending' && (
+                    <BulkActionsBar
+                        selectedCount={selectedItems.ideas.length + selectedItems.franchises.length}
+                        onApprove={handleBulkApprove}
+                        onArchive={handleBulkArchive}
+                        onClear={() => setSelectedItems({ ideas: [], franchises: [] })}
+                    />
                 )}
 
                 {['pending', 'history', 'all', 'archived'].includes(activeTab) && (
                     <>
-                        <div className="grid lg:grid-cols-2 gap-4 md:gap-8">
-                            {/* Ideas Section */}
-                            <section className="card bg-white border-none shadow-xl p-4 md:p-8 h-fit">
-                                <div className="flex justify-between items-center mb-8 border-b border-charcoal-50 pb-4">
-                                    <h2 className="text-sm font-black text-charcoal-900 uppercase tracking-widest flex items-center gap-2">
-                                        <span>💡</span> {activeTab === 'pending' ? 'Pending Ideas' : activeTab === 'history' ? 'Recently Approved' : activeTab === 'archived' ? 'Archived Ideas' : 'All Ideas'}
-                                    </h2>
-                                    <span className="text-[10px] font-black text-primary-600 bg-primary-50 px-3 py-1 rounded-full uppercase tracking-widest">
-                                        {(filterItems(activeTab === 'pending' ? pendingIdeas : activeTab === 'history' ? approvedIdeas : activeTab === 'archived' ? archivedIdeas : allIdeas)).length} Items
-                                    </span>
-                                </div>
-
-                                <div className="space-y-6">
-                                    {(filterItems(activeTab === 'pending' ? pendingIdeas : activeTab === 'history' ? approvedIdeas : activeTab === 'archived' ? archivedIdeas : allIdeas)).length === 0 ? (
-                                        <div className="py-12 text-center text-charcoal-400 font-medium italic">
-                                            {activeTab === 'pending' ? 'No pending ideas.' : 'No items found.'}
-                                        </div>
-                                    ) : (
-                                        (filterItems(activeTab === 'pending' ? pendingIdeas : activeTab === 'history' ? approvedIdeas : activeTab === 'archived' ? archivedIdeas : allIdeas)).map(idea => (
-                                            <div key={idea.id} className="p-3 md:p-5 bg-charcoal-50 rounded-xl border border-charcoal-100 group hover:border-primary-200 transition-all relative">
-                                                {activeTab === 'pending' && (
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={selectedItems.ideas.includes(idea.id)}
-                                                        onChange={(e) => {
-                                                            if (e.target.checked) {
-                                                                setSelectedItems(prev => ({ ...prev, ideas: [...prev.ideas, idea.id] }));
-                                                            } else {
-                                                                setSelectedItems(prev => ({ ...prev, ideas: prev.ideas.filter(id => id !== idea.id) }));
-                                                            }
-                                                        }}
-                                                        className="absolute top-4 left-4 w-5 h-5 rounded border-2 border-charcoal-300 cursor-pointer"
-                                                    />
-                                                )}
-                                                <div className="flex justify-between items-start mb-3 ml-8">
-                                                    <div className="flex-1">
-                                                        <h3 className="text-base font-black text-charcoal-950 uppercase tracking-tight leading-tight mb-1">{idea.title}</h3>
-                                                        <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest flex items-center gap-2">
-                                                            <span>By {idea.profiles?.full_name || 'Anonymous Author'}</span>
-                                                            {idea.deleted_at ? (
-                                                                <span className="text-red-500 flex items-center gap-1 ring-1 ring-red-100 px-2 py-0.5 rounded-full bg-red-50/50">
-                                                                    <span className="w-1 h-1 rounded-full bg-red-500" /> ARCHIVED
-                                                                </span>
-                                                            ) : idea.is_approved ? (
-                                                                <span className="text-emerald-500 flex items-center gap-1 ring-1 ring-emerald-100 px-2 py-0.5 rounded-full bg-emerald-50/50">
-                                                                    <span className="w-1 h-1 rounded-full bg-emerald-500 opacity-50" /> AUTH
-                                                                </span>
-                                                            ) : (
-                                                                <span className="text-amber-500 flex items-center gap-1 ring-1 ring-amber-100 px-2 py-0.5 rounded-full bg-amber-50/50">
-                                                                    <span className="w-1 h-1 rounded-full bg-amber-500 animate-pulse" /> PENDING
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="mb-4">
-                                                    <p className="text-xs text-charcoal-500 line-clamp-2 leading-relaxed font-medium">
-                                                        {idea.short_description}
-                                                    </p>
-                                                </div>
-
-                                                <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mt-3 md:mt-4 pt-3 md:pt-4 border-t border-charcoal-100/50">
-                                                    {activeTab !== 'pending' && (
-                                                        <>
-                                                            <button
-                                                                onClick={() => handleToggleFeatured(idea.id, 'idea', idea.is_featured)}
-                                                                className={`px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-wider transition-all ${idea.is_featured
-                                                                    ? 'bg-amber-100 text-amber-700 border border-amber-300'
-                                                                    : 'bg-white text-charcoal-400 border border-charcoal-200 hover:border-amber-300'
-                                                                    }`}
-                                                                title={idea.is_featured ? 'Remove from Featured' : 'Mark as Featured'}
-                                                            >
-                                                                {idea.is_featured ? '⭐ Featured' : '☆ Feature'}
-                                                            </button>
-                                                        </>
-                                                    )}
-                                                    {activeTab === 'pending' && (
-                                                        <div className="flex gap-1.5 w-full sm:w-auto">
-                                                            <button
-                                                                onClick={() => handleApprove(idea.id, 'idea')}
-                                                                className="flex-1 sm:flex-none px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-emerald-700 transition-all"
-                                                            >
-                                                                Approve
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleRequestRevision(idea.id, 'idea')}
-                                                                className="flex-1 sm:flex-none px-3 py-1.5 bg-white text-amber-600 border border-amber-200 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-amber-50 transition-all"
-                                                            >
-                                                                Revision
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                    <div className="flex flex-wrap gap-1.5 items-center w-full sm:w-auto sm:ml-auto mt-2 sm:mt-0">
-                                                        <Link
-                                                            to={`/ideas/${idea.slug}`}
-                                                            target="_blank"
-                                                            rel="noreferrer"
-                                                            className="px-2.5 py-1.5 bg-charcoal-50 text-charcoal-600 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-charcoal-900 hover:text-white transition-all"
-                                                        >
-                                                            Preview
-                                                        </Link>
-                                                        <Link
-                                                            to={`/edit-idea/${idea.id}`}
-                                                            className="px-2.5 py-1.5 bg-white text-primary-600 border border-primary-100 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-primary-600 hover:text-white transition-all"
-                                                        >
-                                                            Edit
-                                                        </Link>
-                                                        <button
-                                                            onClick={() => activeTab === 'archived' ? handleUnarchive(idea.id, 'idea') : handleDelete(idea.id, 'idea')}
-                                                            className={`px-2.5 py-1.5 bg-white ${activeTab === 'archived' ? 'text-emerald-600 hover:bg-emerald-50' : 'text-red-400 hover:bg-red-50 hover:text-red-600'} border border-transparent rounded-lg text-[8px] font-black uppercase tracking-wider transition-all`}
-                                                        >
-                                                            {activeTab === 'archived' ? 'Restore' : 'Archive'}
-                                                        </button>
-                                                        {(activeTab === 'archived' || activeTab === 'all' || activeTab === 'pending') && (
-                                                            <button
-                                                                onClick={() => handlePermanentDelete(idea.id, 'idea', idea.title)}
-                                                                className="px-2.5 py-1.5 bg-red-600 text-white rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-red-700 transition-all"
-                                                                title="Permanently delete from database"
-                                                            >
-                                                                🗑️ Delete
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                {idea.proof_url && (
-                                                    <div className="mt-3 text-right">
-                                                        <a href={idea.proof_url} target="_blank" rel="noreferrer" className="text-[8px] font-black text-primary-600 uppercase tracking-widest hover:underline inline-flex items-center gap-1 opacity-60 hover:opacity-100">
-                                                            <span>📁</span> Proof Attached
-                                                        </a>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-                            </section>
-
-                            {/* Franchises Section */}
-                            <section className="card bg-white border-none shadow-xl p-4 md:p-8 h-fit">
-                                <div className="flex justify-between items-center mb-8 border-b border-charcoal-50 pb-4">
-                                    <h2 className="text-sm font-black text-charcoal-900 uppercase tracking-widest flex items-center gap-2">
-                                        <span>🏢</span> {activeTab === 'pending' ? 'Pending Franchises' : activeTab === 'history' ? 'Verified Franchises' : activeTab === 'archived' ? 'Archived Franchises' : 'All Franchises'}
-                                    </h2>
-                                    <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-widest">
-                                        {(filterItems(activeTab === 'pending' ? pendingFranchises : activeTab === 'history' ? approvedFranchises : activeTab === 'archived' ? archivedFranchises : allFranchises)).length} Items
-                                    </span>
-                                </div>
-
-                                <div className="space-y-6">
-                                    {(filterItems(activeTab === 'pending' ? pendingFranchises : activeTab === 'history' ? approvedFranchises : allFranchises)).length === 0 ? (
-                                        <div className="py-12 text-center text-charcoal-400 font-medium italic">
-                                            {activeTab === 'pending' ? 'No pending franchises.' : 'No items found.'}
-                                        </div>
-                                    ) : (
-                                        (filterItems(activeTab === 'pending' ? pendingFranchises : activeTab === 'history' ? approvedFranchises : activeTab === 'archived' ? archivedFranchises : allFranchises)).map(fran => (
-                                            <div key={fran.id} className="p-3 md:p-5 bg-charcoal-50 rounded-xl border border-charcoal-100 group hover:border-emerald-200 transition-all relative">
-                                                {activeTab === 'pending' && (
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={selectedItems.franchises.includes(fran.id)}
-                                                        onChange={(e) => {
-                                                            if (e.target.checked) {
-                                                                setSelectedItems(prev => ({ ...prev, franchises: [...prev.franchises, fran.id] }));
-                                                            } else {
-                                                                setSelectedItems(prev => ({ ...prev, franchises: prev.franchises.filter(id => id !== fran.id) }));
-                                                            }
-                                                        }}
-                                                        className="absolute top-4 left-4 w-5 h-5 rounded border-2 border-charcoal-300 cursor-pointer"
-                                                    />
-                                                )}
-                                                <div className="flex justify-between items-start mb-3 ml-8">
-                                                    <div className="flex-1">
-                                                        <h3 className="text-base font-black text-charcoal-950 uppercase tracking-tight leading-tight mb-1">{fran.name}</h3>
-                                                        <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest flex items-center gap-2">
-                                                            <span>By {fran.profiles?.full_name || 'Anonymous Author'}</span>
-                                                            {fran.deleted_at ? (
-                                                                <span className="text-red-500 flex items-center gap-1 ring-1 ring-red-100 px-2 py-0.5 rounded-full bg-red-50/50">
-                                                                    <span className="w-1 h-1 rounded-full bg-red-500" /> ARCHIVED
-                                                                </span>
-                                                            ) : fran.is_approved ? (
-                                                                <span className="text-emerald-500 flex items-center gap-1 ring-1 ring-emerald-100 px-2 py-0.5 rounded-full bg-emerald-50/50">
-                                                                    <span className="w-1 h-1 rounded-full bg-emerald-500 opacity-50" /> VERIFIED
-                                                                </span>
-                                                            ) : (
-                                                                <span className="text-amber-500 flex items-center gap-1 ring-1 ring-amber-100 px-2 py-0.5 rounded-full bg-amber-50/50">
-                                                                    <span className="w-1 h-1 rounded-full bg-amber-500 animate-pulse" /> PENDING
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex flex-wrap gap-2 mb-4">
-                                                    <span className="text-[8px] font-black text-charcoal-400 bg-white border border-charcoal-100 px-2 py-1 rounded-md uppercase tracking-widest">
-                                                        {fran.category}
-                                                    </span>
-                                                    <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-1 rounded-md uppercase tracking-widest">
-                                                        {(fran.investment_min / 100000).toFixed(1)}L Min
-                                                    </span>
-                                                </div>
-
-
-                                                <div className="flex flex-wrap items-center gap-1.5 md:gap-2 pt-3 md:pt-4 border-t border-charcoal-100/50 ml-0 md:ml-8">
-                                                    {activeTab !== 'pending' && (
-                                                        <>
-                                                            <button
-                                                                onClick={() => handleToggleFeatured(fran.id, 'franchise', fran.is_featured)}
-                                                                className={`px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-wider transition-all ${fran.is_featured
-                                                                    ? 'bg-amber-100 text-amber-700 border border-amber-300'
-                                                                    : 'bg-white text-charcoal-400 border border-charcoal-200 hover:border-amber-300'
-                                                                    }`}
-                                                                title={fran.is_featured ? 'Remove from Featured' : 'Mark as Featured'}
-                                                            >
-                                                                {fran.is_featured ? '⭐ Featured' : '☆ Feature'}
-                                                            </button>
-                                                        </>
-                                                    )}
-                                                    {activeTab === 'pending' && (
-                                                        <>
-                                                            <button
-                                                                onClick={() => handleApprove(fran.id, 'franchise')}
-                                                                className="px-3.5 py-1.5 bg-emerald-600 text-white rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-emerald-700 transition-all"
-                                                            >
-                                                                Verify
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleRequestRevision(fran.id, 'franchise')}
-                                                                className="px-3.5 py-1.5 bg-white text-amber-600 border border-amber-200 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-amber-50 transition-all"
-                                                            >
-                                                                Request Changes
-                                                            </button>
-                                                        </>
-                                                    )}
-                                                    <div className="flex flex-wrap gap-1.5 items-center w-full sm:w-auto mt-2 sm:mt-0">
-                                                        <Link
-                                                            to={`/franchise/${fran.slug}`}
-                                                            target="_blank"
-                                                            rel="noreferrer"
-                                                            className="flex-1 sm:flex-none px-2.5 py-1.5 bg-charcoal-100 text-charcoal-600 border border-charcoal-200 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-charcoal-900 hover:text-white transition-all text-center"
-                                                        >
-                                                            Preview
-                                                        </Link>
-                                                        <Link
-                                                            to={`/edit-franchise/${fran.id}`}
-                                                            className="flex-1 sm:flex-none px-2.5 py-1.5 bg-white text-primary-600 border border-primary-100 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-primary-600 hover:text-white transition-all text-center"
-                                                        >
-                                                            Modify
-                                                        </Link>
-                                                        <button
-                                                            onClick={() => activeTab === 'archived' ? handleUnarchive(fran.id, 'franchise') : handleDelete(fran.id, 'franchise')}
-                                                            className={`flex-1 sm:flex-none px-2.5 py-1.5 bg-white ${activeTab === 'archived' ? 'text-emerald-600 hover:bg-emerald-50' : 'text-red-400 hover:bg-red-50 hover:text-red-600'} border border-transparent rounded-lg text-[8px] font-black uppercase tracking-wider transition-all`}
-                                                        >
-                                                            {activeTab === 'archived' ? 'Unarchive' : 'Archive'}
-                                                        </button>
-                                                        {(activeTab === 'archived' || activeTab === 'all' || activeTab === 'pending') && (
-                                                            <button
-                                                                onClick={() => handlePermanentDelete(fran.id, 'franchise', fran.name)}
-                                                                className="flex-1 sm:flex-none px-2.5 py-1.5 bg-red-600 text-white border border-red-700 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-red-700 transition-all"
-                                                                title="Permanently delete from database"
-                                                            >
-                                                                🗑️ Delete
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                {fran.proof_url && (
-                                                    <div className="mt-3 text-right">
-                                                        <a href={fran.proof_url} target="_blank" rel="noreferrer" className="text-[8px] font-black text-primary-600 uppercase tracking-widest hover:underline inline-flex items-center gap-1 opacity-60 hover:opacity-100">
-                                                            <span>📁</span> Proof Attached
-                                                        </a>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ))
-                                    )}
-
-                                    {filterItems(activeTab === 'pending' ? pendingFranchises : activeTab === 'history' ? approvedFranchises : activeTab === 'archived' ? archivedFranchises : allFranchises).length === 0 && (
-                                        <div className="py-20 text-center">
-                                            <div className="text-4xl mb-4">🏢</div>
-                                            <div className="text-sm font-black text-charcoal-900 uppercase tracking-widest">No Brands Found in This Sector</div>
-                                            <p className="text-[10px] text-charcoal-400 font-bold uppercase tracking-widest mt-2">Check database for archived or unverified assets</p>
-                                            {searchQuery && (
-                                                <button
-                                                    onClick={() => setSearchQuery('')}
-                                                    className="mt-6 px-6 py-2 bg-charcoal-100 text-charcoal-600 rounded-xl text-[9px] font-black uppercase tracking-widest"
-                                                >
-                                                    Clear Search
-                                                </button>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            </section>
-                        </div>
-
-                        {/* Bottom Command Bar - Dynamic Pagination */}
+                        <AssetGridSector
+                            activeTab={activeTab}
+                            ideas={activeTab === 'pending' ? pendingIdeas : activeTab === 'history' ? approvedIdeas : activeTab === 'archived' ? archivedIdeas : allIdeas}
+                            franchises={activeTab === 'pending' ? pendingFranchises : activeTab === 'history' ? approvedFranchises : activeTab === 'archived' ? archivedFranchises : allFranchises}
+                            selectedItems={selectedItems}
+                            setSelectedItems={setSelectedItems}
+                            onApprove={handleApprove}
+                            onRequestRevision={handleRequestRevision}
+                            onToggleFeatured={handleToggleFeatured}
+                            onDelete={handleDelete}
+                            onUnarchive={handleUnarchive}
+                            onPermanentDelete={handlePermanentDelete}
+                            searchQuery={searchQuery}
+                        />
                         {activeTab === 'all' && (
-                            <div className="mt-10 flex justify-end">
-                                <div className="flex items-center bg-white p-1 rounded-2xl border border-charcoal-100 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] h-12">
-                                    <button
-                                        disabled={page === 0 || pageLoading}
-                                        onClick={() => {
-                                            setPage(p => p - 1);
-                                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                                        }}
-                                        className="h-full px-5 rounded-xl text-[10px] font-black uppercase tracking-widest text-charcoal-400 hover:text-charcoal-900 flex items-center gap-2 transition-all disabled:opacity-30"
-                                    >
-                                        ← Previous
-                                    </button>
-
-                                    <div className="w-px h-6 bg-charcoal-100 mx-1" />
-
-                                    <div className="px-6 h-full flex items-center justify-center min-w-[140px]">
-                                        {pageLoading ? (
-                                            <div className="flex gap-1">
-                                                <div className="w-1 h-1 rounded-full bg-primary-600 animate-bounce" style={{ animationDelay: '0ms' }} />
-                                                <div className="w-1 h-1 rounded-full bg-primary-600 animate-bounce" style={{ animationDelay: '150ms' }} />
-                                                <div className="w-1 h-1 rounded-full bg-primary-600 animate-bounce" style={{ animationDelay: '300ms' }} />
-                                            </div>
-                                        ) : (
-                                            <span className="text-[10px] font-black text-charcoal-900 uppercase tracking-widest">
-                                                Registry <span className="text-primary-600">Page {page + 1}</span>
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    <div className="w-px h-6 bg-charcoal-100 mx-1" />
-
-                                    <button
-                                        disabled={pageLoading || (allIdeas.length < ROWS_PER_PAGE && allFranchises.length < ROWS_PER_PAGE)}
-                                        onClick={() => {
-                                            setPage(p => p + 1);
-                                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                                        }}
-                                        className="h-full px-6 bg-charcoal-950 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 group transition-all hover:bg-black disabled:opacity-30"
-                                    >
-                                        Next Page <span className="group-hover:translate-x-1 transition-transform">→</span>
-                                    </button>
-                                </div>
-                            </div>
+                            <PaginationControls page={page} setPage={setPage} pageLoading={pageLoading} hasNext={allIdeas.length >= ROWS_PER_PAGE || allFranchises.length >= ROWS_PER_PAGE} />
                         )}
                     </>
                 )}
 
                 {activeTab === 'users' && (
-                    <div className="mt-8">
-                        <section className="card bg-white border-none shadow-xl p-8">
-                            <div className="flex justify-between items-center mb-10 border-b border-charcoal-50 pb-6">
-                                <div>
-                                    <h2 className="text-xl font-black text-charcoal-900 uppercase tracking-tighter flex items-center gap-3">
-                                        <span>👤</span> Users
-                                    </h2>
-                                    <p className="text-[10px] text-charcoal-400 font-bold uppercase tracking-widest mt-1">{allUsers.length} Active Profiles</p>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <button
-                                        onClick={downloadUsersCSV}
-                                        className="px-4 py-2 bg-white border border-charcoal-200 text-charcoal-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-charcoal-50 flex items-center gap-2 transition-all shadow-sm"
-                                    >
-                                        <span>📥</span> Export CSV
-                                    </button>
-                                    <span className="text-[11px] font-black text-white bg-charcoal-900 px-4 py-2 rounded-xl uppercase tracking-[0.2em] shadow-lg shadow-charcoal-200">
-                                        Active Nodes
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left">
-                                    <thead>
-                                        <tr className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] border-b border-charcoal-50">
-                                            <th className="pb-4 pl-4">User</th>
-                                            <th className="pb-4 text-center">Role Status</th>
-                                            <th className="pb-4 text-center">Joined On</th>
-                                            <th className="pb-4 text-right pr-4">Profile ID</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-charcoal-50">
-                                        {allUsers.length === 0 ? (
-                                            <tr>
-                                                <td colSpan="4" className="py-20 text-center text-charcoal-400 font-medium italic">
-                                                    No users registered in the system yet.
-                                                </td>
-                                            </tr>
-                                        ) : (
-                                            allUsers.map(u => (
-                                                <tr key={u.id} className="group hover:bg-charcoal-50 transition-colors">
-                                                    <td className="py-6 pl-4">
-                                                        <div className="flex items-center gap-4">
-                                                            <div className="w-12 h-12 rounded-2xl bg-primary-50 flex items-center justify-center text-xl border border-primary-100 group-hover:scale-110 transition-transform">
-                                                                {u.avatar_url ? <img src={u.avatar_url} className="w-full h-full rounded-2xl object-cover" /> : '👤'}
-                                                            </div>
-                                                            <div>
-                                                                <div className="text-sm font-black text-charcoal-900 flex items-center gap-2">
-                                                                    {u.full_name || 'Anonymous'}
-                                                                    {u.id === user.id && (
-                                                                        <span className="text-[9px] font-black text-primary-600 bg-primary-50 px-2 py-0.5 rounded-md uppercase tracking-widest">You</span>
-                                                                    )}
-                                                                </div>
-                                                                <div className="text-[10px] font-bold text-primary-600 uppercase tracking-widest">{u.membership_tier || 'Basic'}</div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="py-6 text-center">
-                                                        <div className="flex gap-2 justify-center flex-wrap">
-                                                            {u.is_admin ? (
-                                                                <span className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${u.role === 'owner'
-                                                                    ? 'bg-gradient-to-r from-yellow-500 to-amber-600 text-white shadow-lg'
-                                                                    : u.role === 'super_admin'
-                                                                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md'
-                                                                        : 'bg-charcoal-900 text-white'
-                                                                    }`}>
-                                                                    {u.role === 'owner' && '👑'}
-                                                                    {u.role === 'super_admin' && '⚡'}
-                                                                    {u.role === 'admin' && '🔑'}
-                                                                    {u.role === 'moderator' && '🛡️'}
-                                                                    {u.role === 'owner' ? 'OWNER' : u.role === 'super_admin' ? 'SUPER ADMIN' : u.role === 'admin' ? 'ADMINISTRATOR' : 'MODERATOR'}
-                                                                </span>
-                                                            ) : (
-                                                                <span className="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest bg-charcoal-100 text-charcoal-400">
-                                                                    INVESTOR
-                                                                </span>
-                                                            )}
-                                                            {!u.is_banned && (
-                                                                <button
-                                                                    onClick={() => handleToggleAdmin(u.id, u.is_admin, u.full_name)}
-                                                                    className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${u.is_admin
-                                                                        ? 'bg-amber-100 text-amber-700 border border-amber-300 hover:bg-amber-200'
-                                                                        : 'bg-emerald-100 text-emerald-700 border border-emerald-300 hover:bg-emerald-200'
-                                                                        }`}
-                                                                    title={u.is_admin ? 'Revoke Admin Privileges' : 'Grant Admin Privileges'}
-                                                                >
-                                                                    {u.is_admin ? '⚡ Revoke Admin' : '👑 Make Admin'}
-                                                                </button>
-                                                            )}
-                                                            {!u.is_admin && !u.is_banned && (
-                                                                <button
-                                                                    onClick={() => handleBanUser(u.id)}
-                                                                    className="px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-red-200"
-                                                                >
-                                                                    BAN
-                                                                </button>
-                                                            )}
-                                                            {u.is_banned && (
-                                                                <button
-                                                                    onClick={() => handleUnbanUser(u.id)}
-                                                                    className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-red-700 shadow-lg shadow-red-200"
-                                                                >
-                                                                    BANNED (UNBAN)
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                    </td>
-                                                    <td className="py-6 text-center text-[11px] font-mono font-bold text-charcoal-500">
-                                                        {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
-                                                    </td>
-                                                    <td className="py-6 text-right pr-4 text-[9px] font-mono text-charcoal-300">
-                                                        {u.id?.slice(0, 16) ?? ''}...
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-                    </div>
+                    <UserSector
+                        users={allUsers}
+                        currentUser={user}
+                        onToggleAdmin={handleToggleAdmin}
+                        onBanUser={handleBanUser}
+                        onUnbanUser={handleUnbanUser}
+                        onDownloadCSV={downloadUsersCSV}
+                    />
                 )}
 
                 {activeTab === 'categories' && (
-                    <div className="space-y-6">
-                        <section className="card bg-white border-none shadow-xl p-8 mb-10 overflow-hidden relative">
-                            <div className="flex items-center justify-between mb-8">
-                                <div>
-                                    <h2 className="text-xl font-black text-charcoal-900 uppercase tracking-tighter">Category Management</h2>
-                                    <p className="text-[10px] font-bold text-charcoal-400 uppercase tracking-widest mt-1">Manage all business categories and tags</p>
-                                </div>
-                                <button
-                                    onClick={() => setCategoryModal({ isOpen: true, category: null })}
-                                    className="px-6 py-2.5 bg-charcoal-950 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary-600 shadow-lg shadow-charcoal-900/10 transition-all flex items-center gap-2"
-                                >
-                                    <span>➕</span> Add New Category
-                                </button>
-                            </div>
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left">
-                                    <thead>
-                                        <tr className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] border-b border-charcoal-50">
-                                            <th className="pb-4 pl-4 text-center">Order</th>
-                                            <th className="pb-4">Category</th>
-                                            <th className="pb-4">Slug / Path</th>
-                                            <th className="pb-4">Description</th>
-                                            <th className="pb-4 text-right pr-4">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-charcoal-50">
-                                        {allCategories.map(cat => (
-                                            <tr key={cat.id} className="group hover:bg-charcoal-50 transition-colors">
-                                                <td className="py-6 pl-4 text-center">
-                                                    <span className="w-8 h-8 rounded-lg bg-charcoal-100 flex items-center justify-center text-[10px] font-black text-charcoal-600 mx-auto">
-                                                        {cat.display_order}
-                                                    </span>
-                                                </td>
-                                                <td className="py-6">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center text-lg border border-primary-100 group-hover:scale-110 transition-transform">
-                                                            {cat.icon || '📁'}
-                                                        </div>
-                                                        <div className="text-sm font-black text-charcoal-900">{cat.name}</div>
-                                                    </div>
-                                                </td>
-                                                <td className="py-6">
-                                                    <span className="px-2 py-1 bg-charcoal-100 rounded text-[9px] font-mono font-bold text-charcoal-600">/{cat.slug}</span>
-                                                </td>
-                                                <td className="py-6 pr-8">
-                                                    <div className="text-[10px] font-medium text-charcoal-500 line-clamp-1 max-w-xs">{cat.description || 'No description provided.'}</div>
-                                                </td>
-                                                <td className="py-6 text-right pr-4">
-                                                    <div className="flex gap-2 justify-end">
-                                                        <button onClick={() => setCategoryModal({ isOpen: true, category: cat })} className="p-2 bg-white text-charcoal-400 rounded-lg hover:text-primary-600 hover:bg-primary-50 transition-all">⚙️</button>
-                                                        <button onClick={() => handleDeleteCategory(cat.id)} className="p-2 bg-white text-charcoal-400 rounded-lg hover:text-red-600 hover:bg-red-50 transition-all">🗑️</button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-                    </div>
+                    <CategorySector
+                        categories={allCategories}
+                        onEditCategory={(cat) => setCategoryModal({ isOpen: true, category: cat })}
+                        onDeleteCategory={handleDeleteCategory}
+                        onAddCategory={() => setCategoryModal({ isOpen: true, category: null })}
+                    />
                 )}
 
-                {/* PERFORMANCE HUB TAB CONTENT */}
                 {activeTab === 'performance' && (
-                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                        <section className="grid lg:grid-cols-4 gap-6">
-                            <div className="bg-white p-8 rounded-[2rem] border border-charcoal-50 shadow-xl shadow-charcoal-900/5 relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">📈</div>
-                                <h3 className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] mb-4">User Adoption</h3>
-                                <div className="text-4xl font-black text-charcoal-950 mb-2">{allUsers.length} <span className="text-emerald-500 text-sm">Active</span></div>
-                                <div className="w-full h-1 bg-charcoal-50 rounded-full mt-4 overflow-hidden">
-                                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${Math.min(100, Math.max(10, (allUsers.length / 500) * 100))}%` }} />
-                                </div>
-                                <p className="text-[10px] text-charcoal-400 font-bold mt-4 uppercase tracking-widest">Growth: +{growthMetrics.userGrowth}% (30d)</p>
-                            </div>
-
-                            <div className="bg-charcoal-950 p-8 rounded-[2rem] text-white shadow-2xl shadow-charcoal-950/20 relative group">
-                                <div className="absolute top-0 right-0 p-4 opacity-20">💎</div>
-                                <h3 className="text-[10px] font-black text-primary-400 uppercase tracking-[0.2em] mb-4">Total Items</h3>
-                                <div className="text-4xl font-black mb-2">{stats.ideas + stats.franchises} <span className="text-primary-400/50 text-sm">Listed</span></div>
-                                <div className="flex gap-1 mt-6 items-end h-10">
-                                    {[30, 45, 25, 60, 40, 75, 90, 65, 80, 55, 40, 30].map((h, i) => (
-                                        <div key={i} className="flex-1 bg-primary-600/20 rounded-t-sm relative group/bar" style={{ height: '100%' }}>
-                                            <motion.div
-                                                initial={{ height: 0 }}
-                                                animate={{ height: `${h}%` }}
-                                                transition={{ duration: 1, delay: i * 0.05 }}
-                                                className="absolute bottom-0 left-0 w-full bg-primary-500 rounded-t-sm"
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                                <p className="text-[10px] text-white/30 font-bold mt-4 uppercase tracking-widest">Velocity: +{growthMetrics.assetGrowth}% (30d)</p>
-                            </div>
-
-                            <div className="bg-white p-8 rounded-[2rem] border border-charcoal-50 shadow-xl shadow-charcoal-900/5">
-                                <h3 className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] mb-4">Verification Rate</h3>
-                                <div className="text-4xl font-black text-charcoal-950 mb-2">
-                                    {auditRequests.length > 0 ? ((auditRequests.filter(a => a.status === 'completed').length / auditRequests.length) * 100).toFixed(0) : 0}%
-                                </div>
-                                <div className="flex items-center gap-3 mt-4">
-                                    <div className="w-12 h-12 rounded-full border-4 border-charcoal-50 border-t-primary-600 animate-spin" />
-                                    <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">
-                                        {auditRequests.filter(a => a.status === 'pending').length} Pending Review
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="bg-gradient-to-br from-primary-600 to-indigo-700 p-8 rounded-[2rem] text-white shadow-xl">
-                                <h3 className="text-[10px] font-black text-white/60 uppercase tracking-[0.2em] mb-4">Global Reach</h3>
-                                <div className="text-4xl font-black mb-2">PAN <span className="text-white/40">India</span></div>
-                                <div className="mt-4 flex -space-x-3">
-                                    {allUsers.slice(0, 5).map((u, i) => (
-                                        <div key={i} className="w-10 h-10 rounded-full bg-white/20 border-2 border-primary-600 flex items-center justify-center text-xs font-black backdrop-blur-sm">
-                                            {u.full_name?.[0] || 'U'}
-                                        </div>
-                                    ))}
-                                    <div className="w-10 h-10 rounded-full bg-white text-primary-600 border-2 border-primary-600 flex items-center justify-center text-[10px] font-black">
-                                        +{allUsers.length - 5}
-                                    </div>
-                                </div>
-                                <p className="text-[10px] text-white/60 font-bold mt-4 uppercase tracking-widest">Platform Reach</p>
-                            </div>
-                        </section>
-
-                        <div className="grid lg:grid-cols-2 gap-8">
-                            <section className="bg-white p-10 rounded-[2.5rem] border border-charcoal-50 shadow-xl">
-                                <div className="flex justify-between items-center mb-10">
-                                    <h2 className="text-xl font-black text-charcoal-950 uppercase tracking-tighter">Growth by Category</h2>
-                                    <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest">Market Stats</span>
-                                </div>
-                                <div className="space-y-6">
-                                    {allCategories.slice(0, 6).map((cat, i) => {
-                                        const count = (allIdeas.filter(id => id.category === cat.name).length + allFranchises.filter(f => f.category === cat.name).length);
-                                        const percentage = Math.max(15, Math.min(95, (count / (stats.ideas + stats.franchises || 1)) * 300));
-                                        return (
-                                            <div key={cat.id} className="group">
-                                                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest mb-2 text-charcoal-600">
-                                                    <span>{cat.name}</span>
-                                                    <span className="text-primary-600">{count} Units</span>
-                                                </div>
-                                                <div className="h-4 bg-charcoal-50 rounded-lg p-1">
-                                                    <motion.div
-                                                        initial={{ width: 0 }}
-                                                        animate={{ width: `${percentage}%` }}
-                                                        transition={{ duration: 1.5, delay: i * 0.1, ease: "circOut" }}
-                                                        className="h-full bg-gradient-to-r from-charcoal-900 to-charcoal-700 rounded-md"
-                                                    />
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </section>
-
-                            <section className="bg-charcoal-950 p-10 rounded-[2.5rem] text-white relative overflow-hidden shadow-2xl">
-                                <div className="absolute top-0 right-0 w-64 h-64 bg-primary-600/10 blur-[80px] rounded-full -mr-32 -mt-32" />
-                                <div className="flex justify-between items-center mb-10 relative">
-                                    <h2 className="text-xl font-black uppercase tracking-tighter">Approval Efficiency</h2>
-                                    <div className="px-4 py-2 bg-white/5 rounded-xl border border-white/10 text-[10px] font-black tracking-widest">Q1 STATS</div>
-                                </div>
-                                <div className="space-y-8 relative">
-                                    <div className="flex items-end gap-2 h-48">
-                                        {[15, 25, 20, 35, 45, 40, 60, 55, 75, 70, 85, 95].map((h, i) => (
-                                            <motion.div
-                                                key={i}
-                                                initial={{ scaleY: 0 }}
-                                                animate={{ scaleY: 1 }}
-                                                transition={{ duration: 0.8, delay: i * 0.05 }}
-                                                className="flex-1 bg-primary-500/30 rounded-t-lg origin-bottom border-t-2 border-primary-400"
-                                                style={{ height: `${h}%` }}
-                                            />
-                                        ))}
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="p-5 bg-white/5 rounded-2xl border border-white/5">
-                                            <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-2">Avg Verification Time</div>
-                                            <div className="text-2xl font-black">4.2h</div>
-                                        </div>
-                                        <div className="p-5 bg-white/5 rounded-2xl border border-white/5">
-                                            <div className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-2">Rejection Ratio</div>
-                                            <div className="text-2xl font-black">12.5%</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
-                        </div>
-                    </div>
+                    <StatsSector
+                        users={allUsers}
+                        stats={stats}
+                        auditRequests={auditRequests}
+                        categories={allCategories}
+                        ideas={allIdeas}
+                        franchises={allFranchises}
+                        growthMetrics={growthMetrics}
+                    />
                 )}
 
-                {/* MAINTENANCE TAB CONTENT */}
                 {activeTab === 'maintenance' && (
-                    <div className="space-y-6">
-                        <section className="card bg-white border-none shadow-xl p-10 overflow-hidden relative">
-                            <div className="flex items-center justify-between mb-12">
-                                <div>
-                                    <h2 className="text-2xl font-black text-charcoal-900 uppercase tracking-tighter">System Storage</h2>
-                                    <p className="text-[10px] font-bold text-charcoal-400 uppercase tracking-widest mt-1">Clean up unused files and optimize platform storage</p>
-                                </div>
-                                <button
-                                    onClick={handlePurgeStorage}
-                                    disabled={maintenanceQueue.length === 0}
-                                    className="px-8 py-3.5 bg-red-600 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-red-700 shadow-xl shadow-red-200 transition-all flex items-center gap-3 disabled:opacity-30 disabled:grayscale"
-                                >
-                                    <span>☢️</span> Delete Unused Files
-                                </button>
-                            </div>
-
-                            {maintenanceQueue.length === 0 ? (
-                                <div className="py-32 flex flex-col items-center justify-center text-center">
-                                    <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center text-4xl mb-6 border border-emerald-100 shadow-inner">🟢</div>
-                                    <h3 className="text-sm font-black text-charcoal-900 uppercase tracking-[0.2em]">Storage Optimized</h3>
-                                    <p className="text-[10px] text-charcoal-400 font-bold uppercase tracking-widest mt-2 max-w-xs">No orphaned image assets detected in the deletion queue.</p>
-                                </div>
-                            ) : (
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left">
-                                        <thead>
-                                            <tr className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.2em] border-b border-charcoal-50">
-                                                <th className="pb-4 pl-4">File Type</th>
-                                                <th className="pb-4">File Path</th>
-                                                <th className="pb-4">Storage Bucket</th>
-                                                <th className="pb-4 text-right pr-4">Added On</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-charcoal-50">
-                                            {maintenanceQueue.map(item => (
-                                                <tr key={item.id} className="group hover:bg-charcoal-50 transition-colors">
-                                                    <td className="py-5 pl-4">
-                                                        <div className="flex items-center gap-3">
-                                                            <span className="text-lg">{item.bucket_name === 'assets' ? '💡' : '🏢'}</span>
-                                                            <span className="text-[10px] font-black text-charcoal-900 uppercase">{item.bucket_name === 'assets' ? 'Blueprint' : 'Franchise'} Image</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="py-5">
-                                                        <span className="px-3 py-1 bg-charcoal-100 rounded text-[9px] font-mono font-bold text-charcoal-600 truncate max-w-xs block">
-                                                            {item.file_path}
-                                                        </span>
-                                                    </td>
-                                                    <td className="py-5">
-                                                        <span className="text-[10px] font-black text-primary-600 bg-primary-50 px-2 py-1 rounded-md uppercase tracking-widest">{item.bucket_name}</span>
-                                                    </td>
-                                                    <td className="py-5 text-right pr-4">
-                                                        <span className="text-[9px] font-black text-charcoal-400">{new Date(item.created_at).toLocaleString()}</span>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
-                        </section>
-
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <div className="bg-charcoal-900 rounded-[2rem] p-8 text-white relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-[40px] rounded-full -mr-16 -mt-16 group-hover:bg-white/10 transition-all duration-700" />
-                                <h4 className="text-[10px] font-black text-primary-400 uppercase tracking-[0.3em] mb-4">Cleanup Queue</h4>
-                                <div className="text-4xl font-black mb-2">{maintenanceQueue.length} <span className="text-white/30">Files</span></div>
-                                <p className="text-[11px] text-white/50 leading-relaxed font-medium">Unused images ready to be permanently deleted.</p>
-                            </div>
-                            <div className="bg-white rounded-[2rem] p-8 border border-charcoal-100 shadow-xl group">
-                                <h4 className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em] mb-4">Storage Status</h4>
-                                <div className="text-4xl font-black text-charcoal-900 mb-2">99.9%</div>
-                                <p className="text-[11px] text-charcoal-500 leading-relaxed font-medium">All systems running normally. Automatic cleanup is active.</p>
-                            </div>
-                        </div>
-                    </div>
+                    <MaintenanceSector
+                        queue={maintenanceQueue}
+                        onPurge={handlePurgeStorage}
+                    />
                 )}
             </div>
 

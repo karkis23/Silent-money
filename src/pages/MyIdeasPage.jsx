@@ -199,6 +199,15 @@ export default function MyIdeasPage() {
                                                     <span className="px-2.5 py-1 rounded-md text-[8px] font-black uppercase tracking-widest bg-emerald-500 text-white">
                                                         ✓ Live Deployment
                                                     </span>
+                                                ) : asset.status === 'revision' ? (
+                                                    <span className="px-2.5 py-1 rounded-md text-[8px] font-black uppercase tracking-widest bg-blue-500 text-white flex items-center gap-1.5">
+                                                        <span className="w-1 h-1 bg-white rounded-full animate-pulse"></span>
+                                                        Action Required
+                                                    </span>
+                                                ) : asset.status === 'rejected' ? (
+                                                    <span className="px-2.5 py-1 rounded-md text-[8px] font-black uppercase tracking-widest bg-red-600 text-white">
+                                                        Audit Failed
+                                                    </span>
                                                 ) : (
                                                     <span className="px-2.5 py-1 rounded-md text-[8px] font-black uppercase tracking-widest bg-amber-500 text-white flex items-center gap-1.5">
                                                         <span className="w-1 h-1 bg-white rounded-full animate-pulse"></span>
@@ -213,6 +222,14 @@ export default function MyIdeasPage() {
                                             <h2 className="text-xl font-black text-charcoal-950 group-hover:text-primary-600 transition-colors tracking-tightest leading-tight mb-2 truncate">
                                                 {asset.name || asset.title || 'Untitled Asset'}
                                             </h2>
+
+                                            {/* Admin Feedback HUD */}
+                                            {asset.admin_feedback && (asset.status === 'revision' || asset.status === 'rejected') && (
+                                                <div className="mb-4 p-4 bg-orange-50 border border-orange-100 rounded-xl">
+                                                    <div className="text-[9px] font-black text-orange-600 uppercase tracking-widest mb-1.5">Institutional Feedback</div>
+                                                    <p className="text-xs text-orange-950 font-medium italic">"{asset.admin_feedback}"</p>
+                                                </div>
+                                            )}
 
                                             <p className="text-charcoal-500 text-sm font-medium mb-6 line-clamp-1 max-w-xl leading-relaxed">
                                                 {asset.short_description || asset.description || 'No operational description provided.'}
