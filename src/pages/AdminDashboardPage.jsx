@@ -1242,18 +1242,18 @@ export default function AdminDashboardPage() {
 
                 {/* Bulk Actions Bar */}
                 {(selectedItems.ideas.length > 0 || selectedItems.franchises.length > 0) && activeTab === 'pending' && (
-                    <div className="mb-6 p-4 bg-primary-50 border border-primary-200 rounded-2xl flex items-center justify-between">
-                        <div className="text-sm font-black text-primary-900 uppercase tracking-wider">
+                    <div className="mb-6 p-3 md:p-4 bg-primary-50 border border-primary-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div className="text-xs md:text-sm font-black text-primary-900 uppercase tracking-wider">
                             {selectedItems.ideas.length + selectedItems.franchises.length} Items Selected
                         </div>
-                        <div className="flex gap-3">
-                            <button onClick={handleBulkApprove} className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-black uppercase tracking-wider hover:bg-emerald-700">
+                        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+                            <button onClick={handleBulkApprove} className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-emerald-600 text-white rounded-lg text-[10px] md:text-xs font-black uppercase tracking-wider hover:bg-emerald-700">
                                 Approve All
                             </button>
-                            <button onClick={handleBulkArchive} className="px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-black uppercase tracking-wider hover:bg-red-700">
+                            <button onClick={handleBulkArchive} className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-red-600 text-white rounded-lg text-[10px] md:text-xs font-black uppercase tracking-wider hover:bg-red-700">
                                 Archive All
                             </button>
-                            <button onClick={() => setSelectedItems({ ideas: [], franchises: [] })} className="px-4 py-2 bg-white border border-charcoal-200 text-charcoal-600 rounded-lg text-xs font-black uppercase tracking-wider hover:bg-charcoal-50">
+                            <button onClick={() => setSelectedItems({ ideas: [], franchises: [] })} className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-white border border-charcoal-200 text-charcoal-600 rounded-lg text-[10px] md:text-xs font-black uppercase tracking-wider hover:bg-charcoal-50">
                                 Clear
                             </button>
                         </div>
@@ -1379,9 +1379,9 @@ export default function AdminDashboardPage() {
 
                 {['pending', 'history', 'all', 'archived'].includes(activeTab) && (
                     <>
-                        <div className="grid lg:grid-cols-2 gap-8">
+                        <div className="grid lg:grid-cols-2 gap-4 md:gap-8">
                             {/* Ideas Section */}
-                            <section className="card bg-white border-none shadow-xl p-8 h-fit">
+                            <section className="card bg-white border-none shadow-xl p-4 md:p-8 h-fit">
                                 <div className="flex justify-between items-center mb-8 border-b border-charcoal-50 pb-4">
                                     <h2 className="text-sm font-black text-charcoal-900 uppercase tracking-widest flex items-center gap-2">
                                         <span>💡</span> {activeTab === 'pending' ? 'Pending Ideas' : activeTab === 'history' ? 'Recently Approved' : activeTab === 'archived' ? 'Archived Ideas' : 'All Ideas'}
@@ -1398,7 +1398,7 @@ export default function AdminDashboardPage() {
                                         </div>
                                     ) : (
                                         (filterItems(activeTab === 'pending' ? pendingIdeas : activeTab === 'history' ? approvedIdeas : activeTab === 'archived' ? archivedIdeas : allIdeas)).map(idea => (
-                                            <div key={idea.id} className="p-5 bg-charcoal-50 rounded-xl border border-charcoal-100 group hover:border-primary-200 transition-all relative">
+                                            <div key={idea.id} className="p-3 md:p-5 bg-charcoal-50 rounded-xl border border-charcoal-100 group hover:border-primary-200 transition-all relative">
                                                 {activeTab === 'pending' && (
                                                     <input
                                                         type="checkbox"
@@ -1441,7 +1441,7 @@ export default function AdminDashboardPage() {
                                                     </p>
                                                 </div>
 
-                                                <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-charcoal-100/50">
+                                                <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mt-3 md:mt-4 pt-3 md:pt-4 border-t border-charcoal-100/50">
                                                     {activeTab !== 'pending' && (
                                                         <>
                                                             <button
@@ -1472,7 +1472,7 @@ export default function AdminDashboardPage() {
                                                             </button>
                                                         </div>
                                                     )}
-                                                    <div className="flex gap-1.5 items-center ml-auto">
+                                                    <div className="flex flex-wrap gap-1.5 items-center w-full sm:w-auto sm:ml-auto mt-2 sm:mt-0">
                                                         <Link
                                                             to={`/ideas/${idea.slug}`}
                                                             target="_blank"
@@ -1518,7 +1518,7 @@ export default function AdminDashboardPage() {
                             </section>
 
                             {/* Franchises Section */}
-                            <section className="card bg-white border-none shadow-xl p-8 h-fit">
+                            <section className="card bg-white border-none shadow-xl p-4 md:p-8 h-fit">
                                 <div className="flex justify-between items-center mb-8 border-b border-charcoal-50 pb-4">
                                     <h2 className="text-sm font-black text-charcoal-900 uppercase tracking-widest flex items-center gap-2">
                                         <span>🏢</span> {activeTab === 'pending' ? 'Pending Franchises' : activeTab === 'history' ? 'Verified Franchises' : activeTab === 'archived' ? 'Archived Franchises' : 'All Franchises'}
@@ -1535,7 +1535,7 @@ export default function AdminDashboardPage() {
                                         </div>
                                     ) : (
                                         (filterItems(activeTab === 'pending' ? pendingFranchises : activeTab === 'history' ? approvedFranchises : activeTab === 'archived' ? archivedFranchises : allFranchises)).map(fran => (
-                                            <div key={fran.id} className="p-5 bg-charcoal-50 rounded-xl border border-charcoal-100 group hover:border-emerald-200 transition-all relative">
+                                            <div key={fran.id} className="p-3 md:p-5 bg-charcoal-50 rounded-xl border border-charcoal-100 group hover:border-emerald-200 transition-all relative">
                                                 {activeTab === 'pending' && (
                                                     <input
                                                         type="checkbox"
@@ -1582,7 +1582,7 @@ export default function AdminDashboardPage() {
                                                 </div>
 
 
-                                                <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-charcoal-100/50 ml-8">
+                                                <div className="flex flex-wrap items-center gap-1.5 md:gap-2 pt-3 md:pt-4 border-t border-charcoal-100/50 ml-0 md:ml-8">
                                                     {activeTab !== 'pending' && (
                                                         <>
                                                             <button
@@ -1613,35 +1613,37 @@ export default function AdminDashboardPage() {
                                                             </button>
                                                         </>
                                                     )}
-                                                    <Link
-                                                        to={`/franchise/${fran.slug}`}
-                                                        target="_blank"
-                                                        rel="noreferrer"
-                                                        className="px-3.5 py-1.5 bg-charcoal-100 text-charcoal-600 border border-charcoal-200 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-charcoal-900 hover:text-white transition-all"
-                                                    >
-                                                        Preview
-                                                    </Link>
-                                                    <Link
-                                                        to={`/edit-franchise/${fran.id}`}
-                                                        className="px-3.5 py-1.5 bg-white text-primary-600 border border-primary-100 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-primary-600 hover:text-white transition-all"
-                                                    >
-                                                        Modify
-                                                    </Link>
-                                                    <button
-                                                        onClick={() => activeTab === 'archived' ? handleUnarchive(fran.id, 'franchise') : handleDelete(fran.id, 'franchise')}
-                                                        className={`ml-auto px-3.5 py-1.5 bg-white ${activeTab === 'archived' ? 'text-emerald-600 hover:bg-emerald-50' : 'text-red-400 hover:bg-red-50 hover:text-red-600'} border border-transparent rounded-lg text-[8px] font-black uppercase tracking-wider transition-all`}
-                                                    >
-                                                        {activeTab === 'archived' ? 'Unarchive' : 'Archive'}
-                                                    </button>
-                                                    {(activeTab === 'archived' || activeTab === 'all' || activeTab === 'pending') && (
-                                                        <button
-                                                            onClick={() => handlePermanentDelete(fran.id, 'franchise', fran.name)}
-                                                            className="px-3.5 py-1.5 bg-red-600 text-white border border-red-700 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-red-700 transition-all"
-                                                            title="Permanently delete from database"
+                                                    <div className="flex flex-wrap gap-1.5 items-center w-full sm:w-auto mt-2 sm:mt-0">
+                                                        <Link
+                                                            to={`/franchise/${fran.slug}`}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="flex-1 sm:flex-none px-2.5 py-1.5 bg-charcoal-100 text-charcoal-600 border border-charcoal-200 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-charcoal-900 hover:text-white transition-all text-center"
                                                         >
-                                                            🗑️ Delete
+                                                            Preview
+                                                        </Link>
+                                                        <Link
+                                                            to={`/edit-franchise/${fran.id}`}
+                                                            className="flex-1 sm:flex-none px-2.5 py-1.5 bg-white text-primary-600 border border-primary-100 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-primary-600 hover:text-white transition-all text-center"
+                                                        >
+                                                            Modify
+                                                        </Link>
+                                                        <button
+                                                            onClick={() => activeTab === 'archived' ? handleUnarchive(fran.id, 'franchise') : handleDelete(fran.id, 'franchise')}
+                                                            className={`flex-1 sm:flex-none px-2.5 py-1.5 bg-white ${activeTab === 'archived' ? 'text-emerald-600 hover:bg-emerald-50' : 'text-red-400 hover:bg-red-50 hover:text-red-600'} border border-transparent rounded-lg text-[8px] font-black uppercase tracking-wider transition-all`}
+                                                        >
+                                                            {activeTab === 'archived' ? 'Unarchive' : 'Archive'}
                                                         </button>
-                                                    )}
+                                                        {(activeTab === 'archived' || activeTab === 'all' || activeTab === 'pending') && (
+                                                            <button
+                                                                onClick={() => handlePermanentDelete(fran.id, 'franchise', fran.name)}
+                                                                className="flex-1 sm:flex-none px-2.5 py-1.5 bg-red-600 text-white border border-red-700 rounded-lg text-[8px] font-black uppercase tracking-wider hover:bg-red-700 transition-all"
+                                                                title="Permanently delete from database"
+                                                            >
+                                                                🗑️ Delete
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </div>
                                                 {fran.proof_url && (
                                                     <div className="mt-3 text-right">

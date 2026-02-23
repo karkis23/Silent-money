@@ -141,8 +141,8 @@ export default function FranchisePage() {
     return (
         <div className="min-h-screen bg-cream-50 pb-20 pt-20 md:pt-32 transition-all duration-300">
             <SEO
-                title="Verified Franchise Opportunities"
-                description="Browse established franchise brands in India with vetted ROI, investment requirements, and growth potential."
+                title={`${filteredFranchises.length > 0 ? filteredFranchises.length + '+' : ''} Verified Franchise Opportunities in India [${new Date().toLocaleString('default', { month: 'short' })} ${new Date().getFullYear()}]`}
+                description={`Browse ${filteredFranchises.length}+ established franchise brands in India with vetted ROI, investment requirements, and growth potential. Updated ${new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}.`}
             />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 

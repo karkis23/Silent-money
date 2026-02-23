@@ -174,7 +174,7 @@ export default function IdeasPage() {
     return (
         <div className="min-h-screen bg-cream-50 pb-20 pt-20 md:pt-32 transition-all duration-300">
             <SEO
-                title="60+ Vetted Passive Income Ideas"
+                title={`Top ${ideas.length > 50 ? '50+' : ideas.length}+ Passive Income Blueprints in India [${new Date().toLocaleString('default', { month: 'short' })} ${new Date().getFullYear()}]`}
                 description="Explore a curated list of high-yield passive income blueprints for India. Filter by investment, risk, and category."
             />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
