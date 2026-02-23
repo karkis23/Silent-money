@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../context/AuthContext';
 import CardShimmer from '../components/CardShimmer';
+import toast from 'react-hot-toast';
 import SEO from '../components/SEO';
 import EmptyState from '../components/EmptyState';
 import ExpertAuditModal from '../components/ExpertAuditModal';
@@ -90,7 +91,7 @@ export default function FranchisePage() {
 
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
-            alert('Please sign in to save opportunities.');
+            toast.error('Please sign in to save opportunities.');
             return;
         }
 
@@ -167,8 +168,8 @@ export default function FranchisePage() {
                     </div>
                 </header>
 
-                {/* 2. COMPACT INTELLIGENCE BAR */}
-                <section className="bg-white border border-charcoal-100 rounded-[1.5rem] shadow-premium mb-8 relative">
+                {/* 2. SEARCH & FILTERS */}
+                <section className="bg-white border border-charcoal-100/50 rounded-[1.5rem] shadow-premium mb-10 relative overflow-hidden">
                     <div className="flex flex-col md:flex-row border-b border-charcoal-50 rounded-t-[1.5rem]">
                         <div className="flex-1 relative border-r border-charcoal-50">
                             <span className="absolute left-6 top-1/2 -translate-y-1/2 text-charcoal-400">🔍</span>
@@ -249,7 +250,7 @@ export default function FranchisePage() {
                     </div>
                 </section>
 
-                {/* 3. TRENDING TICKER (Redesigned) */}
+                {/* 3. POPULAR BRANDS */}
                 <div className="mb-8">
                     <div className="flex border-b border-charcoal-50 pb-2 mb-4 overflow-x-auto hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
                         <h3 className="text-[8px] font-black text-charcoal-400 uppercase tracking-[0.4em] mb-4 pl-1 whitespace-nowrap">Popular Brands</h3>
@@ -278,7 +279,7 @@ export default function FranchisePage() {
                     </div>
                 </div>
 
-                {/* 4. PROFESSIONAL 3-COLUMN FRANCHISE GRID */}
+                {/* 4. FRANCHISE GRID */}
                 <div className="flex flex-col gap-12">
                     {loading ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 animate-pulse">
@@ -301,9 +302,8 @@ export default function FranchisePage() {
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         viewport={{ once: true }}
-                                        transition={{ duration: 0.4, delay: index * 0.05 }}
                                     >
-                                        <Link to={`/franchise/${f.slug}`} className="group relative block bg-white border border-charcoal-100 rounded-[2rem] overflow-hidden hover:border-primary-300 hover:shadow-[0_40px_80px_-15px_rgba(37,99,235,0.1)] transition-all h-full flex flex-col p-0">
+                                        <Link to={`/franchise/${f.slug}`} className="group relative block bg-white border border-charcoal-100 rounded-[2.5rem] overflow-hidden hover:border-primary-300 hover:shadow-premium transition-all duration-500 h-full flex flex-col p-0">
                                             {/* Visual Header - Fixed Full Bleed */}
                                             <div className="relative h-48 md:h-64 overflow-hidden bg-gray-100 shrink-0">
                                                 <img
@@ -336,8 +336,8 @@ export default function FranchisePage() {
 
                                                 <button
                                                     onClick={(e) => handleSave(e, f.id)}
-                                                    className={`absolute top-4 left-4 w-11 h-11 rounded-2xl backdrop-blur-md flex items-center justify-center transition-all ${savedFranchiseIds.has(f.id)
-                                                        ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/20'
+                                                    className={`absolute top-4 left-4 w-11 h-11 rounded-2xl backdrop-blur-md flex items-center justify-center transition-all duration-300 ${savedFranchiseIds.has(f.id)
+                                                        ? 'bg-primary-600 text-white shadow-button'
                                                         : 'bg-white/90 text-charcoal-400 hover:text-primary-600 hover:scale-110'
                                                         }`}
                                                 >
@@ -354,7 +354,7 @@ export default function FranchisePage() {
                                             </div>
 
                                             <div className="px-5 md:px-8 pb-6 md:pb-8 pt-6 flex-1 flex flex-col">
-                                                <h3 className="text-2xl font-black text-charcoal-950 group-hover:text-primary-600 transition-colors mb-1 tracking-tightest">
+                                                <h3 className="text-2xl font-bold text-charcoal-900 group-hover:text-primary-600 transition-colors mb-1 tracking-tightest">
                                                     {f.name}
                                                 </h3>
                                                 {f.profiles && (
@@ -368,7 +368,7 @@ export default function FranchisePage() {
                                                 </p>
 
                                                 {/* Key Stats */}
-                                                <div className="grid grid-cols-2 gap-4 md:gap-6 py-5 md:py-6 border-y border-charcoal-50 mb-6 bg-charcoal-50/20 -mx-5 md:-mx-8 px-5 md:px-8">
+                                                <div className="grid grid-cols-2 gap-4 md:gap-6 py-5 md:py-6 border-y border-charcoal-50 mb-6 bg-charcoal-50/10 -mx-5 md:-mx-8 px-5 md:px-8">
                                                     <div>
                                                         <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-widest mb-1.5 font-mono">Investment</div>
                                                         <div className="text-xl font-black text-charcoal-900 font-mono tracking-tighter">
@@ -414,14 +414,14 @@ export default function FranchisePage() {
                     whileInView={{ opacity: 1 }}
                     className="mt-20 md:mt-32 p-8 md:p-12 rounded-[2.5rem] md:rounded-[3rem] bg-gray-950 text-white flex flex-col items-center text-center relative overflow-hidden"
                 >
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 blur-[80px] rounded-full -mr-32 -mt-32" />
-                    <h2 className="text-3xl font-black mb-4 tracking-tight leading-tight relative z-10">Need Detailed Analysis?</h2>
-                    <p className="text-gray-400 text-base font-medium max-w-xl mb-8 relative z-10">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary-600/10 blur-[80px] rounded-full -mr-32 -mt-32" />
+                    <h2 className="text-3xl md:text-5xl font-bold mb-4 tracking-tight leading-tight relative z-10">Need Detailed Analysis?</h2>
+                    <p className="text-charcoal-400 text-base md:text-lg font-medium max-w-xl mb-10 relative z-10">
                         Request a full business verification for any Indian brand. Our analysts provide a detailed report within 48 hours.
                     </p>
                     <button
                         onClick={() => setIsAuditModalOpen(true)}
-                        className="px-10 py-5 bg-white text-gray-950 rounded-2xl text-xs font-black uppercase tracking-[0.2em] relative z-10 hover:bg-blue-500 hover:text-white transition-all shadow-2xl"
+                        className="btn-primary"
                     >
                         Request Expert Verification
                     </button>

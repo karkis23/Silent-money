@@ -19,7 +19,7 @@ export default function LandingPage() {
     const location = useLocation();
     const banToastShown = useRef(false);
 
-    // Administrative logic gate - transforms the UI into an Admin view if the user has admin access
+    // Admin check - transforms the UI into an Admin view if the user has admin access
     const isAdmin = profile?.is_admin === true;
 
     // Check for banned parameter (only show once)
@@ -189,7 +189,7 @@ export default function LandingPage() {
                         </p>
                     </header>
 
-                    {/* Operational Stats Grid */}
+                    {/* Platform Stats Grid */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-16">
                         {[
                             { label: 'Total Ideas', value: adminStats.totalIdeas, sub: 'Live Ideas', icon: '🏛️', link: '/admin?tab=ideas' },
@@ -270,7 +270,7 @@ export default function LandingPage() {
                                     ))}
                                 </div>
                                 <div className="pt-8 mt-8 border-t border-charcoal-50">
-                                    <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-[0.2em] italic">Industry Standard Security Active</div>
+                                    <div className="text-[9px] font-black text-charcoal-400 uppercase tracking-[0.2em] italic">Standard Security Active</div>
                                 </div>
                             </div>
                         </div>
@@ -332,7 +332,7 @@ export default function LandingPage() {
                                 <span className="text-sm font-bold text-charcoal-900 tracking-tight">🇮🇳 Trusted by 10,000+ Indians</span>
                             </motion.div>
 
-                            <motion.h1 variants={fadeInUp} className="text-4xl md:text-7xl font-extrabold text-charcoal-950 mb-6 leading-[1.1] tracking-tight">
+                            <motion.h1 variants={fadeInUp} className="text-5xl md:text-8xl font-extrabold text-charcoal-950 mb-6 leading-[1] tracking-tightest">
                                 Build Your <br />
                                 <span className="text-gradient">Income Portfolio</span> <br />
                                 <span className="text-primary-600">Quietly.</span>
@@ -418,14 +418,14 @@ export default function LandingPage() {
                                     decoding="async"
                                 />
 
-                                <div className="absolute -bottom-8 -left-8 bg-white p-6 rounded-3xl shadow-xl border border-charcoal-100 max-w-[220px] animate-float">
-                                    <div className="text-accent font-black text-3xl">₹{passiveGoal.toLocaleString('en-IN')}</div>
-                                    <div className="text-charcoal-400 text-[10px] font-black uppercase tracking-widest mt-1">Passive Goal Reached</div>
+                                <div className="absolute -bottom-8 -left-8 bg-white p-6 rounded-3xl shadow-premium border border-charcoal-100 max-w-[220px] animate-float">
+                                    <div className="text-emerald-500 font-bold text-3xl">₹{passiveGoal.toLocaleString('en-IN')}</div>
+                                    <div className="text-charcoal-400 text-[9px] font-black uppercase tracking-widest mt-1">Monthly Passive Reward</div>
                                 </div>
 
-                                <div className="absolute -top-8 -right-8 bg-primary-600 text-white p-7 rounded-3xl shadow-2xl shadow-primary-200/50 max-w-[200px] animate-pulse-slow border-4 border-white">
-                                    <div className="font-black text-2xl leading-none mb-1 text-white">{sourcesFound}</div>
-                                    <div className="text-[9px] font-black uppercase tracking-widest text-primary-100">Verified Ideas Found</div>
+                                <div className="absolute -top-10 -right-10 bg-primary-600 text-white p-7 rounded-3xl shadow-button max-w-[200px] animate-pulse-slow border-4 border-white">
+                                    <div className="font-bold text-3xl leading-none mb-1 text-white">{sourcesFound}</div>
+                                    <div className="text-[9px] font-black uppercase tracking-widest text-primary-100/80">Vetted Sources</div>
                                 </div>
                             </div>
                             {/* Glow effect behind image */}
@@ -435,7 +435,7 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* Institutional Favorites (Leaderboard) */}
+            {/* Top Rated Ideas (Leaderboard) */}
             <section className="py-16 md:py-24 relative overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-8 mb-12 md:mb-16">
@@ -616,9 +616,9 @@ export default function LandingPage() {
                         <div className="flex flex-col sm:flex-row gap-6 justify-center relative z-10">
                             <Link
                                 to={user ? '/dashboard' : '/signup'}
-                                className="bg-white text-primary-900 font-bold px-10 py-5 rounded-2xl hover:bg-cream-50 transition-all text-xl shadow-xl hover:scale-105"
+                                className="bg-white text-primary-600 font-bold px-12 py-5 rounded-2xl hover:bg-white hover:shadow-button transition-all text-lg shadow-xl hover:scale-105"
                             >
-                                {user ? 'View Dashboard' : 'Join Silent Money'}
+                                {user ? 'Go to Dashboard' : 'Join Silent Money'}
                             </Link>
                         </div>
                         <p className="mt-8 text-primary-200 text-sm font-semibold opacity-80">

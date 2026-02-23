@@ -184,9 +184,9 @@ export default function IdeaDetailPage() {
 
     if (error || !idea) return (
         <div className="min-h-screen bg-cream-50 flex flex-col items-center justify-center p-4 text-center">
-            <div className="text-6xl mb-6">🛰️</div>
+            <div className="text-6xl mb-6">🏢</div>
             <h1 className="text-3xl font-black text-charcoal-950 mb-4">{error}</h1>
-            <Link to="/ideas" className="btn-primary">Return to Command Center</Link>
+            <Link to="/ideas" className="btn-primary">Back to Ideas</Link>
         </div>
     );
 
@@ -262,7 +262,7 @@ export default function IdeaDetailPage() {
     return (
         <div className="min-h-screen bg-cream-50 pb-6 md:pb-20 pt-20 transition-all duration-300">
             <SEO
-                title={idea.meta_title || `${idea.title} | Silent Money Blueprints`}
+                title={idea.meta_title || `${idea.title} | Silent Money Ideas`}
                 description={idea.meta_description || idea.short_description}
                 schemaData={schemaData}
             />
@@ -284,7 +284,7 @@ export default function IdeaDetailPage() {
             />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                {/* 1. FINANCIAL MODELING HUB (Optimized Layout) */}
+                {/* 1. FINANCIAL OVERVIEW */}
                 <div className="grid lg:grid-cols-2 gap-12 mb-16 items-start">
                     <div className="space-y-12">
                         <DetailMetrics metrics={ideaMetrics} />
@@ -345,7 +345,7 @@ export default function IdeaDetailPage() {
                 </div>
 
                 <div className="grid lg:grid-cols-2 gap-16">
-                    {/* 2. OPERATIONAL CONTENT & INTEL */}
+                    {/* 2. DETAILS & FEEDBACK */}
                     <div className="space-y-12">
                         {/* How it Works */}
                         <div className={`bg-white rounded-[3rem] p-6 md:p-10 border border-charcoal-100 shadow-xl relative transition-all duration-700 ${isExpanded ? '' : 'max-h-[600px] overflow-hidden'}`}>
@@ -408,15 +408,15 @@ export default function IdeaDetailPage() {
                                             onChange={(e) => setUserStatus(e.target.value)}
                                             className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl text-sm font-bold text-charcoal-900 focus:ring-2 focus:ring-primary-600 outline-none transition-all"
                                         >
-                                            <option value="interested">Interests Confirmed</option>
-                                            <option value="researching">Market Analysis</option>
-                                            <option value="started">MVP Development</option>
-                                            <option value="active">Live & Scaling</option>
+                                            <option value="interested">Interested</option>
+                                            <option value="researching">Researching</option>
+                                            <option value="started">Starting</option>
+                                            <option value="active">Active</option>
                                             <option value="paused">On Hold</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest block mb-2">Strategic Notes</label>
+                                        <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest block mb-2">Private Notes</label>
                                         <textarea
                                             value={userNotes}
                                             onChange={(e) => setUserNotes(e.target.value)}

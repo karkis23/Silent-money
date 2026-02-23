@@ -286,7 +286,7 @@ export default function FranchiseDetailPage() {
                         {/* Core Identity */}
                         <div className={`bg-white rounded-[3rem] p-6 md:p-12 border border-charcoal-100 shadow-xl relative transition-all duration-700 ${isExpanded ? '' : 'max-h-[600px] overflow-hidden'}`}>
                             <h3 className="text-[11px] font-black text-charcoal-300 uppercase tracking-[0.4em] mb-10 flex items-center gap-3">
-                                🛸 Business Overview
+                                🏢 Business Overview
                             </h3>
 
                             <div className="space-y-8 mb-12 border-b border-charcoal-50 pb-12">

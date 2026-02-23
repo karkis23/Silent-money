@@ -337,8 +337,8 @@ export default function DashboardPage() {
             />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header Section */}
-                <div className="mb-6 md:mb-12 bg-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 border border-charcoal-100 shadow-premium relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-12">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary-50 rounded-full blur-[100px] -mr-32 -mt-32 opacity-50" />
+                <div className="mb-6 md:mb-12 bg-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 border border-charcoal-100 shadow-premium relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-12 transition-all duration-500 hover:shadow-2xl">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary-100/30 rounded-full blur-[100px] -mr-32 -mt-32 opacity-50" />
 
                     <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-10">
                         {/* Profile Image with Rank Ring */}
@@ -427,7 +427,7 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-12">
                     <div
                         onClick={() => setActiveTab('ideas')}
-                        className="card !p-4 md:!p-6 group hover-lift cursor-pointer transition-colors hover:bg-charcoal-50/50"
+                        className="card !p-4 md:!p-6 group hover-lift cursor-pointer transition-all duration-500 hover:bg-white"
                     >
                         {loading ? (
                             <>
@@ -493,24 +493,24 @@ export default function DashboardPage() {
                         )}
                     </div>
 
-                    <div className="bg-primary-600 !p-4 md:!p-5 rounded-[2.5rem] shadow-2xl shadow-primary-600/20 flex flex-col justify-between hover-lift">
-                        <div className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-3">Quick Actions</div>
-                        <div className="flex flex-col gap-2">
+                    <div className="bg-primary-600 !p-4 md:!p-5 rounded-[2.5rem] shadow-button flex flex-col justify-between hover-lift transition-all duration-500">
+                        <div className="text-[10px] font-black text-white/70 uppercase tracking-widest mb-3">Quick Actions</div>
+                        <div className="flex flex-col gap-2.5">
                             <Link
                                 to="/add-idea"
-                                className="w-full bg-white text-primary-700 font-black text-[9px] py-3 rounded-2xl text-center uppercase tracking-widest hover:bg-cream-50 transition-all shadow-xl shadow-primary-700/20 flex items-center justify-center gap-2"
+                                className="w-full bg-white text-primary-600 font-bold text-[9px] py-3.5 rounded-2xl text-center uppercase tracking-[0.15em] hover:bg-white hover:shadow-button transition-all flex items-center justify-center gap-2"
                             >
                                 <span className="text-xs">+</span> Add Idea
                             </Link>
                             <Link
                                 to="/post-franchise"
-                                className="w-full bg-primary-800 text-white font-black text-[9px] py-3 rounded-2xl text-center uppercase tracking-widest hover:bg-primary-900 transition-all flex items-center justify-center gap-2"
+                                className="w-full bg-primary-800 text-white font-bold text-[9px] py-3.5 rounded-2xl text-center uppercase tracking-[0.15em] hover:bg-primary-900 transition-all flex items-center justify-center gap-2"
                             >
                                 <span className="text-xs">+</span> Add Franchise
                             </Link>
                             <Link
                                 to="/compare"
-                                className="w-full bg-white/10 text-white border border-white/20 font-black text-[9px] py-2.5 rounded-2xl text-center uppercase tracking-widest hover:bg-white/20 transition-all flex items-center justify-center gap-2"
+                                className="w-full bg-white/10 text-white border border-white/20 font-bold text-[9px] py-3 rounded-2xl text-center uppercase tracking-[0.15em] hover:bg-white/20 transition-all flex items-center justify-center gap-2"
                             >
                                 <span className="text-xs">⚔️</span> Compare
                             </Link>

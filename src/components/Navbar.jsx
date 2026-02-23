@@ -36,7 +36,7 @@ export default function Navbar() {
     ];
 
     return (
-        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/80 backdrop-blur-lg border-b border-charcoal-100 py-3 shadow-sm' : 'bg-transparent py-3 md:py-5'
+        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'bg-white/70 backdrop-blur-md border-b border-charcoal-100/50 py-3 shadow-glass' : 'bg-transparent py-4 md:py-6'
             }`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center">
@@ -49,11 +49,11 @@ export default function Navbar() {
                             SM
                         </motion.div>
                         <div className="flex items-center gap-2">
-                            <span className="text-xl font-bold text-charcoal-950 tracking-tight">
+                            <span className="text-xl font-bold text-charcoal-950 tracking-tight transition-colors group-hover:text-primary-600">
                                 Silent Money
                             </span>
-                            <span className="bg-charcoal-100 text-charcoal-500 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest border border-charcoal-200/50">
-                                Beta 2.3
+                            <span className="bg-charcoal-100/50 text-charcoal-500 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest border border-charcoal-200/30">
+                                v2.4
                             </span>
                         </div>
                     </Link>
@@ -70,14 +70,15 @@ export default function Navbar() {
                                 <Link
                                     key={link.path}
                                     to={link.path}
-                                    className={`relative text-sm font-semibold transition-colors ${location.pathname === link.path ? 'text-primary-600' : 'text-charcoal-600 hover:text-primary-500'
+                                    className={`relative text-sm font-bold transition-all duration-300 ${location.pathname === link.path ? 'text-primary-600' : 'text-charcoal-500 hover:text-primary-500'
                                         }`}
                                 >
                                     {link.name}
                                     {location.pathname === link.path && (
                                         <motion.div
                                             layoutId="nav-underline"
-                                            className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary-600 rounded-full"
+                                            className="absolute -bottom-1.5 left-0 right-0 h-[3px] bg-primary-600 rounded-full"
+                                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
                                         />
                                     )}
                                 </Link>

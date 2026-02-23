@@ -10,7 +10,7 @@ import EmptyState from '../components/EmptyState';
 /**
  * IdeasPage: The main directory for business ideas.
  * 
- * CORE ARCHITECTURE:
+ * CORE FEATURES:
  * - Advanced filtering (Risk, Effort, Income, Category).
  * - Matching logic: Matches user profile data (budget, risk level) with ideas.
  * - Fast sorting.
@@ -199,8 +199,8 @@ export default function IdeasPage() {
                     </div>
                 </header>
 
-                {/* 2. COMPACT INTELLIGENCE BAR (Unified Filter) */}
-                <section className="bg-white border border-charcoal-100 rounded-[2rem] md:rounded-[1.5rem] shadow-premium mb-6 md:mb-8 relative">
+                {/* 2. SEARCH & FILTERS */}
+                <section className="bg-white border border-charcoal-100/50 rounded-[2rem] md:rounded-[1.5rem] shadow-premium mb-6 md:mb-10 relative overflow-hidden">
                     {/* Top Row: Search & Sort */}
                     <div className="flex flex-col md:flex-row border-b border-charcoal-50 rounded-t-[2rem] md:rounded-t-[1.5rem]">
                         <div className="flex-1 relative border-r border-charcoal-50">
@@ -308,7 +308,7 @@ export default function IdeasPage() {
                         </div>
                     </div>
 
-                    {/* Bottom Row: Classification Pills & Expanded Filters */}
+                    {/* Bottom Row: Category Pills & Expanded Filters */}
                     <div className="p-4 md:p-6 flex flex-col gap-6 bg-charcoal-50/50 rounded-b-[2rem]">
                         <div className="flex flex-wrap gap-2.5">
                             <button
@@ -382,9 +382,8 @@ export default function IdeasPage() {
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         viewport={{ once: true }}
-                                        transition={{ duration: 0.4, delay: index * 0.05 }}
                                     >
-                                        <Link to={`/ideas/${idea.slug}`} className="group relative block bg-white border border-gray-200 rounded-[2rem] hover:border-blue-300 hover:shadow-[0_40px_80px_-15px_rgba(25,70,180,0.1)] transition-all h-full overflow-hidden p-0 flex flex-col">
+                                        <Link to={`/ideas/${idea.slug}`} className="group relative block bg-white border border-charcoal-100 rounded-[2.5rem] hover:border-primary-300 hover:shadow-premium transition-all duration-500 h-full overflow-hidden p-0 flex flex-col">
                                             {/* Visual Header - Fixed Full Bleed */}
                                             <div className="relative h-48 md:h-56 w-full overflow-hidden bg-gray-100 shrink-0">
                                                 <img
@@ -441,9 +440,9 @@ export default function IdeasPage() {
                                                     </div>
                                                     <button
                                                         onClick={(e) => handleVote(e, idea.id, idea.upvotes_count || 0, idea.hasVoted)}
-                                                        className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl border transition-all ${idea.hasVoted
-                                                            ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/20'
-                                                            : 'bg-gray-50 border-gray-100 text-gray-400 group-hover:bg-blue-50 group-hover:border-blue-100 group-hover:text-blue-600'
+                                                        className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl border transition-all duration-300 ${idea.hasVoted
+                                                            ? 'bg-primary-600 border-primary-500 text-white shadow-button'
+                                                            : 'bg-charcoal-50 border-charcoal-100 text-charcoal-400 group-hover:bg-primary-50 group-hover:border-primary-100 group-hover:text-primary-600'
                                                             }`}
                                                     >
                                                         <span className="text-[10px] font-bold leading-none">{idea.upvotes_count || 0}</span>
@@ -469,9 +468,9 @@ export default function IdeasPage() {
                                                 <div className="flex items-center gap-6 mb-8 py-5 border-y border-gray-50">
                                                     <div className="flex-1">
                                                         <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Monthly Income</div>
-                                                        <div className="text-xl font-black text-gray-950 tracking-tighter">
+                                                        <div className="text-xl font-bold text-charcoal-900 tracking-tighter">
                                                             {formatCurrencyShort(idea.monthly_income_min)}
-                                                            <span className="text-[10px] text-gray-400 font-medium pl-0.5 tracking-normal">/mo</span>
+                                                            <span className="text-[10px] text-charcoal-400 font-medium pl-0.5 tracking-normal">/mo</span>
                                                         </div>
                                                     </div>
                                                     <div className="w-[1px] h-10 bg-gray-100"></div>
