@@ -160,10 +160,12 @@ export default function FranchisePage() {
                             </h1>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-                            <Link to="/post-franchise" className="w-full md:w-auto px-8 py-4 bg-charcoal-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-primary-600 transition-all shadow-xl shadow-charcoal-100 text-center">
-                                + Add Brand
-                            </Link>
+
+                        <div className="flex items-center gap-4">
+                            <div className="text-right">
+                                <div className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Platform Status</div>
+                                <div className="text-sm font-black text-charcoal-950">{franchises.length > 0 ? `${Math.floor(franchises.length / 10) * 10}+` : '0'} BRANDS LIVE</div>
+                            </div>
                         </div>
                     </div>
                 </header>
@@ -334,17 +336,7 @@ export default function FranchisePage() {
                                                     )}
                                                 </div>
 
-                                                <button
-                                                    onClick={(e) => handleSave(e, f.id)}
-                                                    className={`absolute top-4 left-4 w-11 h-11 rounded-2xl backdrop-blur-md flex items-center justify-center transition-all duration-300 ${savedFranchiseIds.has(f.id)
-                                                        ? 'bg-primary-600 text-white shadow-button'
-                                                        : 'bg-white/90 text-charcoal-400 hover:text-primary-600 hover:scale-110'
-                                                        }`}
-                                                >
-                                                    <svg className="w-5 h-5" fill={savedFranchiseIds.has(f.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                                                    </svg>
-                                                </button>
+
 
                                                 {profile?.income_goal > 0 && f.expected_profit_min > 0 && (
                                                     <div className="absolute bottom-4 right-4 bg-emerald-600/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-[7px] font-black tracking-widest uppercase shadow-xl border border-white/20">
