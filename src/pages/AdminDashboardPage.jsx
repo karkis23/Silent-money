@@ -1379,10 +1379,11 @@ export default function AdminDashboardPage() {
                                             )}
                                         </div>
                                         <div className="text-[10px] font-bold text-charcoal-400 whitespace-nowrap">
-                                            {new Date(log.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+                                            {log.created_at ? new Date(log.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : ''}
                                         </div>
                                     </div>
-                                )))}
+                                ))
+                            )}
                         </div>
                     </div>
                 )}
@@ -1431,7 +1432,7 @@ export default function AdminDashboardPage() {
                                             <div className="space-y-4 mb-6 flex-1">
                                                 <div className="p-3 bg-white rounded-xl border border-charcoal-100/50">
                                                     <div className="text-[8px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Target Budget</div>
-                                                    <div className="text-xs font-bold text-charcoal-900 font-mono">₹{audit.investment_budget}</div>
+                                                    <div className="text-xs font-bold text-charcoal-900 font-mono">₹{audit.investment_budget ?? 'N/A'}</div>
                                                 </div>
                                                 <div className="p-3 bg-white rounded-xl border border-charcoal-100/50">
                                                     <div className="text-[8px] font-black text-charcoal-400 uppercase tracking-widest mb-1">Location</div>
@@ -1464,8 +1465,8 @@ export default function AdminDashboardPage() {
                                                 )}
 
                                                 <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-charcoal-400">
-                                                    <span>User ID: {audit.user_id.slice(0, 8)}...</span>
-                                                    <span>{new Date(audit.created_at).toLocaleDateString()}</span>
+                                                    <span>User ID: {audit.user_id?.slice(0, 8) ?? 'N/A'}...</span>
+                                                    <span>{audit.created_at ? new Date(audit.created_at).toLocaleDateString() : 'N/A'}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -1926,13 +1927,14 @@ export default function AdminDashboardPage() {
                                                         </div>
                                                     </td>
                                                     <td className="py-6 text-center text-[11px] font-mono font-bold text-charcoal-500">
-                                                        {new Date(u.created_at).toLocaleDateString()}
+                                                        {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
                                                     </td>
                                                     <td className="py-6 text-right pr-4 text-[9px] font-mono text-charcoal-300">
-                                                        {u.id.slice(0, 16)}...
+                                                        {u.id?.slice(0, 16) ?? ''}...
                                                     </td>
                                                 </tr>
-                                            ))}
+                                            ))
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
@@ -1995,7 +1997,7 @@ export default function AdminDashboardPage() {
                                                     </div>
                                                 </td>
                                             </tr>
-                                        )))}
+                                        ))}
                                     </tbody>
                                 </table>
                             </div>
