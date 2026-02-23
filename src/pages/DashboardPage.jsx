@@ -423,6 +423,82 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
+                {/* Quick Start Guide — only shows for truly empty dashboards */}
+                {!loading && savedIdeas.length === 0 && savedFranchises.length === 0 && myIdeaCount === 0 && myFranchiseCount === 0 && myReviews.length === 0 && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.3 }}
+                        className="mb-8 md:mb-12 bg-gradient-to-br from-charcoal-900 via-charcoal-950 to-charcoal-900 rounded-[2rem] md:rounded-[3rem] p-6 md:p-10 border border-charcoal-800 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.4)] relative overflow-hidden"
+                    >
+                        {/* Decorative elements */}
+                        <div className="absolute top-0 right-0 w-80 h-80 bg-primary-600/10 rounded-full blur-[120px] -mr-40 -mt-40" />
+                        <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[100px] -ml-32 -mb-32" />
+
+                        <div className="relative z-10">
+                            <div className="flex items-center gap-2 mb-4">
+                                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
+                                <span className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.3em]">Getting Started</span>
+                            </div>
+                            <h2 className="text-2xl md:text-3xl font-black text-white tracking-tighter mb-2">
+                                Welcome to Your Dashboard<span className="text-primary-500">.</span>
+                            </h2>
+                            <p className="text-charcoal-400 text-sm font-medium mb-8 max-w-xl">
+                                Your dashboard is ready. Follow these steps to build your portfolio and track your progress.
+                            </p>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <Link
+                                    to="/edit-profile"
+                                    className="group p-5 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-primary-500/50 hover:bg-white/10 transition-all"
+                                >
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <div className="w-10 h-10 rounded-xl bg-primary-600/20 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">🎯</div>
+                                        <span className="text-[9px] font-black text-primary-400 uppercase tracking-widest">Step 1</span>
+                                    </div>
+                                    <h3 className="text-sm font-black text-white mb-1 tracking-tight">Set Your Goals</h3>
+                                    <p className="text-[11px] text-charcoal-400 leading-relaxed">Define your income goals and risk levels to get matching ideas.</p>
+                                </Link>
+
+                                <Link
+                                    to="/ideas"
+                                    className="group p-5 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-emerald-500/50 hover:bg-white/10 transition-all"
+                                >
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <div className="w-10 h-10 rounded-xl bg-emerald-600/20 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">💡</div>
+                                        <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Step 2</span>
+                                    </div>
+                                    <h3 className="text-sm font-black text-white mb-1 tracking-tight">Explore Ideas</h3>
+                                    <p className="text-[11px] text-charcoal-400 leading-relaxed">Browse 60+ verified passive income ideas and franchise brands.</p>
+                                </Link>
+
+                                <Link
+                                    to="/ideas"
+                                    className="group p-5 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-amber-500/50 hover:bg-white/10 transition-all"
+                                >
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <div className="w-10 h-10 rounded-xl bg-amber-600/20 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">🔖</div>
+                                        <span className="text-[9px] font-black text-amber-400 uppercase tracking-widest">Step 3</span>
+                                    </div>
+                                    <h3 className="text-sm font-black text-white mb-1 tracking-tight">Save Favorites</h3>
+                                    <p className="text-[11px] text-charcoal-400 leading-relaxed">Bookmark ideas that match your profile to track them here.</p>
+                                </Link>
+
+                                <div
+                                    className="group p-5 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-blue-500/50 hover:bg-white/10 transition-all cursor-default"
+                                >
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <div className="w-10 h-10 rounded-xl bg-blue-600/20 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">📊</div>
+                                        <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest">Step 4</span>
+                                    </div>
+                                    <h3 className="text-sm font-black text-white mb-1 tracking-tight">Track Progress</h3>
+                                    <p className="text-[11px] text-charcoal-400 leading-relaxed">Monitor your income, update asset status, and reach your goals.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-12">
                     <div
@@ -518,81 +594,7 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                {/* Quick Start Guide — only shows for truly empty dashboards */}
-                {!loading && savedIdeas.length === 0 && savedFranchises.length === 0 && myIdeaCount === 0 && myFranchiseCount === 0 && myReviews.length === 0 && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.3 }}
-                        className="mb-8 md:mb-12 bg-gradient-to-br from-charcoal-900 via-charcoal-950 to-charcoal-900 rounded-[2rem] md:rounded-[3rem] p-6 md:p-10 border border-charcoal-800 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.4)] relative overflow-hidden"
-                    >
-                        {/* Decorative elements */}
-                        <div className="absolute top-0 right-0 w-80 h-80 bg-primary-600/10 rounded-full blur-[120px] -mr-40 -mt-40" />
-                        <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[100px] -ml-32 -mb-32" />
 
-                        <div className="relative z-10">
-                            <div className="flex items-center gap-2 mb-4">
-                                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
-                                <span className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.3em]">Getting Started</span>
-                            </div>
-                            <h2 className="text-2xl md:text-3xl font-black text-white tracking-tighter mb-2">
-                                Welcome to Your Dashboard<span className="text-primary-500">.</span>
-                            </h2>
-                            <p className="text-charcoal-400 text-sm font-medium mb-8 max-w-xl">
-                                Your dashboard is ready. Follow these steps to build your portfolio and track your progress.
-                            </p>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <Link
-                                    to="/edit-profile"
-                                    className="group p-5 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-primary-500/50 hover:bg-white/10 transition-all"
-                                >
-                                    <div className="flex items-center gap-3 mb-3">
-                                        <div className="w-10 h-10 rounded-xl bg-primary-600/20 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">🎯</div>
-                                        <span className="text-[9px] font-black text-primary-400 uppercase tracking-widest">Step 1</span>
-                                    </div>
-                                    <h3 className="text-sm font-black text-white mb-1 tracking-tight">Set Your Goals</h3>
-                                    <p className="text-[11px] text-charcoal-400 leading-relaxed">Define your income goals and risk levels to get matching ideas.</p>
-                                </Link>
-
-                                <Link
-                                    to="/ideas"
-                                    className="group p-5 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-emerald-500/50 hover:bg-white/10 transition-all"
-                                >
-                                    <div className="flex items-center gap-3 mb-3">
-                                        <div className="w-10 h-10 rounded-xl bg-emerald-600/20 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">💡</div>
-                                        <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Step 2</span>
-                                    </div>
-                                    <h3 className="text-sm font-black text-white mb-1 tracking-tight">Explore Ideas</h3>
-                                    <p className="text-[11px] text-charcoal-400 leading-relaxed">Browse 60+ verified passive income ideas and franchise brands.</p>
-                                </Link>
-
-                                <Link
-                                    to="/ideas"
-                                    className="group p-5 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-amber-500/50 hover:bg-white/10 transition-all"
-                                >
-                                    <div className="flex items-center gap-3 mb-3">
-                                        <div className="w-10 h-10 rounded-xl bg-amber-600/20 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">🔖</div>
-                                        <span className="text-[9px] font-black text-amber-400 uppercase tracking-widest">Step 3</span>
-                                    </div>
-                                    <h3 className="text-sm font-black text-white mb-1 tracking-tight">Save Favorites</h3>
-                                    <p className="text-[11px] text-charcoal-400 leading-relaxed">Bookmark ideas that match your profile to track them here.</p>
-                                </Link>
-
-                                <div
-                                    className="group p-5 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-blue-500/50 hover:bg-white/10 transition-all cursor-default"
-                                >
-                                    <div className="flex items-center gap-3 mb-3">
-                                        <div className="w-10 h-10 rounded-xl bg-blue-600/20 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">📊</div>
-                                        <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest">Step 4</span>
-                                    </div>
-                                    <h3 className="text-sm font-black text-white mb-1 tracking-tight">Track Progress</h3>
-                                    <p className="text-[11px] text-charcoal-400 leading-relaxed">Monitor your income, update asset status, and reach your goals.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
 
                 {/* Content Tabs */}
                 <div className="flex gap-4 md:gap-8 border-b border-charcoal-100 mb-6 md:mb-8 overflow-x-auto pb-2 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
