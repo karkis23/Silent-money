@@ -31,7 +31,21 @@ export default function FranchisePage() {
     const [smartMatch, setSmartMatch] = useState(false);
     const [investmentFilter, setInvestmentFilter] = useState('all');
     const [roiFilter, setRoiFilter] = useState('all');
+    const [sortBy, setSortBy] = useState('created_at');
+    const [showSortDropdown, setShowSortDropdown] = useState(false);
     const { profile } = useAuth();
+
+    // Close dropdown on outside click
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (showSortDropdown && !event.target.closest('.sort-dropdown-container')) {
+                setShowSortDropdown(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [showSortDropdown]);
+
     useEffect(() => {
         const fetchFranchises = async () => {
             setLoading(true);
@@ -40,7 +54,7 @@ export default function FranchisePage() {
                 .eq('is_approved', true) // Moderation Gate
                 .is('deleted_at', null)
                 .order('is_featured', { ascending: false })
-                .order('is_verified', { ascending: false });
+                .order(sortBy === 'investment_min' ? 'investment_min' : sortBy, { ascending: sortBy === 'investment_min' });
 
             if (selectedCategory !== 'all') {
                 query = query.eq('category', selectedCategory);
@@ -83,7 +97,7 @@ export default function FranchisePage() {
         };
 
         fetchFranchises();
-    }, [selectedCategory, investmentFilter, roiFilter, smartMatch, profile]);
+    }, [selectedCategory, investmentFilter, roiFilter, smartMatch, profile, sortBy]);
 
     const handleSave = async (e, franchiseId) => {
         e.preventDefault();
@@ -193,17 +207,72 @@ export default function FranchisePage() {
                                 </button>
                             )}
                         </div>
-                        {profile && (
-                            <div className="px-6 py-2.5 bg-charcoal-50/10 flex items-center justify-center border-t md:border-t-0 md:border-l border-charcoal-50">
+                        <div className="flex border-t md:border-t-0">
+                            {/* CUSTOM DROPDOWN */}
+                            <div className="relative sort-dropdown-container border-r md:border-r-0 md:border-l border-charcoal-50 flex-1 md:flex-none">
                                 <button
-                                    onClick={() => setSmartMatch(!smartMatch)}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${smartMatch ? 'bg-primary-600 text-white shadow-lg' : 'bg-white text-charcoal-400 border border-charcoal-100 hover:text-charcoal-900'}`}
+                                    onClick={() => setShowSortDropdown(!showSortDropdown)}
+                                    className={`h-full px-6 py-3.5 flex items-center gap-3 cursor-pointer transition-all ${showSortDropdown ? 'bg-charcoal-50' : 'hover:bg-charcoal-50/50'}`}
                                 >
-                                    <span className="text-xs">🎯</span>
-                                    <span className="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">Smart Match</span>
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-charcoal-900 whitespace-nowrap">
+                                        {sortBy === 'created_at' ? 'Newest First' :
+                                            sortBy === 'expected_profit_min' ? 'Highest Reward' :
+                                                sortBy === 'investment_min' ? 'Lowest Capital' :
+                                                    'Newest First'}
+                                    </span>
+                                    <motion.span
+                                        animate={{ rotate: showSortDropdown ? 180 : 0 }}
+                                        className="text-[10px] text-charcoal-300"
+                                    >
+                                        ▼
+                                    </motion.span>
                                 </button>
+
+                                {/* Dropdown Menu */}
+                                <AnimatePresence>
+                                    {showSortDropdown && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                            className="absolute top-full right-0 w-64 pt-2 z-[100]"
+                                        >
+                                            <div className="bg-white border border-charcoal-100 rounded-[1.5rem] shadow-2xl overflow-hidden shadow-charcoal-900/10 backdrop-blur-xl">
+                                                {[
+                                                    { id: 'created_at', label: 'Newest First', icon: '📅' },
+                                                    { id: 'expected_profit_min', label: 'Highest Reward', icon: '💰' },
+                                                    { id: 'investment_min', label: 'Lowest Capital', icon: '📉' },
+                                                ].map((option) => (
+                                                    <button
+                                                        key={option.id}
+                                                        onClick={() => {
+                                                            setSortBy(option.id);
+                                                            setShowSortDropdown(false);
+                                                        }}
+                                                        className={`w-full px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-between group ${sortBy === option.id ? 'bg-primary-50 text-primary-600' : 'text-charcoal-500 hover:bg-charcoal-50 hover:text-charcoal-900'}`}
+                                                    >
+                                                        <span>{option.icon} {option.label}</span>
+                                                        {sortBy === option.id && <span className="w-1.5 h-1.5 rounded-full bg-primary-600"></span>}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
                             </div>
-                        )}
+
+                            {profile && (
+                                <div className="px-6 py-2.5 bg-charcoal-50/10 flex items-center justify-center border-l border-charcoal-50">
+                                    <button
+                                        onClick={() => setSmartMatch(!smartMatch)}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${smartMatch ? 'bg-primary-600 text-white shadow-lg' : 'bg-white text-charcoal-400 border border-charcoal-100 hover:text-charcoal-900'}`}
+                                    >
+                                        <span className="text-xs">🎯</span>
+                                        <span className="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">Smart Match</span>
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className="p-4 md:p-6 flex flex-col gap-6 bg-charcoal-50/50 rounded-b-[1.5rem]">
