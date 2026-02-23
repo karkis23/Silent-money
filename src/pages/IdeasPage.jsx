@@ -94,25 +94,7 @@ export default function IdeasPage() {
             const { data, error } = await query;
             if (error) console.error(error);
 
-            // If user is logged in, fetch their votes to show active state
-            let ideasWithVotes = (data || []).map(idea => ({ ...idea, hasVoted: false }));
-
-            if (profile && data && data.length > 0) {
-                const { data: userVotes } = await supabase
-                    .from('income_ideas_votes')
-                    .select('idea_id')
-                    .eq('user_id', profile.id);
-
-                if (userVotes) {
-                    const votedIds = new Set(userVotes.map(v => v.idea_id));
-                    ideasWithVotes = ideasWithVotes.map(idea => ({
-                        ...idea,
-                        hasVoted: votedIds.has(idea.id)
-                    }));
-                }
-            }
-
-            setIdeas(ideasWithVotes);
+            setIdeas(data || []);
             setLoading(false);
         };
 
@@ -130,31 +112,6 @@ export default function IdeasPage() {
         return `₹${amount}`;
     };
 
-    const handleVote = async (e, ideaId, currentVotes, hasVoted) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (!profile) {
-            window.location.href = '/login';
-            return;
-        }
-
-        const newHasVoted = !hasVoted;
-        const newVotesCount = newHasVoted ? currentVotes + 1 : Math.max(0, currentVotes - 1);
-
-        // Optimistic UI Update
-        setIdeas(prevIdeas => prevIdeas.map(idea =>
-            idea.id === ideaId
-                ? { ...idea, upvotes_count: newVotesCount, hasVoted: newHasVoted }
-                : idea
-        ));
-
-        if (newHasVoted) {
-            await supabase.from('income_ideas_votes').insert([{ user_id: profile.id, idea_id: ideaId }]);
-        } else {
-            await supabase.from('income_ideas_votes').delete().eq('user_id', profile.id).eq('idea_id', ideaId);
-        }
-    };
 
     const [showSortDropdown, setShowSortDropdown] = useState(false);
 
@@ -247,10 +204,7 @@ export default function IdeasPage() {
                                     className={`h-full px-6 py-3.5 flex items-center gap-3 cursor-pointer transition-all border-r border-charcoal-50 ${showSortDropdown ? 'bg-charcoal-50' : 'hover:bg-charcoal-50/50'}`}
                                 >
                                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-charcoal-900 whitespace-nowrap">
-                                        {sortBy === 'created_at' ? 'Newest First' :
-                                            sortBy === 'upvotes_count' ? 'Most Popular' :
-                                                sortBy === 'monthly_income_min' ? 'Highest Income' :
-                                                    'Highest Income'}
+                                        {sortBy === 'created_at' ? 'Newest First' : 'Highest Income'}
                                     </span>
                                     <motion.span
                                         animate={{ rotate: showSortDropdown ? 180 : 0 }}
@@ -272,7 +226,6 @@ export default function IdeasPage() {
                                             <div className="bg-white border border-charcoal-100 rounded-[1.5rem] shadow-2xl overflow-hidden shadow-charcoal-900/10 backdrop-blur-xl">
                                                 {[
                                                     { id: 'created_at', label: 'Newest First', icon: '📅' },
-                                                    { id: 'upvotes_count', label: 'Most Popular', icon: '🔥' },
                                                     { id: 'monthly_income_min', label: 'Highest Income', icon: '💰' },
                                                 ].map((option) => (
                                                     <button
@@ -430,25 +383,6 @@ export default function IdeasPage() {
 
                                             <div className="p-5 md:p-8 flex flex-col flex-1">
 
-                                                {/* Impact Metric */}
-                                                <div className="flex justify-between items-center mb-4">
-                                                    <div className="flex flex-col items-start gap-0.5">
-                                                        <div className="text-[7px] font-black text-gray-400 uppercase tracking-widest">Popularity</div>
-                                                        <div className="text-sm font-black text-gray-950 uppercase tracking-tighter">
-                                                            #{index + 1} Best Idea
-                                                        </div>
-                                                    </div>
-                                                    <button
-                                                        onClick={(e) => handleVote(e, idea.id, idea.upvotes_count || 0, idea.hasVoted)}
-                                                        className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl border transition-all duration-300 ${idea.hasVoted
-                                                            ? 'bg-primary-600 border-primary-500 text-white shadow-button'
-                                                            : 'bg-charcoal-50 border-charcoal-100 text-charcoal-400 group-hover:bg-primary-50 group-hover:border-primary-100 group-hover:text-primary-600'
-                                                            }`}
-                                                    >
-                                                        <span className="text-[10px] font-bold leading-none">{idea.upvotes_count || 0}</span>
-                                                        <span className="text-[7px] font-black uppercase tracking-tighter">{idea.hasVoted ? 'Voted' : 'Like'}</span>
-                                                    </button>
-                                                </div>
 
                                                 {/* Content */}
                                                 <h3 className="text-xl font-black text-gray-950 group-hover:text-blue-600 transition-colors mb-1 tracking-tight">

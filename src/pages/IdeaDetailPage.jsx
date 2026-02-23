@@ -11,7 +11,6 @@ import AssetAuditTrail from '../components/AssetAuditTrail';
 import ErrorBoundary from '../components/ErrorBoundary';
 import DetailHero from '../components/details/DetailHero';
 import DetailMetrics from '../components/details/DetailMetrics';
-import ExpertAuditModal from '../components/ExpertAuditModal';
 import { motion } from 'framer-motion';
 
 /**
@@ -39,10 +38,6 @@ export default function IdeaDetailPage() {
     const [updateLoading, setUpdateLoading] = useState(false);
     const [updateMessage, setUpdateMessage] = useState('');
     const [isExpanded, setIsExpanded] = useState(false);
-    const [isVoted, setIsVoted] = useState(false);
-    const [voteCount, setVoteCount] = useState(0);
-    const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
-    const [hasPendingAudit, setHasPendingAudit] = useState(false);
 
     useEffect(() => {
         const fetchIdea = async () => {
@@ -62,7 +57,6 @@ export default function IdeaDetailPage() {
                 setError('Idea not found.');
             } else {
                 setIdea(data);
-                setVoteCount(data.upvotes_count || 0);
             }
             setLoading(false);
         };
@@ -90,65 +84,7 @@ export default function IdeaDetailPage() {
     }, [user, idea]);
 
 
-    useEffect(() => {
-        const checkVoteStatus = async () => {
-            if (!user || !idea) return;
-            const { data } = await supabase
-                .from('income_ideas_votes')
-                .select('*')
-                .eq('user_id', user.id)
-                .eq('idea_id', idea.id)
-                .maybeSingle();
 
-            if (data) setIsVoted(true);
-        };
-        checkVoteStatus();
-    }, [user, idea]);
-
-    useEffect(() => {
-        const checkAuditStatus = async () => {
-            if (!user || !idea) return;
-            const { data } = await supabase
-                .from('expert_audit_requests')
-                .select('*')
-                .eq('user_id', user.id)
-                .eq('brand_name', idea.title)
-                .eq('status', 'pending')
-                .maybeSingle();
-
-            if (data) setHasPendingAudit(true);
-        };
-        checkAuditStatus();
-    }, [user, idea]);
-
-    const handleToggleVote = async () => {
-        if (!user) {
-            navigate('/login');
-            return;
-        }
-
-        if (isVoted) {
-            const { error } = await supabase
-                .from('income_ideas_votes')
-                .delete()
-                .eq('user_id', user.id)
-                .eq('idea_id', idea.id);
-
-            if (!error) {
-                setIsVoted(false);
-                setVoteCount(prev => Math.max(0, prev - 1));
-            }
-        } else {
-            const { error } = await supabase
-                .from('income_ideas_votes')
-                .insert([{ user_id: user.id, idea_id: idea.id }]);
-
-            if (!error) {
-                setIsVoted(true);
-                setVoteCount(prev => prev + 1);
-            }
-        }
-    };
 
     const handleToggleSave = async () => {
         if (!user) {
@@ -256,41 +192,6 @@ export default function IdeaDetailPage() {
                         </svg>
                     )}
                     <span className="whitespace-nowrap font-black tracking-[0.25em]">{isSaved ? 'SAVED' : 'SAVE IDEA'}</span>
-                </div>
-            </button>
-
-            <button
-                onClick={handleToggleVote}
-                className={`h-14 px-8 border rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 w-full sm:w-auto min-w-[140px] shrink-0 group shadow-lg ${isVoted
-                    ? 'bg-blue-600 text-white border-blue-500 shadow-blue-500/20'
-                    : 'bg-white border-charcoal-100 text-charcoal-900 hover:bg-charcoal-50 hover:border-charcoal-300 shadow-charcoal-900/5'
-                    }`}
-            >
-                <div className="relative z-10 flex items-center gap-3">
-                    <span className={`text-base transition-transform group-hover:scale-125 ${isVoted ? 'animate-bounce' : ''}`}>
-                        {isVoted ? '🔥' : '⚡'}
-                    </span>
-                    <span className="whitespace-nowrap font-black tracking-[0.25em]">
-                        {voteCount} LIKES
-                    </span>
-                </div>
-            </button>
-
-            <button
-                onClick={() => setIsAuditModalOpen(true)}
-                disabled={hasPendingAudit}
-                className={`h-14 px-8 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 w-full sm:w-auto min-w-[190px] shrink-0 group border shadow-2xl relative overflow-hidden ${hasPendingAudit
-                    ? 'bg-charcoal-50 text-charcoal-300 border-charcoal-100 cursor-not-allowed'
-                    : 'bg-white text-charcoal-900 border-charcoal-100 hover:bg-charcoal-50 hover:border-charcoal-300 shadow-charcoal-900/5'
-                    }`}
-            >
-                <div className="relative z-10 flex items-center gap-3">
-                    <span className="text-base group-hover:rotate-12 transition-transform">
-                        {hasPendingAudit ? '⏳' : '🛡️'}
-                    </span>
-                    <span className="whitespace-nowrap font-black tracking-[0.25em]">
-                        {hasPendingAudit ? 'AUDIT PENDING' : 'REQUEST AUDIT'}
-                    </span>
                 </div>
             </button>
         </>
@@ -482,13 +383,6 @@ export default function IdeaDetailPage() {
                     </div>
                 </div>
             </div>
-
-            <ExpertAuditModal
-                isOpen={isAuditModalOpen}
-                onClose={() => setIsAuditModalOpen(false)}
-                prefillBrand={idea.title}
-                prefillSector={idea.categories?.name || 'Idea'}
-            />
         </div>
     );
 }
