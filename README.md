@@ -9,14 +9,14 @@ Silent Money is a curated platform for discovering **realistic, India-specific**
 ## 🗝️ Core Mission
 To cut through the noise of fake financial gurus and provide a vetted roadmap for financial freedom in the Indian context.
 
-## ✨ Key Features (Beta 2.1)
-- **🔍 Vetted Directory**: Browse income blueprints and franchises with **Goal Impact** indicators (+X% to your goal).
-- **🚀 Intelligence-Led SEO**: Automated, clean-text metadata generation for elite search appearing.
-- **🛡️ Institutional HUD**: High-density admin console with real-time moderation and expert audit tracking.
-- **📊 Reality Checks**: Honest, data-backed assessments of risks and actual success rates in the Indian market.
-- **🧮 ROI Calculator**: Estimate return on investment and break-even timelines with monthly compounding analysis.
-- **📝 Command Center**: Manage your 'Vaulted' assets and set customized financial trajectory goals.
-- **🎨 High-Fidelity UI**: Premium glassmorphic interface with micro-animations and custom SVG interaction sets.
+## ✨ Key Features (v2.4 - Premium Maturity)
+- **💍 Premium Institutional HUD**: High-authority dashboard architecture with curated shadows, depth, and information density.
+- **🏢 Professional Asset Ecosystem**: Vetted blueprints and franchise opportunities anchored by credible business symbolism and "Capital/Reward" terminology.
+- **⚖️ Wealth Comparator 2.4**: A high-fidelity decision engine supporting up to 5 simultaneous assets with real-time "Highest Yield" pulsars.
+- **🛡️ Expert Audit Protocol**: Direct conduit to institutional-grade due diligence with PDF report integration and interactive feedback loops.
+- **🚀 Intelligence-Led SEO**: Automated background pipeline for clean-text metadata generation and search-engine synchronization.
+- **📊 Goal-Centric Tracking**: Dynamic "Freedom Goal" progression markers in the user vault, tracking percentage impact of every active reward source.
+- **📱 Native-Quality Mobile UX**: Bottom-nav architecture and horizontally-scrollable touch strips for a fast, native-app feel on all devices.
 
 ## 🛠️ Project Documentation
 For a deep dive into the architecture, file structure, and database schema, see the [**SYSTEM_BLUEPRINT.md**](./SYSTEM_BLUEPRINT.md).

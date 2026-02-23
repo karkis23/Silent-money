@@ -6,10 +6,11 @@ Silent Money is a full-stack web application designed to help Indian users disco
 
 ### Frontend
 - **Framework**: React 18 (Vite)
-- **Styling**: Tailwind CSS (Custom "Calm & Trust" design system)
+- **Styling**: Tailwind CSS (Premium "Silent Money" design system)
 - **State Management**: Context API (AuthContext)
 - **Routing**: React Router DOM (v6 Browser Router)
 - **Client**: Supabase JS (Real-time & DB interactions)
+- **Version**: v2.4 (Premium Aesthetic Maturity)
 
 ### Backend (Supabase)
 - **Authentication**: GoTrue (Email/Password)
@@ -129,3 +130,8 @@ Institutional design tokens for maximum information velocity.
 - **Spatially-Aware Tabs**: Replaced ad-hoc separators with refined spatial intervals for a cleaner HUD aesthetic.
 - **Compact Signal Bar**: Reduced discovery feed bulk by 40% to prioritize core financial metrics.
 - **Vectorized Action Suites**: High-fidelity custom SVGs for "Vaulted" and "Tracked" states with micro-feedback loops.
+
+### 9. Premium Identity & Linguistic Framework
+- **Wealth Terminology**: Standardized the platform on "Capital" (instead of Investment) and "Reward" (instead of Income) to reflect a professional wealth-building mindset.
+- **Aesthetic Depth**: Utilizes a curated system of shadows (`--shadow-premium`, `--shadow-glass`) and full-bleed card designs to create a world-class institutional feel.
+- **Symbolic Credibility**: All assets are anchored by professional business symbolism (🏢 Building for Franchises, 💡 Blueprint for Ideas), ensuring a grounded, credible user experience.
