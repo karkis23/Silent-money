@@ -423,7 +423,7 @@ export default function FranchisePage() {
                                                     </div>
                                                 )}
                                                 <p className="text-[13px] text-charcoal-500 line-clamp-2 leading-relaxed mb-6 font-medium h-[2.5rem]">
-                                                    {f.description}
+                                                    {f.short_description || (f.description?.replace(/[#*`~_]/g, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').split('.')[0] + '.')}
                                                 </p>
 
                                                 {/* Key Stats */}

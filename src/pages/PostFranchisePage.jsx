@@ -36,6 +36,7 @@ export default function PostFranchisePage() {
         space_required_sqft: '',
         expected_profit_min: '',
         expected_profit_max: '',
+        short_description: '',
         description: '',
         image_url: '',
         website_url: '',
@@ -165,6 +166,7 @@ export default function PostFranchisePage() {
             tech_stack: formData.tech_stack,
             marketing_support: formData.marketing_support,
             meta_title: formData.meta_title,
+            short_description: formData.short_description,
             meta_description: formData.meta_description,
             author_id: user.id,
             is_approved: false // Require moderation
@@ -275,6 +277,10 @@ export default function PostFranchisePage() {
                                         </div>
                                     </div>
                                     <ImageUpload label="Verification Proof (Private)" bucket="proofs" onUpload={(url) => setFormData(prev => ({ ...prev, proof_url: url }))} currentUrl={formData.proof_url} />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Short Description (Quick Pitch)</label>
+                                    <textarea name="short_description" rows={3} value={formData.short_description} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none font-medium resize-y" placeholder="A one-sentence impact statement for the brand..." />
                                 </div>
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-center mb-1 pr-1">

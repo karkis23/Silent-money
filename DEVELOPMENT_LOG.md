@@ -121,8 +121,21 @@ This log captures the strategic multi-phase evolution of the Silent Money platfo
 
 ---
 
+### 11. Core Feature Cleanup & Franchise Intelligence (Feb 2026)
+**Objective**: Streamline the user experience by removing undesired legacy features and enhancing franchise data quality.
+- **Upvote System Decommissioning**: 
+    - Completely removed the "Likes" and "Upvote" functionality from the **Landing Page** and **Discovery Feeds**.
+    - Rebranded "Top Rated" to **"Handpicked"** and "Our Best Ideas" to **"Curated Ideas"** to reflect a shift from crowdsourced metrics to expert curation.
+    - Updated sorting logic to prioritize **Latest (created_at)** and **Featured** assets, ensuring the most relevant content remains visible.
+- **Franchise "Quick Pitch" Intelligence**:
+    - **Separate Short Description**: Implemented a dedicated `short_description` field for Franchises, allowing for a high-impact "Brand Snapshot" section on detail pages.
+    - **Cleaner Intelligence Fallback**: Developed a robust fallback mechanism that strips Markdown syntax and truncates text to the first sentence if a dedicated short description is missing, preserving visual elegance on cards and headers.
+    - **Unified Form Evolution**: Upgraded `PostFranchisePage.jsx` and `EditFranchisePage.jsx` with dedicated inputs for the "Quick Pitch," giving brand owners total control over their first impression.
+
+---
+
 ## 🏛️ Design Philosophies Applied
-1. **Modular Maintainability**: Breaking complex pages into functional "Sectors" to ensure individual modules can be updated without side effects.
-2. **Expansion-First Discovery**: Using click-to-expand patterns in logs to hide complexity while keeping deep data accessible.
-3. **Cross-Asset Parity**: Ensuring that features like "Expert Audits" are available for both Blueprints (Ideas) and Franchises, creating a consistent institutional experience.
-4. **Resilient Data Orchestration**: Using hoisted async functions to guarantee data availability across the component lifecycle.
+1. **Expert Curation over Crowd Metrics**: Moving away from upvotes to a more controlled, expert-led "Handpicked" system to ensure institutional quality.
+2. **First-Impression Optimization**: Using dedicated short descriptions to ensure clarity and professional presentation at a glance.
+3. **Graceful Degradation (Fallback Intelligence)**: Stripping raw data of Markdown noise for cleaner presentation in summaries.
+4. **Institutional Maintainability**: Ensuring every data point has a dedicated field in CRUD forms to maintain source-of-truth integrity.

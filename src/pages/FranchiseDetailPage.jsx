@@ -237,7 +237,7 @@ export default function FranchiseDetailPage() {
             <DetailHero
                 title={franchise.name}
                 category="franchise"
-                shortDescription={franchise.description.split('.')[0] + '.'}
+                shortDescription={franchise.short_description || (franchise.description?.replace(/[#*`~_]/g, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').split('.')[0] + '.')}
                 imageUrl={franchise.image_url}
                 profiles={franchise.profiles}
                 isVerified={franchise.is_verified}
@@ -251,6 +251,21 @@ export default function FranchiseDetailPage() {
                 <div className="grid lg:grid-cols-2 gap-12 mb-16 items-start">
                     <div className="space-y-12">
                         <DetailMetrics metrics={franchiseMetrics} />
+
+                        {/* Brand Quick Pitch (Short Description) */}
+                        <div className="bg-primary-50 rounded-[3rem] p-6 md:p-10 border border-primary-100 shadow-sm relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-primary-200/20 blur-3xl rounded-full -mr-16 -mt-16" />
+                            <h3 className="text-[11px] font-black text-primary-700 uppercase tracking-[0.3em] mb-8 flex items-center gap-3 relative z-10">
+                                <span className="flex h-2 w-2 relative">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
+                                </span>
+                                Brand Snapshot
+                            </h3>
+                            <div className="prose prose-primary max-w-none prose-p:text-primary-900 prose-p:font-medium text-sm leading-relaxed relative z-10">
+                                <ReactMarkdown>{franchise.short_description || (franchise.description?.replace(/[#*`~_]/g, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').split('.')[0] + '.')}</ReactMarkdown>
+                            </div>
+                        </div>
 
                         {/* Market Outlook - Moved up into Financial Hub column to balance layout */}
                         <div className="bg-charcoal-950 rounded-[3rem] p-6 md:p-10 shadow-2xl shadow-charcoal-900/20 relative overflow-hidden group">

@@ -70,43 +70,25 @@ export default function LandingPage() {
                 .eq('is_featured', true)
                 .limit(3);
 
-            // If we don't have 3 featured items, fill with most upvoted items
+            // If we don't have 3 featured items, fill with newest items
             if (!data || data.length < 3) {
                 const excludedIds = data ? data.map(item => item.id) : [];
-                const { data: upvoted } = await supabase
+                const { data: newest } = await supabase
                     .from('income_ideas')
                     .select('*, categories(name, icon)')
                     .eq('is_approved', true)
                     .is('deleted_at', null)
                     .not('id', 'in', excludedIds.length > 0 ? excludedIds : [null]) // Handle empty array
-                    .order('upvotes_count', { ascending: false })
+                    .order('created_at', { ascending: false })
                     .limit(3 - (data?.length || 0));
 
-                if (upvoted) {
-                    data = [...(data || []), ...upvoted];
+                if (newest) {
+                    data = [...(data || []), ...newest];
                 }
             }
 
             if (data) {
-                // If user is logged in, fetch their votes
-                let ideasWithVotes = data.map(idea => ({ ...idea, hasVoted: false }));
-
-                if (profile) {
-                    const { data: userVotes } = await supabase
-                        .from('income_ideas_votes')
-                        .select('idea_id')
-                        .eq('user_id', profile.id)
-                        .in('idea_id', data.map(i => i.id));
-
-                    if (userVotes) {
-                        const votedIds = new Set(userVotes.map(v => v.idea_id));
-                        ideasWithVotes = ideasWithVotes.map(idea => ({
-                            ...idea,
-                            hasVoted: votedIds.has(idea.id)
-                        }));
-                    }
-                }
-                setTopIdeas(ideasWithVotes);
+                setTopIdeas(data);
             }
             setTopLoading(false);
         };
@@ -139,31 +121,7 @@ export default function LandingPage() {
         if (isAdmin) fetchAdminStats();
     }, [isAdmin, profile]);
 
-    const handleVote = async (e, ideaId, currentVotes, hasVoted) => {
-        e.preventDefault();
-        e.stopPropagation();
 
-        if (!user) {
-            window.location.href = '/login';
-            return;
-        }
-
-        const newHasVoted = !hasVoted;
-        const newVotesCount = newHasVoted ? currentVotes + 1 : Math.max(0, currentVotes - 1);
-
-        // Optimistic UI Update
-        setTopIdeas(prevIdeas => prevIdeas.map(idea =>
-            idea.id === ideaId
-                ? { ...idea, upvotes_count: newVotesCount, hasVoted: newHasVoted }
-                : idea
-        ));
-
-        if (newHasVoted) {
-            await supabase.from('income_ideas_votes').insert([{ user_id: user.id, idea_id: ideaId }]);
-        } else {
-            await supabase.from('income_ideas_votes').delete().eq('user_id', user.id).eq('idea_id', ideaId);
-        }
-    };
 
     if (isAdmin) {
         return (
@@ -329,7 +287,7 @@ export default function LandingPage() {
                         >
                             <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-charcoal-100 mb-6">
                                 <span className="flex h-2 w-2 rounded-full bg-accent animate-pulse"></span>
-                                <span className="text-sm font-bold text-charcoal-900 tracking-tight">🇮🇳 Trusted by 10,000+ Indians</span>
+                                <span className="text-sm font-bold text-charcoal-900 tracking-tight">Trusted by 10,000+ Users</span>
                             </motion.div>
 
                             <motion.h1 variants={fadeInUp} className="text-5xl md:text-8xl font-extrabold text-charcoal-950 mb-6 leading-[1] tracking-tightest">
@@ -442,10 +400,10 @@ export default function LandingPage() {
                         <div>
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="w-2 h-2 rounded-full bg-primary-600"></span>
-                                <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em]">Top Rated</span>
+                                <span className="text-[10px] font-black text-charcoal-400 uppercase tracking-[0.3em]">Handpicked</span>
                             </div>
                             <h2 className="text-3xl md:text-5xl font-black text-charcoal-950 tracking-tighter">
-                                Our Best <span className="text-primary-600">Ideas</span>
+                                Curated <span className="text-primary-600">Ideas</span>
                             </h2>
                         </div>
                         <Link to="/ideas" className="btn-secondary py-3 text-[10px] uppercase font-black tracking-widest w-full md:w-auto text-center font-mono">View All Ideas →</Link>
@@ -507,17 +465,6 @@ export default function LandingPage() {
                                         </div>
 
                                         <div className="flex items-center gap-3">
-                                            <button
-                                                onClick={(e) => handleVote(e, idea.id, idea.upvotes_count || 0, idea.hasVoted)}
-                                                className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl border transition-all ${idea.hasVoted
-                                                    ? 'bg-blue-600 border-blue-500 text-white shadow-lg'
-                                                    : 'bg-charcoal-50 border-charcoal-100 text-charcoal-400 group-hover:bg-blue-50 group-hover:border-blue-100 group-hover:text-blue-600'
-                                                    }`}
-                                            >
-                                                <span className="text-[10px] font-bold leading-none">{idea.upvotes_count || 0}</span>
-                                                <span className="text-[7px] font-black uppercase tracking-tighter">{idea.hasVoted ? 'Voted' : 'Like'}</span>
-                                            </button>
-
                                             <Link to={`/ideas/${idea.slug}`} className="w-12 h-12 rounded-2xl bg-charcoal-950 flex items-center justify-center text-white group-hover:bg-primary-600 transition-all shadow-xl shrink-0">
                                                 →
                                             </Link>

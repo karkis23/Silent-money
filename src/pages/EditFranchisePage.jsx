@@ -36,6 +36,7 @@ export default function EditFranchisePage() {
         space_required_sqft: '',
         expected_profit_min: '',
         expected_profit_max: '',
+        short_description: '',
         description: '',
         image_url: '',
         website_url: '',
@@ -426,6 +427,18 @@ export default function EditFranchisePage() {
                                     <input name="marketing_support" value={formData.marketing_support} onChange={handleChange} className="w-full px-5 py-4 bg-charcoal-50 border border-charcoal-100 rounded-2xl focus:ring-2 focus:ring-primary-600 outline-none transition-all font-bold" placeholder="e.g. National Brand Campaigns" />
                                 </div>
                             </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-charcoal-400 uppercase tracking-widest pl-1">Short Description (Quick Pitch)</label>
+                            <textarea
+                                name="short_description"
+                                value={formData.short_description}
+                                onChange={handleChange}
+                                rows={3}
+                                className="w-full px-6 py-5 bg-charcoal-50/50 border border-charcoal-100 rounded-[1.5rem] focus:ring-4 focus:ring-primary-600/5 focus:border-primary-600 focus:bg-white outline-none transition-all font-bold text-charcoal-900 resize-y"
+                                placeholder="A one-sentence impact statement..."
+                            />
                         </div>
 
                         <div className="space-y-2">
